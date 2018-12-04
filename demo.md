@@ -15,7 +15,7 @@
 
             日常，预发，线上，灰度，项目···，可以配置
 
-            线上发布步骤，代码审核-构建-提交发布单-审批-部署线上发布分支（${count}-master，count递增）-写基线（master分支marge p-master，部署成功后才将代码写入master是为了保证master分支的代码一定正确，因为前面部署时可能失败，失败的代码在${count}-master分支不影响主干代码）
+            线上发布步骤，代码审核-构建-提交发布单-审批-部署线上发布分支（${count}-master，count递增）-写基线（master分支marge p-master，部署成功后才将代码写入master是为了保证master分支的代码一定正确，因为前面部署时可能失败，失败的代码在${count}-master分支不影响主干代码）
 
             
         4. 主干配置项：
@@ -35,15 +35,15 @@
 
         
 ### 实现猜想：
-1. 怎么在docker container中部署git分之的代码,并缺看到部署全过程日志：
+1. 怎么在docker container中部署git分之的代码,并缺看到部署全过程日志：
 
     ADDP实现一个远程ssh客户端，直接ssh连上container执行ssh命令，并且将ssh回传的记录保存到数据库中（用数据库追加的功能，一个应用统一环境只会存在一条记录，后面的部署直接覆盖前面的数据）并且通过websocket方式事实发送到ADDP前端界面显示（websocket通过应用+环境区分连接）。
 
-2. ssh连接的container怎么能写入ADDP配置的application.properties内容？
+2. ssh连接的container怎么能写入ADDP配置的application.properties内容？
 
-    1. 自定义docker基础镜像，在clone代码后执行一个特定的脚本拉取ADDP配置内容并写入源码中。然后在编译部署
-    2. 在ADDP上实现代码clone后编译成jar、war包放到OSS（自己写一个简单的文件存储服务器），然后ssh container wget这个jar、war包后部署
-3. 怎么实现多变更（分支）同时部署在一个环境中？
+    1. 自定义docker基础镜像，在clone代码后执行一个特定的脚本拉取ADDP配置内容并写入源码中。然后在编译部署
+    2. 在ADDP上实现代码clone后编译成jar、war包放到OSS（自己写一个简单的文件存储服务器），然后ssh container wget这个jar、war包后部署
+3. 怎么实现多变更（分支）同时部署在一个环境中？
 
     1. 第一次单分支部署时先创建一个副本分支（bak-${name}-master），副本分支是从master创建，然后副本分支marge部署分支（如果冲突的ADDP抛出构建异常，冲突解决的的信息暂时不提供）。单分支后面部署时都会是副本分支marge当前分支后编译部署。
 
@@ -64,4 +64,4 @@
 
 6. container怎么实现自动启动应用并且ssh能得到启动日志，还能够知道tomcat，springboot启动完成？
 
-    自动启动应用需要自己提供一个docker基础镜像，里面集成了应用启动脚本，应用启动时后台执行的，在后台时将输出日志写到/var/tmp/enevt.log文件里，然后执行tail -100f /var/tmp/enevt.log实时得到部署日志，当得到tomcat，springboot启动完成的信号后ctrl+c关闭tail命令，然后执行自检脚本（自检先wget 127.0.0.1，如果成功就成功，失败后自检wget 127.0.0.1/checkhtml，ADDP ssh启动自检脚本后检查输出内容，如果fail就弹出部署失败。）
+    自动启动应用需要自己提供一个docker基础镜像，里面集成了应用启动脚本，应用启动时后台执行的，在后台时将输出日志写到/var/tmp/enevt.log文件里，然后执行tail -100f /var/tmp/enevt.log实时得到部署日志，当得到tomcat，springboot启动完成的信号后ctrl+c关闭tail命令，然后执行自检脚本（自检先wget 127.0.0.1，如果成功就成功，失败后自检wget 127.0.0.1/checkhtml，ADDP ssh启动自检脚本后检查输出内容，如果fail就弹出部署失败。）
