@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>addp-web</artifactId>
+        <groupId>com.nix.jingxun</groupId>
+        <version>1.0.0</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.nix.jingxun</groupId>
-    <artifactId>addp-all</artifactId>
-    <version>1.0.0</version>
-    <modules>
-        <module>addp-ssh</module>
-        <module>addp-web</module>
-    </modules>
-    <packaging>pom</packaging>
+    <artifactId>addp-web-iservice</artifactId>
 
-    <name>addp-all</name>
-    <description>addp all</description>
+    <name>addp-web-iservice</name>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
+    <dependencies>
+    </dependencies>
+
+    <build>
+    </build>
 </project>
