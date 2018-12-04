@@ -1,10 +1,8 @@
 package com.nix.jingxun.addp.ssh.websocket;
 import com.alibaba.fastjson.JSON;
-import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.util.ShellUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
@@ -19,20 +17,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 
-@ServerEndpoint(value = "/shell/socket/")
+@ServerEndpoint(value = "/shell/socket")
 @Component
 public class ShellWebsocket {
-
-    private ThreadPoolExecutor executor = new ThreadPoolExecutor(50,50,10, TimeUnit.SECONDS,new LinkedBlockingDeque<>(1024), (ThreadFactory) Thread::new);
-    private Map<String, ShellUtil> shellUtilMap = new ConcurrentHashMap<>(32);
-    private Map<Session, String> sessionStringMap = new ConcurrentHashMap<>(32);
+    private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(50,50,10, TimeUnit.SECONDS,new LinkedBlockingDeque<>(1024), (ThreadFactory) Thread::new);
+    private static final Map<String, ShellUtil> shellUtilMap = new ConcurrentHashMap<>(32);
+    private static final Map<Session, String> sessionStringMap = new ConcurrentHashMap<>(32);
 
     private final static String SOCKET_CREATE = "socket_create";
     private final static String SOCKET_CONNECT = "socket_connect";
 
     @OnOpen
     public void onOpen(Session session) {
-
     }
     /**
      * 连接关闭调用的方法
@@ -44,7 +40,7 @@ public class ShellWebsocket {
 
     @OnMessage
     public void onMessage(String message, Session session) {
-        log.info("websocket on message {},session {}",message,message);
+        log.info("websocket on message {},session {}",message,session);
         HashMap<String,String> data = JSON.parseObject(message, HashMap.class);
         String key = data.get("key");
         String id = data.get("id");
@@ -55,6 +51,7 @@ public class ShellWebsocket {
         } else if (SOCKET_CREATE.equalsIgnoreCase(key)){
             sessionStringMap.put(session,session.getId());
             shellUtilMap.put(session.getId(),new ShellUtil(data.get("ip"),data.get("username"),data.get("password")));
+            sendMessage("{\"type\":\"init\",\"data\":\"" + session.getId() + "\"}",session);
         } else {
             if (command == null) {
                 return;
@@ -70,7 +67,7 @@ public class ShellWebsocket {
                         if (ShellUtil.SHELL_EXEC_FAIL.equalsIgnoreCase(result)) {
                             result = "command exec fail";
                         }
-                        sendMessage(result, session);
+                        sendMessage("{\"type\":\"shell_result\",\"data\":\"" + result + "\"}", session);
                     }
                 } catch (InterruptedException e) {
                     sendMessage("ssh command exec error",session);
