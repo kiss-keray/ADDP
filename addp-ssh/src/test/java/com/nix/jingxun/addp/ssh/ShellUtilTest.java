@@ -24,7 +24,7 @@ public class ShellUtilTest {
 //        String command = "tail -1000f /var/lib/gitea/gitea/log/xorm.log";
         String command = "ls -all";
         stop.set(false);
-        new Thread(() -> shellUtil.execute(command, out, stop)).start();
+        new Thread(() -> shellUtil.execute("top", out, stop)).start();
         while (!stop.get() || !out.isEmpty()) {
             try {
                 String result = out.poll(10, TimeUnit.MILLISECONDS);
