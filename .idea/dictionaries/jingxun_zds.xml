@@ -1,6 +1,10 @@
 <component name="ProjectDictionaryState">
   <dictionary name="jingxun.zds">
     <words>
+      <w>onclose</w>
+      <w>onerror</w>
+      <w>onmessage</w>
+      <w>onopen</w>
       <w>websocket</w>
     </words>
   </dictionary>

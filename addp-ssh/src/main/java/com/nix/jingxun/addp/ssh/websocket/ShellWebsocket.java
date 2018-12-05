@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.ssh.websocket;
 import com.alibaba.fastjson.JSON;
 import com.nix.jingxun.addp.ssh.util.ShellUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.stereotype.Component;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -29,13 +30,20 @@ public class ShellWebsocket {
 
     @OnOpen
     public void onOpen(Session session) {
+        sendMessage("Last login: Wed Dec  5 11:17:42 2018 from 42.120.74.114\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "Welcome to Alibaba Cloud Elastic Compute Service !\n" +
+                "\r\n" +
+                "\u001B]0;root@izkiqfmzrlha3jz:~\u0007\u001B[?1034h[root@izkiqfmzrlha3jz ~]# ",session);
     }
     /**
      * 连接关闭调用的方法
      */
     @OnClose
-    public void onClose() {
-
+    public void onClose(Session session) {
+        log.info("close websocket.{}",session.getId());
+        shellUtilMap.remove(sessionStringMap.remove(session));
     }
 
     @OnMessage
@@ -67,7 +75,8 @@ public class ShellWebsocket {
                         if (ShellUtil.SHELL_EXEC_FAIL.equalsIgnoreCase(result)) {
                             result = "command exec fail";
                         }
-                        sendMessage("{\"type\":\"shell_result\",\"data\":\"" + result + "\"}", session);
+                        log.debug("shell return {}",result);
+                        sendMessage("{\"type\":\"shell_result\",\"data\":\"" + result.replaceAll("\\s+", "    ").replaceAll("\"","\\\\\"") + "\"}", session);
                     }
                 } catch (InterruptedException e) {
                     sendMessage("ssh command exec error",session);
@@ -92,5 +101,10 @@ public class ShellWebsocket {
             log.warn("websocket send message fail.session {} message {}",session,message);
             shellUtilMap.remove(sessionStringMap.remove(session));
         }
+    }
+
+    public static void main(String[] args) {
+
+        System.out.println(StringEscapeUtils.escapeHtml("{\"a\":\"a\"}"));
     }
 }
