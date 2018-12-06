@@ -10,10 +10,12 @@ import requests
 
 # 配置服务器信息
 PORT = 22
+THREAD_COUNT = 0
 class MyThread(threading.Thread):
     def __init__(self, id, chan):
         threading.Thread.__init__(self)
         self.chan = chan
+        print("new thread=",id)
 
     def run(self):
         while not self.chan.chan.exit_status_ready():
@@ -32,6 +34,9 @@ def httpGet(id):
     return res.text
 
 class webSSHServer(tornado.websocket.WebSocketHandler):
+    def __init__(self, application, request, **kwargs):
+        tornado.websocket.WebSocketHandler.__init__(self, application, request, **kwargs)
+        print("init")
     def open(self):
         print("open")
     
@@ -47,9 +52,10 @@ class webSSHServer(tornado.websocket.WebSocketHandler):
             except Exception as ex:
                 self.chan.send(message)
         except Exception as ex:
-            print(ex)
+            print("connect execption",ex)
 
     def on_close(self):
+        print("coles",self.sshclient)
         self.sshclient.close()
 
     def check_origin(self, origin):
@@ -58,16 +64,20 @@ class webSSHServer(tornado.websocket.WebSocketHandler):
     def connectSSH(self,ip,username,password):
         try:
             self.sshclient = paramiko.SSHClient()
+            print("new sshclient:",self.sshclient)
             self.sshclient.load_system_host_keys()
             self.sshclient.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             self.sshclient.connect(ip, PORT, username, password,timeout=600.0,banner_timeout=10.0,auth_timeout=10.0)
-            self.chan = self.sshclient.invoke_shell(term='xterm')
+            self.chan = self.sshclient.invoke_shell(term='xterm',width=120,height=50)
             self.chan.settimeout(0)
-            t1 = MyThread(999, self)
+            global THREAD_COUNT
+            t1 = MyThread(THREAD_COUNT,self)
+            THREAD_COUNT += 1
             t1.setDaemon(True)
             t1.start()
             return True
         except Exception as ex:
+            print("root execption",ex)
             return False
 
 if __name__ == '__main__':

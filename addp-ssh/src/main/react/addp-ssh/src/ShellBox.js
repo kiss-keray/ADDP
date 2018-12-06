@@ -31,10 +31,11 @@ class ShellBox extends Component{
     write(data){
         this.state.xterm.write(data);
     }
-    createWebsocket = () => {
+    createWebsocket = (call) => {
         let socket = new WebSocket(`ws://ssh.xx11.top/ws/terminals/`);
         socket.onopen = ev => {
             console.log("websocket open",ev);
+            call();
             this.state.xterm.clear();
         };
         socket.onmessage = ev => {
@@ -81,7 +82,8 @@ class ShellBox extends Component{
     };
     createXterm = () => {
         let xterm = new Terminal({
-            rows:50
+            rows:50,
+            cols:120
         });
         xterm._initialized = true;
         xterm.open(document.getElementById("shell-container"));
@@ -94,31 +96,32 @@ class ShellBox extends Component{
     };
 
     loginClick =  (data) => {
-        this.createWebsocket();
-        const fetchFoo = nattyFetch.create({
-            url: '/ssh/shell/create',
-            method:"POST",
-            data: data,
-            fit: function(response) {
-                // 数据结构适配
-                return {success:true,content:response};
-            },
-            process: function(content) {
-                // 成功时的数据预处理
-                return content;
-            }
+        this.createWebsocket(() => {
+            const fetchFoo = nattyFetch.create({
+                url: '/ssh/shell/create',
+                method:"POST",
+                data: data,
+                fit: function(response) {
+                    // 数据结构适配
+                    return {success:true,content:response};
+                },
+                process: function(content) {
+                    // 成功时的数据预处理
+                    return content;
+                }
+            });
+            fetchFoo().then(result => {
+                console.log("result",result);
+                this.state.socket.send(`{"key":"connect","id":"${result}"}`);
+            }).catch(error => {
+                console.log("error",error)
+                let loading = false;
+                this.setState({loading})
+            });
+            let modalStatus = false;
+            let loading = true;
+            this.setState({modalStatus,loading});
         });
-        fetchFoo().then(result => {
-            console.log("result",result);
-            this.state.socket.send(`{"key":"connect","id":"${result}"}`);
-        }).catch(error => {
-            console.log("error",error)
-            let loading = false;
-            this.setState({loading})
-        });
-        let modalStatus = false;
-        let loading = true;
-        this.setState({modalStatus,loading});
     };
     ipInput = (data) => {
         this.ip = data.target.value;
