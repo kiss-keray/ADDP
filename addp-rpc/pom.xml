@@ -26,8 +26,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <nettyVersion>4.0.42.Final</nettyVersion>
         <fastjsonVersion>1.2.50</fastjsonVersion>
+        <slf4jVersion>1.7.7</slf4jVersion>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -46,12 +46,12 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.50</version>
+            <version>${fastjsonVersion}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.7</version>
+            <version>${slf4jVersion}</version>
         </dependency>
     </dependencies>
 </project>
