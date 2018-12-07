@@ -1,6 +1,6 @@
 package com.nix.jingxun.addp.web.service;
 
-import com.nix.jingxun.addp.web.iservice.IUser;
+import com.nix.jingxun.addp.rpc.server.addp.web.iservice.IUser;
 
 /**
  * @author keray

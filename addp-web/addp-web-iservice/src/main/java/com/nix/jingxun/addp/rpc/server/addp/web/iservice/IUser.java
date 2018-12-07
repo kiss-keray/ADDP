@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.iservice;
+package com.nix.jingxun.addp.rpc.server.addp.web.iservice;
 
 /**
  * @author keray
