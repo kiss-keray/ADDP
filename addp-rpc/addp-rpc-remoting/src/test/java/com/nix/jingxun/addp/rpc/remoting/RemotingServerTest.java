@@ -89,7 +89,7 @@ public class RemotingServerTest {
 
     @Test
     public void testInvokeSync() throws InterruptedException, RemotingConnectException,
-        RemotingSendRequestException, RemotingTimeoutException {
+            RemotingSendRequestException, RemotingTimeoutException, RemotingTooMuchRequestException {
         RequestHeader requestHeader = new RequestHeader();
         requestHeader.setCount(1);
         requestHeader.setMessageTitle("Welcome");
@@ -104,7 +104,7 @@ public class RemotingServerTest {
     public void testInvokeOneway() throws InterruptedException, RemotingConnectException,
         RemotingTimeoutException, RemotingTooMuchRequestException, RemotingSendRequestException {
 
-        RemotingCommand request = RemotingCommand.createRequestCommand(0, null);
+        RemotingCommand request = RemotingCommand.createRequestCommand(0, (String) null);
         request.setRemark("messi");
     }
 
@@ -113,7 +113,7 @@ public class RemotingServerTest {
         RemotingTimeoutException, RemotingTooMuchRequestException, RemotingSendRequestException {
 
         final CountDownLatch latch = new CountDownLatch(1);
-        RemotingCommand request = RemotingCommand.createRequestCommand(0, null);
+        RemotingCommand request = RemotingCommand.createRequestCommand(0, (String) null);
         request.setRemark("messi");
         remotingClient.invokeAsync("localhost:8888", request, 1000 * 3, new InvokeCallback() {
             @Override

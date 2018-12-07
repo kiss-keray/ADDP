@@ -115,6 +115,13 @@ public class RemotingCommand {
         setCmdVersion(cmd);
         return cmd;
     }
+    public static RemotingCommand createRequestCommand(int code, String remark) {
+        RemotingCommand cmd = new RemotingCommand();
+        cmd.setCode(code);
+        cmd.setRemark(remark);
+        setCmdVersion(cmd);
+        return cmd;
+    }
 
     private static void setCmdVersion(RemotingCommand cmd) {
         if (configVersion >= 0) {
@@ -337,7 +344,6 @@ public class RemotingCommand {
      * */
     private Field[] getClazzFields(Class<? extends CommandCustomHeader> classHeader) {
         Field[] field = CLASS_HASH_MAP.get(classHeader);
-
         if (field == null) {
             field = classHeader.getDeclaredFields();
             synchronized (CLASS_HASH_MAP) {

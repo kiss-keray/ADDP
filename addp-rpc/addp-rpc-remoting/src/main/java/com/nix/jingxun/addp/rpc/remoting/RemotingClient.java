@@ -36,7 +36,7 @@ public interface RemotingClient extends RemotingService {
      * */
     RemotingCommand invokeSync(final String addr, final RemotingCommand request,
                                final long timeoutMillis) throws InterruptedException, RemotingConnectException,
-            RemotingSendRequestException, RemotingTimeoutException;
+            RemotingSendRequestException, RemotingTimeoutException, RemotingTooMuchRequestException;
 
     /**
      * 异步等待server响应
@@ -45,6 +45,11 @@ public interface RemotingClient extends RemotingService {
         final InvokeCallback invokeCallback) throws InterruptedException, RemotingConnectException,
             RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;
 
+    ResponseFuture invokeAsync(final String addr, final RemotingCommand request, final long timeoutMillis) throws InterruptedException, RemotingConnectException,
+            RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;
+
+    void oneway(final String addr, final RemotingCommand request)  throws InterruptedException, RemotingConnectException,
+            RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;
     /**
      * 设置异步{@link ResponseFuture} 执行器
      * */

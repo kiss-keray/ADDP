@@ -28,6 +28,14 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.nix.jingxun</groupId>
+            <artifactId>addp-rpc-remoting</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
