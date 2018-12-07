@@ -6,6 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="addp-rpc-common" />
+        <module name="addp-rpc-consumer" />
+        <module name="addp-rpc-producer" />
+        <module name="addp-rpc-remoting" />
+        <module name="addp-rpc-remoting-logging" />
+        <module name="addp-rpc-remoting-remoting" />
+        <module name="addp-rpc-server" />
         <module name="addp-ssh" />
         <module name="addp-web-dal" />
         <module name="addp-web-iservice" />

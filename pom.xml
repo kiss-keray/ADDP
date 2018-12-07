@@ -9,6 +9,7 @@
     <modules>
         <module>addp-ssh</module>
         <module>addp-web</module>
+        <module>addp-rpc</module>
     </modules>
     <packaging>pom</packaging>
 

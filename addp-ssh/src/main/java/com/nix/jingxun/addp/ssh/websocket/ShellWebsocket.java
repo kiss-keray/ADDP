@@ -21,7 +21,6 @@ public class ShellWebsocket {
     private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(50,50,10, TimeUnit.SECONDS,new LinkedBlockingDeque<>(1024), (ThreadFactory) Thread::new);
     private static final Map<String, Integer> PORT_ID_MAP = new ConcurrentHashMap<>(32);
     private static final Map<Session, String> sessionStringMap = new ConcurrentHashMap<>(32);
-
     @OnOpen
     public void onOpen(Session session) {
     }
