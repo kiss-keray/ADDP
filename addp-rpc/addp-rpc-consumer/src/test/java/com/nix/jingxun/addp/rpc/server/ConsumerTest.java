@@ -3,7 +3,6 @@ import com.nix.jingxun.addp.rpc.consumer.proxy.DynamicProxy;
 import com.nix.jingxun.addp.rpc.producer.Hello;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 
 /**
  * @author keray
@@ -15,7 +14,9 @@ public class ConsumerTest{
         ClassPathXmlApplicationContext application = new ClassPathXmlApplicationContext("classpath:application.xml");
 
         InvocationHandler handler = application.getBean(DynamicProxy.class);
-        Hello hello = (Hello) Proxy.newProxyInstance(handler.getClass().getClassLoader(), new Class[]{Hello.class}, handler);
+//        Hello hello = (Hello) Proxy.newProxyInstance(handler.getClass().getClassLoader(), new Class[]{Hello.class}, handler);
+        Hello hello = application.getBean(Hello.class);
         System.out.println(hello.getHello());
+        hello.sayHello("hahahhaha");
     }
 }

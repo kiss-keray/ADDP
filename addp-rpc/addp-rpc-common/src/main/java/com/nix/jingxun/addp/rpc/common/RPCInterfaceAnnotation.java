@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.rpc.consumer.annotation;
+package com.nix.jingxun.addp.rpc.common;
 
 import com.nix.jingxun.addp.rpc.common.config.CommandCode;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.CONSTRUCTOR, ElementType.METHOD,ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Component
-public @interface RPCConsumer {
+public @interface RPCInterfaceAnnotation {
     String appName();
     String group() default "RPC";
     String version() default "1.0.0";

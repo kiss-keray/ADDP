@@ -1,12 +1,9 @@
 package com.nix.jingxun.addp.rpc.server;
 
-import com.nix.jingxun.addp.rpc.consumer.annotation.RPCConsumer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.annotation.PostConstruct;
 
 /**
  * @author keray

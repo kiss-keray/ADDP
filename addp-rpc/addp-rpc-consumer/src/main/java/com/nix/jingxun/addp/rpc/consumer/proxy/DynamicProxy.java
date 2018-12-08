@@ -6,8 +6,7 @@ import com.nix.jingxun.addp.rpc.common.client.NettyClient;
 import com.nix.jingxun.addp.rpc.common.config.CommandCode;
 import com.nix.jingxun.addp.rpc.common.serializable.Serializer;
 import com.nix.jingxun.addp.rpc.consumer.RPCContext;
-import com.nix.jingxun.addp.rpc.consumer.annotation.RPCConsumer;
-import com.nix.jingxun.addp.rpc.remoting.netty.ResponseFuture;
+import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
 import com.nix.jingxun.addp.rpc.remoting.protocol.RemotingCommand;
 import com.nix.jingxun.addp.rpc.remoting.protocol.RemotingSysResponseCode;
 import org.springframework.stereotype.Component;
@@ -31,7 +30,7 @@ public class DynamicProxy implements InvocationHandler {
     @Override
     public Object invoke(Object object, Method method, Object[] args) throws Throwable{
         Class<?> proxyInterface = method.getDeclaringClass();
-        RPCConsumer consumer = proxyInterface.getAnnotation(RPCConsumer.class);
+        RPCInterfaceAnnotation consumer = proxyInterface.getAnnotation(RPCInterfaceAnnotation.class);
         if (consumer == null) {
             throw new RuntimeException("非rpc代理接口 执行失败");
         }
@@ -59,7 +58,10 @@ public class DynamicProxy implements InvocationHandler {
         if (responseCommand.getCode() == RemotingSysResponseCode.SUCCESS) {
             RPCResponse rpcResponse = serializer.decoderResponse(new String(responseCommand.getBody()));
             if (rpcResponse.getCode() == RPCResponse.ResponseCode.SUCCESS) {
-                return rpcResponse.getResult().getData();
+                if (rpcResponse.getResult() != null) {
+                    return rpcResponse.getResult().getData();
+                }
+                return null;
             } else {
                 throw rpcResponse.getError().getException();
             }
