@@ -1,6 +1,5 @@
 package com.nix.jingxun.addp.rpc.common;
 
-import com.nix.jingxun.addp.rpc.common.config.CommandCode;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
@@ -19,6 +18,6 @@ public @interface RPCInterfaceAnnotation {
     String appName();
     String group() default "RPC";
     String version() default "1.0.0";
-    CommandCode type() default CommandCode.SYNC_EXEC_METHOD;
-    long timeout() default 0;
+    RPCType type() default RPCType.SYNC_EXEC_METHOD;
+    int timeout() default 0;
 }

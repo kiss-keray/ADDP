@@ -1,7 +1,4 @@
 package com.nix.jingxun.addp.rpc.common;
-
-import com.alibaba.fastjson.annotation.JSONField;
-import com.nix.jingxun.addp.rpc.common.config.CommandCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

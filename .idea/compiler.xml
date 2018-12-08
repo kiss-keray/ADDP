@@ -9,7 +9,6 @@
         <module name="addp-rpc-common" />
         <module name="addp-rpc-consumer" />
         <module name="addp-rpc-producer" />
-        <module name="addp-rpc-remoting" />
         <module name="addp-rpc-server" />
         <module name="addp-ssh" />
         <module name="addp-web-dal" />
@@ -18,5 +17,8 @@
         <module name="addp-web-start" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="addp-rpc-remoting" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

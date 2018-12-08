@@ -1,37 +1,21 @@
 package com.nix.jingxun.addp.rpc.producer.netty;
+import com.alipay.remoting.RemotingContext;
 import com.nix.jingxun.addp.rpc.common.RPCRequest;
 import com.nix.jingxun.addp.rpc.common.RPCResponse;
+import com.nix.jingxun.addp.rpc.common.protocol.AbstractRPCRequestProcessor;
+import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
+import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
 import com.nix.jingxun.addp.rpc.common.serializable.JsonSerializer;
 import com.nix.jingxun.addp.rpc.common.serializable.Serializer;
 import com.nix.jingxun.addp.rpc.producer.InvokeContainer;
-import com.nix.jingxun.addp.rpc.remoting.netty.NettyRequestProcessor;
-import com.nix.jingxun.addp.rpc.remoting.protocol.RemotingCommand;
-import com.nix.jingxun.addp.rpc.remoting.protocol.RemotingSysResponseCode;
-import io.netty.channel.ChannelHandlerContext;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.lang.reflect.Method;
 
 /**
  * @author keray
  * @date 2018/12/07 21:11
  */
-public class RPCInvokeProcessor implements NettyRequestProcessor {
+public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> {
     private Serializer serializer = new JsonSerializer();
-    @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws Exception {
-        RemotingCommand responseCommand = RemotingCommand.createResponseCommand(RemotingSysResponseCode.SUCCESS,null);
-        responseCommand.setOpaque(request.getOpaque());
-        responseCommand.setBody(serializer.encoderResponse(invoke(serializer.decoderRequest(new String(request.getBody())))).getBytes());
-        return responseCommand;
-    }
-
-    @Override
-    public boolean rejectRequest() {
-        return false;
-    }
-
     private RPCResponse invoke(RPCRequest request) {
         RPCResponse response = new RPCResponse();
         try {
@@ -54,5 +38,12 @@ public class RPCInvokeProcessor implements NettyRequestProcessor {
             response.setError(new RPCResponse.ErrorResult(RPCResponse.ResponseError.EXCEPTION,e));
         }
         return response;
+    }
+
+    @Override
+    public RPCPackage process(RemotingContext ctx, RPCPackage msg) throws Exception {
+        RPCPackage responsePackage = RPCPackage.createMessage(msg.getId(), RPCPackageCode.RESPONSE_SUCCESS);
+        responsePackage.setContent(serializer.encoderResponse(invoke(serializer.decoderRequest(new String(msg.getContent())))).getBytes());
+        return responsePackage;
     }
 }

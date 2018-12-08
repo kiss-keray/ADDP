@@ -1,18 +1,16 @@
 package com.nix.jingxun.addp.rpc.consumer.proxy;
 
+import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
 import com.nix.jingxun.addp.rpc.common.RPCRequest;
 import com.nix.jingxun.addp.rpc.common.RPCResponse;
-import com.nix.jingxun.addp.rpc.common.client.NettyClient;
-import com.nix.jingxun.addp.rpc.common.config.CommandCode;
+import com.nix.jingxun.addp.rpc.common.RPCType;
+import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
+import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
 import com.nix.jingxun.addp.rpc.common.serializable.JsonSerializer;
 import com.nix.jingxun.addp.rpc.common.serializable.Serializer;
 import com.nix.jingxun.addp.rpc.consumer.RPCContext;
-import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
-import com.nix.jingxun.addp.rpc.remoting.protocol.RemotingCommand;
-import com.nix.jingxun.addp.rpc.remoting.protocol.RemotingSysResponseCode;
-import org.springframework.stereotype.Component;
+import com.nix.jingxun.addp.rpc.consumer.netty.ConsumerRemotingClient;
 
-import javax.annotation.Resource;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Date;
@@ -33,29 +31,33 @@ public class DynamicProxy implements InvocationHandler {
         if (consumer == null) {
             throw new RuntimeException("非rpc代理接口 执行失败");
         }
-        RemotingCommand responseCommand = null;
+//        RemotingCommand responseCommand = null;
+        RPCPackage responsePackage = null;
         String appName = consumer.appName();
         String group = consumer.group();
         String version = consumer.version();
         // 到注册中心去找服务提供方法
         String producerHost = "127.0.0.1:15000";
-        CommandCode type = consumer.type();
-        long timeout = consumer.timeout();
+        RPCType type = consumer.type();
+        int timeout = consumer.timeout();
         RPCRequest request = createRequest(proxyInterface,method,args);
-        RemotingCommand command = RemotingCommand.createRequestCommand(type.getCode(),type.getDesc());
-        command.setBody(serializer.encoderRequest(request).getBytes());
+//        RemotingCommand command = RemotingCommand.createRequestCommand(type.getCode(),type.getDesc());
+        RPCPackage rpcPackage = RPCPackage.createRequestMessage(RPCPackageCode.RPC_INVOKE);
+        rpcPackage.setContent(serializer.encoderRequest(request).getBytes());
         switch (type) {
             case SYNC_EXEC_METHOD:{
                 if (timeout == 0) {
                     throw new RuntimeException("同步rpc调用timeout 必须大于 0");
                 }
-                responseCommand = NettyClient.invokeSync(producerHost,command,timeout);
+//                responseCommand = NettyClient.invokeSync(producerHost,command,timeout);
+                responsePackage = ConsumerRemotingClient.CLIENT.invokeSync(producerHost,rpcPackage,timeout);
             }break;
-            case ASYNC_EXEC_METHOD:return NettyClient.invokeAsync(producerHost,command);
+//            case ASYNC_EXEC_METHOD:return NettyClient.invokeAsync(producerHost,command);
+            case ASYNC_EXEC_METHOD:return ConsumerRemotingClient.CLIENT.invokeWithFuture(producerHost,responsePackage,0);
             default:break;
         }
-        if (responseCommand.getCode() == RemotingSysResponseCode.SUCCESS) {
-            RPCResponse rpcResponse = serializer.decoderResponse(new String(responseCommand.getBody()));
+        if (responsePackage.getCmdCode() == RPCPackageCode.RESPONSE_SUCCESS) {
+            RPCResponse rpcResponse = serializer.decoderResponse(new String(responsePackage.getContent()));
             if (rpcResponse.getCode() == RPCResponse.ResponseCode.SUCCESS) {
                 if (rpcResponse.getResult() != null) {
                     return rpcResponse.getResult().getData();
