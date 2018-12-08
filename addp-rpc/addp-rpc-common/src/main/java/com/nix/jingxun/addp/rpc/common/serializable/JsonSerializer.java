@@ -14,8 +14,10 @@ public class JsonSerializer implements Serializer {
     @Override
     public RPCRequest decoderRequest(String requestStr) throws Exception {
         RPCRequest request = JSON.parseObject(requestStr,RPCRequest.class);
-        for (RPCRequest.ParamsData paramsData:request.getParamData()) {
-            paramsData.setData(JSON.parseObject(JSON.toJSONString(paramsData.getData()),paramsData.getClazz()));
+        if (request.getParamData() != null) {
+            for (RPCRequest.ParamsData paramsData : request.getParamData()) {
+                paramsData.setData(JSON.parseObject(JSON.toJSONString(paramsData.getData()), paramsData.getClazz()));
+            }
         }
         return request;
     }

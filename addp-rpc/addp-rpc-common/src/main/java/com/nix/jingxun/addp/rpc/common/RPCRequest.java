@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
     "date": 123323224,
     "interfaceName": "com.nix.xxxx",
     "method": "syaHello",
-    "data": [
+    "paramData": [
         {
             "clazz": "java.lang.String",
             "data": "hello world"
@@ -72,7 +72,16 @@ public class RPCRequest implements Serializable {
     private List<ParamsData> paramData;
     private Source source;
     public Class[] getMethodParamTypes() {
+        if (paramData == null) {
+            return null;
+        }
         return getParamData().stream().map(ParamsData::getClazz).toArray(Class[]::new);
+    }
+    public Object[] getParams() {
+        if (paramData == null) {
+            return null;
+        }
+        return getParamData().stream().map(ParamsData::getData).toArray();
     }
     @Data
     @AllArgsConstructor
@@ -83,6 +92,8 @@ public class RPCRequest implements Serializable {
 
     }
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ParamsData{
         private Class clazz;
         private Object data;
