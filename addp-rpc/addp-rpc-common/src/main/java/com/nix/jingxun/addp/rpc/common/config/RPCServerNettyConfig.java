@@ -1,6 +1,5 @@
 package com.nix.jingxun.addp.rpc.common.config;
 
-
 import com.nix.jingxun.addp.rpc.remoting.netty.NettyServerConfig;
 import com.nix.jingxun.addp.rpc.remoting.netty.NettySystemConfig;
 import lombok.Data;
@@ -8,13 +7,13 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * @author keray
- * @date 2018/12/07 19:52
+ * @date 2018/12/08 21:08
  */
 @Data
 @Configuration
-public class RPCServerConfig  extends NettyServerConfig {
+public class RPCServerNettyConfig extends NettyServerConfig {
 
-    private int listenPort = 15000;
+    private int listenPort = 15100;
     private int serverWorkerThreads = 8;
     private int serverCallbackExecutorThreads = 0;
     private int serverSelectorThreads = 3;
