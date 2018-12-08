@@ -24,7 +24,8 @@ public class NettyServer {
     @Autowired
     private RPCInvokeProcessor rpcInvokeProcessor;
     private RemotingService remotingService;
-    private final ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(100,100,60, TimeUnit.SECONDS,new LinkedBlockingQueue<>(), (ThreadFactory) Thread::new);
+    private final ThreadPoolExecutor heartExecutor = new ThreadPoolExecutor(1,1,60, TimeUnit.SECONDS,new LinkedBlockingQueue<>(), (ThreadFactory) Thread::new);
+    private final ThreadPoolExecutor invokeExecutor = new ThreadPoolExecutor(32,32,1, TimeUnit.SECONDS,new LinkedBlockingQueue<>(), (ThreadFactory) Thread::new);
     private static boolean start = false;
     @PostConstruct
     public synchronized void start() {
@@ -33,8 +34,8 @@ public class NettyServer {
         }
         remotingService = new NettyRemotingServer(new RPCServerConfig());
         start = true;
-        remotingService.registerProcessor(CommandCode.HELLO.getCode(),heartProcessor,poolExecutor);
-        remotingService.registerProcessor(CommandCode.SYNC_EXEC_METHOD.getCode(),rpcInvokeProcessor,poolExecutor);
+        remotingService.registerProcessor(CommandCode.HELLO.getCode(),heartProcessor,heartExecutor);
+        remotingService.registerProcessor(CommandCode.SYNC_EXEC_METHOD.getCode(),rpcInvokeProcessor,invokeExecutor);
         remotingService.start();
     }
 }

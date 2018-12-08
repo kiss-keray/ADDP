@@ -195,7 +195,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                             .addLast(defaultEventExecutorGroup,
                                 new NettyEncoder(),
                                 new NettyDecoder(),
-                                new IdleStateHandler(0, 0, nettyServerConfig.getServerChannelMaxIdleTimeSeconds()),
+                                new IdleStateHandler(10, 10, nettyServerConfig.getServerChannelMaxIdleTimeSeconds(),TimeUnit.SECONDS),
                                 new NettyConnectManageHandler(),
                                 new NettyServerHandler()
                             );

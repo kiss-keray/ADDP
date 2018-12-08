@@ -5,6 +5,7 @@ import com.nix.jingxun.addp.rpc.common.config.CommandCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -62,12 +63,12 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class RPCRequest implements Serializable {
     private String interfaceName;
     private String method;
-    private CommandCode type;
     private long timeout;
-    private Map<String,Object> context;
+    private Map<String,String> context;
     private Date date;
     private List<ParamsData> paramData;
     private Source source;
@@ -86,6 +87,7 @@ public class RPCRequest implements Serializable {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @ToString
     public static class Source{
         private String ip;
         private String appName;
@@ -94,6 +96,7 @@ public class RPCRequest implements Serializable {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @ToString
     public static class ParamsData{
         private Class clazz;
         private Object data;

@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.rpc.consumer.annotation;
 
+import com.nix.jingxun.addp.rpc.common.config.CommandCode;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
@@ -18,4 +19,6 @@ public @interface RPCConsumer {
     String appName();
     String group() default "RPC";
     String version() default "1.0.0";
+    CommandCode type() default CommandCode.SYNC_EXEC_METHOD;
+    long timeout() default 0;
 }

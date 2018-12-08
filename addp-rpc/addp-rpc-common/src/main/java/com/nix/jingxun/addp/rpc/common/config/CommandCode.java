@@ -6,7 +6,8 @@ package com.nix.jingxun.addp.rpc.common.config;
  */
 public enum CommandCode {
     HELLO(0,"心跳测试包"),
-    SYNC_EXEC_METHOD(1,"同步rpc调用");
+    SYNC_EXEC_METHOD(1,"同步rpc调用"),
+    ASYNC_EXEC_METHOD(2,"异步rpc调用");
     int code;
     String desc;
 

@@ -2,8 +2,10 @@ package com.nix.jingxun.addp.rpc.common;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author keray
@@ -34,6 +36,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class RPCResponse implements Serializable {
     public enum ResponseCode{
         SUCCESS,
@@ -46,9 +49,11 @@ public class RPCResponse implements Serializable {
     private ResponseCode code;
     private SuccessResult result;
     private ErrorResult error;
+    private Map<String,String> context;
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @ToString
     public static class SuccessResult{
         private Class clazz;
         private Object data;
@@ -64,6 +69,7 @@ public class RPCResponse implements Serializable {
     @AllArgsConstructor
     @Data
     @NoArgsConstructor
+    @ToString
     public static class ErrorResult{
         ResponseError code;
         Throwable exception;

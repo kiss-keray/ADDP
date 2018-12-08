@@ -18,9 +18,11 @@ package com.nix.jingxun.addp.rpc.remoting.netty;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.nix.jingxun.addp.rpc.remoting.common.SemaphoreReleaseOnlyOnce;
+import com.nix.jingxun.addp.rpc.remoting.exception.RemotingTimeoutException;
 import com.nix.jingxun.addp.rpc.remoting.protocol.RemotingCommand;
 import com.nix.jingxun.addp.rpc.remoting.InvokeCallback;
 
@@ -65,8 +67,11 @@ public class ResponseFuture {
         return diff > this.timeoutMillis;
     }
 
-    public RemotingCommand waitResponse(final long timeoutMillis) throws InterruptedException {
+    public RemotingCommand waitResponse(final long timeoutMillis) throws InterruptedException, RemotingTimeoutException {
         this.countDownLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
+        if (this.countDownLatch.getCount() > 0) {
+            throw new RemotingTimeoutException("rpc exec timeout");
+        }
         return this.responseCommand;
     }
 
