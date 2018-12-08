@@ -1,6 +1,6 @@
 package com.nix.jingxun.addp.rpc.server;
 
-import com.nix.jingxun.addp.rpc.producer.Hello;
+import com.nix.jingxun.addp.rpc.producer.test.Hello;
 import com.nix.jingxun.addp.rpc.producer.InvokeContainer;
 import com.nix.jingxun.addp.rpc.producer.netty.NettyServer;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

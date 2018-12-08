@@ -42,6 +42,7 @@ public class DynamicProxy implements InvocationHandler {
         String producerHost = "127.0.0.1:15000";
         CommandCode type = consumer.type();
         long timeout = consumer.timeout();
+        System.out.println(timeout);
         RPCRequest request = createRequest(proxyInterface,method,args);
         RemotingCommand command = RemotingCommand.createRequestCommand(type.getCode(),type.getDesc());
         command.setBody(serializer.encoderRequest(request).getBytes());

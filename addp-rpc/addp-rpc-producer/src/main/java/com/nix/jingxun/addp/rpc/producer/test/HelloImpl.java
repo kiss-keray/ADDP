@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.rpc.producer;
+package com.nix.jingxun.addp.rpc.producer.test;
 
 import org.springframework.stereotype.Component;
 

@@ -1,6 +1,6 @@
 package com.nix.jingxun.addp.rpc.server;
 import com.nix.jingxun.addp.rpc.consumer.proxy.DynamicProxy;
-import com.nix.jingxun.addp.rpc.producer.Hello;
+import com.nix.jingxun.addp.rpc.producer.test.Hello;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.lang.reflect.InvocationHandler;
 

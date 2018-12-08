@@ -1,9 +1,7 @@
-package com.nix.jingxun.addp.rpc.producer;
+package com.nix.jingxun.addp.rpc.producer.test;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import javax.jws.soap.SOAPBinding;
 
 /**
  * @author keray
