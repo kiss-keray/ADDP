@@ -4,6 +4,7 @@ import com.nix.jingxun.addp.rpc.common.RPCRequest;
 import com.nix.jingxun.addp.rpc.common.RPCResponse;
 import com.nix.jingxun.addp.rpc.common.client.NettyClient;
 import com.nix.jingxun.addp.rpc.common.config.CommandCode;
+import com.nix.jingxun.addp.rpc.common.serializable.JsonSerializer;
 import com.nix.jingxun.addp.rpc.common.serializable.Serializer;
 import com.nix.jingxun.addp.rpc.consumer.RPCContext;
 import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
@@ -22,11 +23,9 @@ import java.util.stream.Stream;
  * @author keray
  * @date 2018/12/07 22:39
  */
-@Component
 public class DynamicProxy implements InvocationHandler {
 
-    @Resource(name = "jsonSerializer")
-    Serializer serializer;
+    private Serializer serializer = new JsonSerializer();
     @Override
     public Object invoke(Object object, Method method, Object[] args) throws Throwable{
         Class<?> proxyInterface = method.getDeclaringClass();

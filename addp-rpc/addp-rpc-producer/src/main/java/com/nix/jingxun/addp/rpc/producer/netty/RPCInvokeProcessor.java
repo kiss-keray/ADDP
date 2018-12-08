@@ -1,6 +1,7 @@
 package com.nix.jingxun.addp.rpc.producer.netty;
 import com.nix.jingxun.addp.rpc.common.RPCRequest;
 import com.nix.jingxun.addp.rpc.common.RPCResponse;
+import com.nix.jingxun.addp.rpc.common.serializable.JsonSerializer;
 import com.nix.jingxun.addp.rpc.common.serializable.Serializer;
 import com.nix.jingxun.addp.rpc.producer.InvokeContainer;
 import com.nix.jingxun.addp.rpc.remoting.netty.NettyRequestProcessor;
@@ -16,10 +17,8 @@ import java.lang.reflect.Method;
  * @author keray
  * @date 2018/12/07 21:11
  */
-@Component
 public class RPCInvokeProcessor implements NettyRequestProcessor {
-    @Resource(name = "jsonSerializer")
-    private Serializer serializer;
+    private Serializer serializer = new JsonSerializer();
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws Exception {
         RemotingCommand responseCommand = RemotingCommand.createResponseCommand(RemotingSysResponseCode.SUCCESS,null);

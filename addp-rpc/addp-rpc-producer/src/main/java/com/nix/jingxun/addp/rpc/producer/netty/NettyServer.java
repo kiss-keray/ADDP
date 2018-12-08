@@ -17,17 +17,13 @@ import java.util.concurrent.TimeUnit;
  * @author keray
  * @date 2018/12/07 19:45
  */
-@Component
 public class NettyServer {
-    @Autowired
-    private HeartProcessor heartProcessor;
-    @Autowired
-    private RPCInvokeProcessor rpcInvokeProcessor;
-    private RemotingService remotingService;
+    private HeartProcessor heartProcessor = new HeartProcessor();
+    private RPCInvokeProcessor rpcInvokeProcessor = new RPCInvokeProcessor();
+    private static RemotingService remotingService = new NettyRemotingServer(new RPCProducerNettyConfig());
     private final ThreadPoolExecutor heartExecutor = new ThreadPoolExecutor(1,1,60, TimeUnit.SECONDS,new LinkedBlockingQueue<>(), (ThreadFactory) Thread::new);
     private final ThreadPoolExecutor invokeExecutor = new ThreadPoolExecutor(32,32,1, TimeUnit.SECONDS,new LinkedBlockingQueue<>(), (ThreadFactory) Thread::new);
     private static boolean start = false;
-    @PostConstruct
     public synchronized void start() {
         if (start) {
             return;

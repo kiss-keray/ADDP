@@ -13,7 +13,7 @@ public class ConsumerTest{
     public static void main(String[] args) {
         ClassPathXmlApplicationContext application = new ClassPathXmlApplicationContext("classpath:application.xml");
 
-        InvocationHandler handler = application.getBean(DynamicProxy.class);
+//        InvocationHandler handler = application.getBean(DynamicProxy.class);
 //        Hello hello = (Hello) Proxy.newProxyInstance(handler.getClass().getClassLoader(), new Class[]{Hello.class}, handler);
         Hello hello = application.getBean(Hello.class);
         System.out.println(hello.getHello());

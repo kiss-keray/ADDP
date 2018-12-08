@@ -12,15 +12,13 @@ import java.util.Map;
  * @author keray
  * @date 2018/12/08 19:56
  */
-@Component
-public class RPCConsumerFactory {
-    @Autowired
-    private DynamicProxy handler;
+public class RPCConsumerFactory{
+    private static DynamicProxy handler = new DynamicProxy();
 
-    public  <T> T consumer(Class<T> interfaceClazz) {
+    public static  <T> T consumer(Class<T> interfaceClazz) {
        return consumer(interfaceClazz,null);
     }
-    public  <T> T consumer(Class<T> interfaceClazz, long timeout, CommandCode type) {
+    public static  <T> T consumer(Class<T> interfaceClazz, long timeout, CommandCode type) {
         try {
             RPCInterfaceAnnotation annotation = interfaceClazz.getAnnotation(RPCInterfaceAnnotation.class);
             InvocationHandler invocationHandler = Proxy.getInvocationHandler(annotation);
@@ -36,10 +34,10 @@ public class RPCConsumerFactory {
         }
         return (T) Proxy.newProxyInstance(handler.getClass().getClassLoader(), new Class[]{interfaceClazz}, handler);
     }
-    public  <T> T consumer(Class<T> interfaceClazz,long timeout) {
+    public static <T> T consumer(Class<T> interfaceClazz,long timeout) {
         return consumer(interfaceClazz,timeout,null);
     }
-    public  <T> T consumer(Class<T> interfaceClazz,CommandCode type) {
+    public static <T> T consumer(Class<T> interfaceClazz,CommandCode type) {
         return consumer(interfaceClazz,0,type);
     }
 }

@@ -1,9 +1,9 @@
 package com.nix.jingxun.addp.rpc.producer.test;
 
 import com.nix.jingxun.addp.rpc.consumer.proxy.RPCConsumerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 
 /**
  * @author keray
@@ -11,12 +11,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class Con {
-    @Autowired
-    private RPCConsumerFactory consumerFactory;
 
     @Bean
     public Hello hello() {
-        return consumerFactory.consumer(Hello.class,2000);
+        return RPCConsumerFactory.consumer(Hello.class,2000);
     }
 
 }
