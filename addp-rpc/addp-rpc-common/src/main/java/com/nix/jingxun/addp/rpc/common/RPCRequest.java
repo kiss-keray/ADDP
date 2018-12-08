@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.nix.jingxun.addp.rpc.common.config.CommandCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -60,6 +61,7 @@ import java.util.stream.Collectors;
  * @author jingxun.zds*/
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class RPCRequest implements Serializable {
     private String interfaceName;
     private String method;
@@ -74,13 +76,13 @@ public class RPCRequest implements Serializable {
     }
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class Source{
         private String ip;
         private String appName;
 
     }
     @Data
-    @AllArgsConstructor
     public static class ParamsData{
         private Class clazz;
         private Object data;
