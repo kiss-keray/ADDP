@@ -18,8 +18,6 @@ public class RegisterProducer implements BeanPostProcessor {
 
     @Autowired
     private DefaultListableBeanFactory defaultListableBeanFactory;
-    @Autowired
-    private RPCProducer rpcProducer;
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
