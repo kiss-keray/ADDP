@@ -3,6 +3,7 @@ package com.nix.jingxun.addp.rpc.common.protocol;
 import com.alipay.remoting.CommandDecoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author keray
  * @date 2018/10/19 4:14 PM
  */
+@Slf4j
 public class ARPCDecoder implements CommandDecoder {
     /**
      * DecommandCode bytes into object.
@@ -29,8 +31,10 @@ public class ARPCDecoder implements CommandDecoder {
             byte[] content = new byte[in.readInt()];
             in.readBytes(content);
             message.setContent(content);
+            message.deserialize();
             out.add(message);
-        }catch (Exception ignored) {
+        }catch (Exception e) {
+            log.error("decode error ",e);
         }
     }
 }

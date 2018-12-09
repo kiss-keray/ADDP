@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.rpc.consumer.netty;
+package com.nix.jingxun.addp.rpc.common;
 
 import com.alipay.remoting.*;
 import com.alipay.remoting.config.ConfigurableInstance;
@@ -6,8 +6,7 @@ import com.alipay.remoting.config.switches.GlobalSwitch;
 import com.alipay.remoting.connection.ConnectionFactory;
 import com.alipay.remoting.exception.RemotingException;
 import com.alipay.remoting.rpc.HeartbeatHandler;
-import com.nix.jingxun.addp.rpc.common.protocol.ClientConfigurableInstance;
-import com.nix.jingxun.addp.rpc.common.protocol.RPCClientConnectionFactory;
+import com.alipay.remoting.rpc.RpcCommandFactory;
 import com.nix.jingxun.addp.rpc.common.protocol.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2018/10/21 0:36
  */
 @Slf4j
-public class ConsumerRemotingClient extends BaseRemoting {
+public class RPCRemotingClient extends BaseRemoting {
 
     private ConfigurableInstance                        configurableInstance = new ClientConfigurableInstance();
     private ConnectionFactory                           connectionFactory        = new RPCClientConnectionFactory(
@@ -53,11 +52,12 @@ public class ConsumerRemotingClient extends BaseRemoting {
                 thread.setName("image-processor-thread");
                 return thread;
             });
-    public static final ConsumerRemotingClient CLIENT = new ConsumerRemotingClient(new ARPCCommandFactory());
+
+    public static final RPCRemotingClient CLIENT = new RPCRemotingClient(new RpcCommandFactory());
     /**
      * default constructor
      */
-    private ConsumerRemotingClient(CommandFactory commandFactory) {
+    protected RPCRemotingClient(CommandFactory commandFactory) {
         super(commandFactory);
         init();
     }

@@ -1,4 +1,5 @@
 package com.nix.jingxun.addp.rpc.producer.netty;
+import com.alibaba.fastjson.JSON;
 import com.alipay.remoting.RemotingContext;
 import com.nix.jingxun.addp.rpc.common.RPCRequest;
 import com.nix.jingxun.addp.rpc.common.RPCResponse;
@@ -6,17 +7,19 @@ import com.nix.jingxun.addp.rpc.common.protocol.AbstractRPCRequestProcessor;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
 import com.nix.jingxun.addp.rpc.common.serializable.JsonSerializer;
-import com.nix.jingxun.addp.rpc.common.serializable.Serializer;
 import com.nix.jingxun.addp.rpc.producer.InvokeContainer;
+import lombok.extern.slf4j.Slf4j;
+
 import java.lang.reflect.Method;
 
 /**
  * @author keray
  * @date 2018/12/07 21:11
  */
+@Slf4j
 public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> {
-    private Serializer serializer = new JsonSerializer();
     private RPCResponse invoke(RPCRequest request) {
+        log.info("rpc invoke {}",request);
         RPCResponse response = new RPCResponse();
         try {
             response.setContext(request.getContext());
@@ -42,8 +45,15 @@ public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> 
 
     @Override
     public RPCPackage process(RemotingContext ctx, RPCPackage msg) throws Exception {
+        RPCRequest request = (RPCRequest) msg.getObject();
+        if (request.getParamData() != null) {
+            for (RPCRequest.ParamsData paramsData : request.getParamData()) {
+                paramsData.setData(JSON.parseObject(JSON.toJSONString(paramsData.getData()), paramsData.getClazz()));
+            }
+        }
         RPCPackage responsePackage = RPCPackage.createMessage(msg.getId(), RPCPackageCode.RESPONSE_SUCCESS);
-        responsePackage.setContent(serializer.encoderResponse(invoke(serializer.decoderRequest(new String(msg.getContent())))).getBytes());
+        RPCResponse response = invoke(request);
+        responsePackage.setObject(response);
         return responsePackage;
     }
 }
