@@ -16,13 +16,13 @@ import java.util.concurrent.ExecutorService;
  */
 @Slf4j
 public class ARPCCommandHandler implements CommandHandler {
-    private final static ConcurrentHashMap<CommandCode,RemotingProcessor<RPCPackage>> PROCESSOR = new ConcurrentHashMap<>(16);
+    private final static ConcurrentHashMap<CommandCode, RemotingProcessor<RPCPackage>> PROCESSOR = new ConcurrentHashMap<>(16);
     private ExecutorService executorService;
 
     public ARPCCommandHandler() {
         RemotingProcessor remotingProcessor = new ResponseProcessor();
-        this.registerProcessor(RPCPackageCode.RESPONSE_ERROR,remotingProcessor);
-        this.registerProcessor(RPCPackageCode.RESPONSE_SUCCESS,remotingProcessor);
+        this.registerProcessor(RPCPackageCode.RESPONSE_ERROR, remotingProcessor);
+        this.registerProcessor(RPCPackageCode.RESPONSE_SUCCESS, remotingProcessor);
     }
 
     /**
@@ -44,10 +44,10 @@ public class ARPCCommandHandler implements CommandHandler {
     private void handler(RemotingContext ctx, Object msg) {
         if (msg instanceof RPCPackage) {
             try {
-                PROCESSOR.get(((RPCPackage) msg).getCmdCode()).process(ctx, (RPCPackage) msg,executorService);
+                PROCESSOR.get(((RPCPackage) msg).getCmdCode()).process(ctx, (RPCPackage) msg, executorService);
             } catch (Exception e) {
                 e.printStackTrace();
-                log.error("处理message失败",e);
+                log.error("处理message失败", e);
             }
         }
     }
@@ -61,8 +61,8 @@ public class ARPCCommandHandler implements CommandHandler {
      */
     @Override
     public void registerProcessor(CommandCode cmd, RemotingProcessor processor) {
-        log.info("注册processor {} -> {}", cmd,processor.getClass().getName());
-        PROCESSOR.putIfAbsent(cmd,processor);
+        log.info("注册processor {} -> {}", cmd, processor.getClass().getName());
+        PROCESSOR.putIfAbsent(cmd, processor);
     }
 
     /**

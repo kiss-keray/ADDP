@@ -15,18 +15,21 @@ public abstract class AbstractRPCRequestProcessor<A extends RPCPackage> extends 
     @Override
     public void doProcess(RemotingContext ctx, A msg) throws Exception {
         RPCPackage responseMessage = process(ctx, msg);
-        ctx.getChannelContext().writeAndFlush(responseMessage).addListener((ChannelFutureListener) channelFuture -> {
-            if (!channelFuture.isSuccess()) {
-                log.warn("response fail :{}", RemotingUtil.parseRemoteAddress(ctx.getChannelContext().channel()));
-            }
-        });
+        if (responseMessage != null) {
+            ctx.getChannelContext().writeAndFlush(responseMessage).addListener((ChannelFutureListener) channelFuture -> {
+                if (!channelFuture.isSuccess()) {
+                    log.warn("response fail :{}", RemotingUtil.parseRemoteAddress(ctx.getChannelContext().channel()));
+                }
+            });
+        }
     }
 
     /**
      * 处理请求数据包 返回请求
+     *
      * @param ctx
      * @param msg
      * @return
-     * */
+     */
     public abstract RPCPackage process(RemotingContext ctx, A msg) throws Exception;
 }

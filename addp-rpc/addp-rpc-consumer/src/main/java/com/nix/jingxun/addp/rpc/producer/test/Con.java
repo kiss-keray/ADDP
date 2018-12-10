@@ -14,7 +14,7 @@ public class Con {
 
     @Bean
     public Hello hello() {
-        return RPCConsumerFactory.consumer(Hello.class,2000);
+        return RPCConsumerFactory.consumer(Hello.class, 2000);
     }
 
 }

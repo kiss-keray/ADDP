@@ -26,7 +26,7 @@ public class ARPCEncoder implements CommandEncoder {
         try {
             if (msg instanceof RPCPackage) {
                 RPCPackage cmd = (RPCPackage) msg;
-                log.debug("encode {}",msg);
+                log.debug("encode {}", msg);
                 // 序列化
                 cmd.serialize();
                 // 写入数据包长度

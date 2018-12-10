@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.rpc.server.netty;
 
 import com.alipay.remoting.ConnectionEventProcessor;
 import com.alipay.remoting.ConnectionEventType;
+import com.alipay.remoting.util.RemotingUtil;
 import com.nix.jingxun.addp.rpc.common.RPCRemotingServer;
 import com.nix.jingxun.addp.rpc.common.config.CommonConfig;
 import com.nix.jingxun.addp.rpc.common.protocol.ARPCProtocolV1;
@@ -29,7 +30,7 @@ public class ServerRemotingServer extends RPCRemotingServer {
     private ProducerHandler producerHandler;
 
     private ServerRemotingServer() {
-        super(CommonConfig.SERVER_PORT,new ServerIdleHandler());
+        super(CommonConfig.SERVER_PORT, new ServerIdleHandler());
     }
 
     @PostConstruct
@@ -46,11 +47,12 @@ public class ServerRemotingServer extends RPCRemotingServer {
             connectionManager.remove(conn);
             producerHandler.producerLeave(conn.getChannel());
             conn.close();
+            log.info("连接关闭 {}", RemotingUtil.parseRemoteAddress(conn.getChannel()));
         };
         connectionEventListener.addConnectionEventProcessor(ConnectionEventType.CLOSE, connectionEventProcessor);
         connectionEventListener.addConnectionEventProcessor(ConnectionEventType.EXCEPTION, connectionEventProcessor);
-        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.CONSUMER_GET_MSG,consumerGetMsgProcessor);
-        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.PRODUCER_REGISTER,producerRegisterProcessor);
+        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.CONSUMER_GET_MSG, consumerGetMsgProcessor);
+        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.PRODUCER_REGISTER, producerRegisterProcessor);
     }
 
 }

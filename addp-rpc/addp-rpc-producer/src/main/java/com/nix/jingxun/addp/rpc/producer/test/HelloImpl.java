@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
  * @date 2018/12/07 22:42
  */
 @Component
-public class HelloImpl implements Hello{
+public class HelloImpl implements Hello {
 
     @Override
     public void sayHello(String str) {

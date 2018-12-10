@@ -1,4 +1,5 @@
 package com.nix.jingxun.addp.rpc.producer.netty;
+
 import com.alibaba.fastjson.JSON;
 import com.alipay.remoting.RemotingContext;
 import com.nix.jingxun.addp.rpc.common.RPCRequest;
@@ -19,7 +20,7 @@ import java.lang.reflect.Method;
 @Slf4j
 public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> {
     private RPCResponse invoke(RPCRequest request) {
-        log.info("rpc invoke {}",request);
+        log.info("rpc invoke {}", request);
         RPCResponse response = new RPCResponse();
         try {
             response.setContext(request.getContext());
@@ -29,16 +30,16 @@ public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> 
             if (methodParamSign == null) {
                 method = clazz.getMethod(request.getMethod());
             } else {
-                method = clazz.getMethod(request.getMethod(),methodParamSign);
+                method = clazz.getMethod(request.getMethod(), methodParamSign);
             }
-            Object result = method.invoke(InvokeContainer.getImpl(request.getInterfaceName()),request.getParams());
+            Object result = method.invoke(InvokeContainer.getImpl(request.getInterfaceName()), request.getParams());
             response.setCode(RPCResponse.ResponseCode.SUCCESS);
             if (result != null) {
                 response.setResult(new RPCResponse.SuccessResult(result.getClass(), result));
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             response.setCode(RPCResponse.ResponseCode.ERROR);
-            response.setError(new RPCResponse.ErrorResult(RPCResponse.ResponseError.EXCEPTION,e));
+            response.setError(new RPCResponse.ErrorResult(RPCResponse.ResponseError.EXCEPTION, e));
         }
         return response;
     }

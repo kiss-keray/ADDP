@@ -28,20 +28,21 @@ public class RPCPackage implements RemotingCommand {
     public RPCPackage() {
         this.id = NEXT_ID.getAndIncrement();
     }
+
     /**
      * id
-     * */
+     */
     protected int id;
 
 
     /**
      * 消息类型
-     * */
+     */
     protected CommandCode commandCode;
 
     /**
      * 内容
-     * */
+     */
     @JSONField(serialize = false)
     protected byte[] content = new byte[0];
 
@@ -68,7 +69,7 @@ public class RPCPackage implements RemotingCommand {
     @Override
     public void serialize() throws SerializationException {
         if (getSerializer() == 1 && this.object != null) {
-            this.jsonObject = new PackeageObject(this.object.getClass(),this.object);
+            this.jsonObject = new PackeageObject(this.object.getClass(), this.object);
             setContent(JSON.toJSONString(jsonObject).getBytes());
         }
     }
@@ -76,8 +77,8 @@ public class RPCPackage implements RemotingCommand {
     @Override
     public void deserialize() throws DeserializationException {
         if (getSerializer() == 1 && this.getContent() != null && this.getContent().length > 0) {
-            this.jsonObject = JSON.parseObject(new String(getContent()),PackeageObject.class);
-            this.object = JSON.parseObject(JSON.toJSONString(jsonObject.getData()),jsonObject.getClazz());
+            this.jsonObject = JSON.parseObject(new String(getContent()), PackeageObject.class);
+            this.object = JSON.parseObject(JSON.toJSONString(jsonObject.getData()), jsonObject.getClazz());
         }
     }
 
@@ -113,7 +114,8 @@ public class RPCPackage implements RemotingCommand {
         message.setCommandCode(commandCode);
         return message;
     }
-    public static RPCPackage createMessage(int id,RPCPackageCode commandCode) {
+
+    public static RPCPackage createMessage(int id, RPCPackageCode commandCode) {
         RPCPackage message = new RPCPackage();
         message.setCommandCode(commandCode);
         message.setId(id);
@@ -136,6 +138,7 @@ public class RPCPackage implements RemotingCommand {
     public static RPCPackage createHeardSynMessage() {
         return createRequestMessage(RPCPackageCode.HEART_SYN_COMMAND);
     }
+
     public static RPCPackage createHeardAckMessage() {
         return createRequestMessage(RPCPackageCode.HEART_ACK_COMMAND);
     }

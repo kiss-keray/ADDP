@@ -15,7 +15,7 @@ public class RPCClientConnectionFactory extends AbstractConnectionFactory {
 
     public RPCClientConnectionFactory(Codec codec, ChannelHandler heartbeatHandler,
                                       ChannelHandler handler, ConfigurableInstance configInstance) {
-        super(codec,heartbeatHandler,handler,configInstance);
+        super(codec, heartbeatHandler, handler, configInstance);
     }
 
     @Override

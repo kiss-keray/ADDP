@@ -23,11 +23,12 @@ public class Producer2ServerRequest {
     private String group;
     private String version;
     private MethodMsg[] methods;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @ToString
-    public static class MethodMsg{
+    public static class MethodMsg {
         private String methodName;
         private Class[] paramType;
     }

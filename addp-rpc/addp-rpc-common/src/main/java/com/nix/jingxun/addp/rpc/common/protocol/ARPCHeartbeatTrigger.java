@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ARPCHeartbeatTrigger implements HeartbeatTrigger {
     @Override
     public void heartbeatTriggered(ChannelHandlerContext ctx) throws Exception {
-        log.debug("心跳检测 url={}", RemotingUtil.parseRemoteAddress(ctx.channel()));
+        log.info("心跳检测 url={}", RemotingUtil.parseRemoteAddress(ctx.channel()));
         ctx.writeAndFlush(RPCPackage.createHeardSynMessage());
     }
 }

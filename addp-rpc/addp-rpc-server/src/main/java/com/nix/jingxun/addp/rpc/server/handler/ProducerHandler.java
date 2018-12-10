@@ -26,29 +26,31 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProducerHandler {
     @Autowired
-    private RedisTemplate<String,String> template;
+    private RedisTemplate<String, String> template;
 
     /**
      * 服务提供方注册服务
-     * */
+     */
     @Transactional(rollbackFor = Exception.class)
-    public boolean registerInterface(Producer2ServerRequest request,Channel channel) {
-        log.info("服务注册 {}",request);
-        template.opsForValue().set(RemotingUtil.parseRemoteAddress(channel),request.getHost());
+    public boolean registerInterface(Producer2ServerRequest request, Channel channel) {
+        log.info("服务注册 {}", request);
+        template.opsForValue().set(RemotingUtil.parseRemoteAddress(channel), request.getHost());
         String interfaceKey = RPCMethodParser.getMethodKey(request.getInterfaceName(), request.getAppName(), request.getGroup(), request.getVersion());
         String producerHost = request.getHost();
-        if (Long.valueOf(1).equals(template.opsForSet().add(interfaceKey,request.getHost()))) {
+        if (Boolean.valueOf(true).equals(template.opsForSet().isMember(interfaceKey,request.getHost())) || Long.valueOf(1).equals(template.opsForSet().add(interfaceKey, request.getHost()))) {
             template.opsForValue().set(producerHost, JSON.toJSONString(request));
+            log.info("服务注册success");
             return true;
         }
+        log.info("服务注册fail");
         return false;
     }
 
     /**
      * 消费者获取接口信息
-     * */
+     */
     public String consumerGetInterfaceMsg(String interfaceKey) {
-        log.info("获取服务 {}",interfaceKey);
+        log.info("获取服务 {}", interfaceKey);
         return template.opsForSet().randomMember(interfaceKey);
     }
 
@@ -59,7 +61,7 @@ public class ProducerHandler {
             String interfaceMsgJson = template.opsForValue().get(host);
             template.delete(host);
             if (StringUtils.isNotBlank(interfaceMsgJson)) {
-                Producer2ServerRequest interfaceMsg = JSON.parseObject(interfaceMsgJson,Producer2ServerRequest.class);
+                Producer2ServerRequest interfaceMsg = JSON.parseObject(interfaceMsgJson, Producer2ServerRequest.class);
                 String interfaceKey = RPCMethodParser.getMethodKey(interfaceMsg.getInterfaceName(), interfaceMsg.getAppName(), interfaceMsg.getGroup(), interfaceMsg.getVersion());
                 template.opsForSet().remove(interfaceKey, host);
                 if (Long.valueOf(0).equals(template.opsForSet().size(interfaceKey))) {

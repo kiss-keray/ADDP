@@ -27,9 +27,8 @@ import java.util.concurrent.TimeUnit;
  * @date 2018/10/19 2:27 PM
  */
 @Slf4j
-public class RPCRemotingServer extends AbstractRemotingServer{
+public class RPCRemotingServer extends AbstractRemotingServer {
     /**
-     *
      * IO密集型处理器线程池
      */
     protected final static ThreadPoolExecutor IMAGE_PROCESSOR_EXECUTOR = new ThreadPoolExecutor(
@@ -43,17 +42,17 @@ public class RPCRemotingServer extends AbstractRemotingServer{
     protected ServerBootstrap bootstrap;
     protected ConnectionEventHandler connectionEventHandler;
     protected DefaultConnectionManager connectionManager;
-    protected RemotingAddressParser                       addressParser;
+    protected RemotingAddressParser addressParser;
     protected ConnectionEventListener connectionEventListener = new ConnectionEventListener();
     protected static final EventLoopGroup BOSS_GROUP = NettyEventLoopUtil.newEventLoopGroup(1,
-                    new NamedThreadFactory(
-                            "Rpc-netty-server-boss",
-                            false));
+            new NamedThreadFactory(
+                    "Rpc-netty-server-boss",
+                    false));
     protected static final EventLoopGroup WORKER_GROUP = NettyEventLoopUtil.newEventLoopGroup(
-                    Runtime.getRuntime().availableProcessors() * 2,
-                    new NamedThreadFactory(
-                            "Rpc-netty-server-worker",
-                            true));
+            Runtime.getRuntime().availableProcessors() * 2,
+            new NamedThreadFactory(
+                    "Rpc-netty-server-worker",
+                    true));
     protected Codec codec = new ARPCCodec();
     protected final ChannelHandler serverIdleHandler;
 
@@ -61,10 +60,12 @@ public class RPCRemotingServer extends AbstractRemotingServer{
         super(port);
         this.serverIdleHandler = serverIdleHandler;
     }
+
     @Override
     public void registerProcessor(byte protocolCode, CommandCode commandCode, RemotingProcessor<?> processor) {
-        ProtocolManager.getProtocol(ProtocolCode.fromBytes(protocolCode)).getCommandHandler().registerProcessor(commandCode,processor);
+        ProtocolManager.getProtocol(ProtocolCode.fromBytes(protocolCode)).getCommandHandler().registerProcessor(commandCode, processor);
     }
+
     @Override
     public void registerDefaultExecutor(byte protocolCode, ExecutorService executor) {
         ProtocolManager.getProtocol(ProtocolCode.fromBytes(protocolCode)).getCommandHandler().registerDefaultExecutor(executor);
@@ -119,24 +120,26 @@ public class RPCRemotingServer extends AbstractRemotingServer{
                 pipeline.addLast("handler", rootHandler);
                 createConnection(channel);
             }
+
             /**
              * 管理链接
              */
             private void createConnection(SocketChannel channel) {
                 Url url = addressParser.parse(RemotingUtil.parseRemoteAddress(channel));
                 if (switches().isOn(GlobalSwitch.SERVER_MANAGE_CONNECTION_SWITCH)) {
-                    connectionManager.add(new Connection(channel,url), url.getUniqueKey());
+                    connectionManager.add(new Connection(channel, url), url.getUniqueKey());
                 } else {
-                    new Connection(channel,url);
+                    new Connection(channel, url);
                 }
             }
         });
         // 注册协议处理器
-        ProtocolManager.registerProtocol(ARPCProtocolV1.VIDEO_PROTOCOL,ARPCProtocolV1.PROTOCOL_CODE);
-        registerDefaultExecutor(ARPCProtocolV1.PROTOCOL_CODE,IMAGE_PROCESSOR_EXECUTOR);
-        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.HEART_SYN_COMMAND,new RpcHeartBeatProcessor());
-        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.HEART_ACK_COMMAND,new RpcHeartBeatProcessor());
+        ProtocolManager.registerProtocol(ARPCProtocolV1.VIDEO_PROTOCOL, ARPCProtocolV1.PROTOCOL_CODE);
+        registerDefaultExecutor(ARPCProtocolV1.PROTOCOL_CODE, IMAGE_PROCESSOR_EXECUTOR);
+        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.HEART_SYN_COMMAND, new ARPCHeardProcessor());
+        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.HEART_ACK_COMMAND, new ARPCHeardProcessor());
     }
+
     @Override
     protected boolean doStart() throws InterruptedException {
         this.channelFuture = this.bootstrap.bind(new InetSocketAddress(ip(), port())).sync();

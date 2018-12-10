@@ -19,14 +19,21 @@ import java.util.List;
  */
 @Slf4j
 public class Decoder extends LengthFieldBasedFrameDecoder {
-    private static final int FRAME_MAX_LENGTH = 1024*1024*1024;
+    private static final int FRAME_MAX_LENGTH = 1024 * 1024 * 1024;
 
-    /** by default, suggest design a single byte for protocol version. */
-    public static final int DEFAULT_PROTOCOL_VERSION_LENGTH         = 1;
-    /** protocol version should be a positive number, we use -1 to represent illegal */
+    /**
+     * by default, suggest design a single byte for protocol version.
+     */
+    public static final int DEFAULT_PROTOCOL_VERSION_LENGTH = 1;
+    /**
+     * protocol version should be a positive number, we use -1 to represent illegal
+     */
     public static final int DEFAULT_ILLEGAL_PROTOCOL_VERSION_LENGTH = -1;
-    /** the length of protocol code */
-    protected int           protocolCodeLength;
+    /**
+     * the length of protocol code
+     */
+    protected int protocolCodeLength;
+
     public Decoder(int protocolCodeLength) {
         super(FRAME_MAX_LENGTH, 0, 4, 0, 4);
         this.protocolCodeLength = protocolCodeLength;

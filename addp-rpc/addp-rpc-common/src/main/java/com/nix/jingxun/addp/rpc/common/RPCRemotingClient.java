@@ -21,28 +21,27 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RPCRemotingClient extends BaseRemoting {
 
-    private ConfigurableInstance                        configurableInstance = new ClientConfigurableInstance();
-    private ConnectionFactory                           connectionFactory        = new RPCClientConnectionFactory(
-                                                                                                                    new ARPCCodec(),
-                                                                                                                    new HeartbeatHandler(),
-                                                                                                                    new BoltHandler(),
-                                                                                                                    configurableInstance);
-    private ConnectionEventHandler                      connectionEventHandler   = new ConnectionEventHandler(configurableInstance.switches());
-    private ReconnectManager                            reconnectManager;
-    private ConnectionEventListener                     connectionEventListener  = new ConnectionEventListener();
-    private RemotingAddressParser                       addressParser            = ARPCAddressParser.PARSER;
-    private ConnectionSelectStrategy                    connectionSelectStrategy = new RandomSelectStrategy(configurableInstance.switches());
-    private DefaultConnectionManager                    connectionManager        = new DefaultConnectionManager(
-                                                                                                                connectionSelectStrategy,
-                                                                                                                connectionFactory,
-                                                                                                                connectionEventHandler,
-                                                                                                                connectionEventListener,
-                                                                                                                configurableInstance.switches());
-    private DefaultConnectionMonitor                    connectionMonitor;
-    private ConnectionMonitorStrategy                   monitorStrategy = new ScheduledDisconnectStrategy();
+    private ConfigurableInstance configurableInstance = new ClientConfigurableInstance();
+    private ConnectionFactory connectionFactory = new RPCClientConnectionFactory(
+            new ARPCCodec(),
+            new HeartbeatHandler(),
+            new BoltHandler(),
+            configurableInstance);
+    private ConnectionEventHandler connectionEventHandler = new ConnectionEventHandler(configurableInstance.switches());
+    private ReconnectManager reconnectManager;
+    private ConnectionEventListener connectionEventListener = new ConnectionEventListener();
+    private RemotingAddressParser addressParser = ARPCAddressParser.PARSER;
+    private ConnectionSelectStrategy connectionSelectStrategy = new RandomSelectStrategy(configurableInstance.switches());
+    private DefaultConnectionManager connectionManager = new DefaultConnectionManager(
+            connectionSelectStrategy,
+            connectionFactory,
+            connectionEventHandler,
+            connectionEventListener,
+            configurableInstance.switches());
+    private DefaultConnectionMonitor connectionMonitor;
+    private ConnectionMonitorStrategy monitorStrategy = new ScheduledDisconnectStrategy();
 
     /**
-     *
      * IO密集型处理器线程池
      */
     private final static ThreadPoolExecutor IMAGE_PROCESSOR_EXECUTOR = new ThreadPoolExecutor(
@@ -54,6 +53,7 @@ public class RPCRemotingClient extends BaseRemoting {
             });
 
     public static final RPCRemotingClient CLIENT = new RPCRemotingClient(new RpcCommandFactory());
+
     /**
      * default constructor
      */
@@ -61,8 +61,10 @@ public class RPCRemotingClient extends BaseRemoting {
         super(commandFactory);
         init();
     }
+
     private void init() {
         configurableInstance.switches().turnOn(GlobalSwitch.CONN_MONITOR_SWITCH);
+        configurableInstance.switches().turnOn(GlobalSwitch.CONN_RECONNECT_SWITCH);
         configurableInstance.switches().turnOn(GlobalSwitch.SERVER_MANAGE_CONNECTION_SWITCH);
         configurableInstance.switches().turnOn(GlobalSwitch.SERVER_SYNC_STOP);
         this.connectionManager.setAddressParser(this.addressParser);
@@ -83,11 +85,11 @@ public class RPCRemotingClient extends BaseRemoting {
             log.warn("Switch on reconnect manager");
         }
         try {
-            ProtocolManager.registerProtocol(ARPCProtocolV1.VIDEO_PROTOCOL,ARPCProtocolV1.PROTOCOL_CODE);
+            ProtocolManager.registerProtocol(ARPCProtocolV1.VIDEO_PROTOCOL, ARPCProtocolV1.PROTOCOL_CODE);
             ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerDefaultExecutor(IMAGE_PROCESSOR_EXECUTOR);
-            ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_SYN_COMMAND,new ARPCHeardProcessor());
-            ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_ACK_COMMAND,new ARPCHeardProcessor());
-        }catch (Exception e) {
+            ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_SYN_COMMAND, new ARPCHeardProcessor());
+            ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_ACK_COMMAND, new ARPCHeardProcessor());
+        } catch (Exception e) {
             log.info("client注册协议失败");
         }
     }
@@ -102,11 +104,12 @@ public class RPCRemotingClient extends BaseRemoting {
                 connection.getChannel().attr(Connection.CONNECTION).set(connection);
             }
             return connection;
-        }catch (Exception e) {
-            log.error("connect server error",e);
+        } catch (Exception e) {
+            log.error("connect server error", e);
             return null;
         }
     }
+
     public void shutdown() {
         this.connectionManager.removeAll();
         log.warn("rpc client shutdown!");
@@ -119,18 +122,21 @@ public class RPCRemotingClient extends BaseRemoting {
     }
 
     public RPCPackage invokeSync(final String url, final RemotingCommand request,
-                                   final int timeoutMillis) throws RemotingException,
+                                 final int timeoutMillis) throws RemotingException,
             InterruptedException {
-        RPCPackage responseMessage = (RPCPackage) super.invokeSync(getAndCreateIfAbsent(url),request,timeoutMillis);
+        RPCPackage responseMessage = (RPCPackage) super.invokeSync(getAndCreateIfAbsent(url), request, timeoutMillis);
         return responseMessage;
     }
+
     public void invokeWithCallback(final String url, final RemotingCommand request,
                                    final InvokeCallback invokeCallback, final int timeoutMillis) {
         super.invokeWithCallback(getAndCreateIfAbsent(url), request, invokeCallback, timeoutMillis);
     }
+
     public InvokeFuture invokeWithFuture(final String url, final RemotingCommand request, final int timeoutMillis) {
         return super.invokeWithFuture(getAndCreateIfAbsent(url), request, timeoutMillis);
     }
+
     public void oneway(final String url, final RemotingCommand request) {
         super.oneway(getAndCreateIfAbsent(url), request);
     }

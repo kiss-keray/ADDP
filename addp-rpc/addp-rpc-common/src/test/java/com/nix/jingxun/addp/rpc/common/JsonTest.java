@@ -27,7 +27,7 @@ public class JsonTest {
                 "    ],\n" +
                 "    \"version\": \"1.0.0\"\n" +
                 "}";
-        Producer2ServerRequest producer2SercerRequest = JSON.parseObject(json,Producer2ServerRequest.class);
+        Producer2ServerRequest producer2SercerRequest = JSON.parseObject(json, Producer2ServerRequest.class);
         System.out.println();
     }
 }

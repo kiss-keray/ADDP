@@ -1,4 +1,5 @@
 package com.nix.jingxun.addp.rpc.common;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,23 +39,26 @@ import java.util.Map;
 @NoArgsConstructor
 @ToString
 public class RPCResponse implements Serializable {
-    public enum ResponseCode{
+    public enum ResponseCode {
         SUCCESS,
         ERROR
     }
-    public enum ResponseError{
+
+    public enum ResponseError {
         TIMEOUT,
         EXCEPTION
     }
+
     private ResponseCode code;
     private SuccessResult result;
     private ErrorResult error;
-    private Map<String,String> context;
+    private Map<String, String> context;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @ToString
-    public static class SuccessResult{
+    public static class SuccessResult {
         private Class clazz;
         private Object data;
 
@@ -66,11 +70,12 @@ public class RPCResponse implements Serializable {
             }
         }
     }
+
     @AllArgsConstructor
     @Data
     @NoArgsConstructor
     @ToString
-    public static class ErrorResult{
+    public static class ErrorResult {
         ResponseError code;
         Throwable exception;
     }

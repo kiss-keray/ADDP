@@ -16,27 +16,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 public class DefaultInvokeFuture implements InvokeFuture {
-    private int                      invokeId;
+    private int invokeId;
 
-    private InvokeCallbackListener   callbackListener;
+    private InvokeCallbackListener callbackListener;
 
-    private InvokeCallback           callback;
+    private InvokeCallback callback;
 
     private volatile RPCPackage response;
 
-    private final CountDownLatch countDownLatch          = new CountDownLatch(1);
+    private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
     private final AtomicBoolean executeCallbackOnlyOnce = new AtomicBoolean(false);
 
     private Timeout timeout;
 
-    private Throwable                cause;
+    private Throwable cause;
 
-    private ClassLoader              classLoader;
+    private ClassLoader classLoader;
 
-    private byte                     protocol;
+    private byte protocol;
 
-    private InvokeContext            invokeContext;
+    private InvokeContext invokeContext;
 
     private CommandFactory commandFactory;
 

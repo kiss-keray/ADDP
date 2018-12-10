@@ -9,5 +9,6 @@ import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
 @RPCInterfaceAnnotation(appName = "app")
 public interface Hello {
     void sayHello(String str);
+
     String getHello();
 }

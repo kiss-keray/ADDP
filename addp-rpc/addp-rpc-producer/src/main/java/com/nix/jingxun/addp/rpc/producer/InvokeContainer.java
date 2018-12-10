@@ -9,11 +9,12 @@ import java.util.Map;
  */
 public final class InvokeContainer {
 
-    private static final Map<String,Object> INVOKE_INTERFACES = new HashMap<>(32);
+    private static final Map<String, Object> INVOKE_INTERFACES = new HashMap<>(32);
 
-    public static void addInterface(String key,Object impl) {
-        INVOKE_INTERFACES.put(key,impl);
+    public static void addInterface(String key, Object impl) {
+        INVOKE_INTERFACES.put(key, impl);
     }
+
     public static Object getImpl(String key) {
         return INVOKE_INTERFACES.get(key);
     }

@@ -1,4 +1,5 @@
 package com.nix.jingxun.addp.rpc.common.util;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,17 +33,18 @@ public class FluentMaps {
 
     /**
      * 支持流式操作的map
+     *
      * @param <K>
      * @param <V>
      */
     public interface FluentMap<K, V> extends Map<K, V> {
-        default FluentMap<K, V> plus(K key, V value){
+        default FluentMap<K, V> plus(K key, V value) {
             Objects.requireNonNull(key);
             this.put(key, value);
             return this;
         }
 
-        default FluentMap<K, V> plus(K k1, V v1, K k2, V v2){
+        default FluentMap<K, V> plus(K k1, V v1, K k2, V v2) {
             Objects.requireNonNull(k1);
             Objects.requireNonNull(k2);
             this.put(k1, v1);
@@ -50,7 +52,7 @@ public class FluentMaps {
             return this;
         }
 
-        default FluentMap<K, V> plus(K k1, V v1, K k2, V v2, K k3, V v3){
+        default FluentMap<K, V> plus(K k1, V v1, K k2, V v2, K k3, V v3) {
             Objects.requireNonNull(k1);
             Objects.requireNonNull(k2);
             Objects.requireNonNull(k3);
@@ -61,7 +63,7 @@ public class FluentMaps {
         }
 
 
-        default FluentMap<K, V> plus(Map<? extends K, ? extends V> map){
+        default FluentMap<K, V> plus(Map<? extends K, ? extends V> map) {
             if (map != null) {
                 map.forEach(this::plus);
             }
@@ -109,7 +111,7 @@ class DefaultFluentMap<K, V> implements FluentMaps.FluentMap<K, V> {
 
     @Override
     public V put(K key, V value) {
-        return map.put(key,value);
+        return map.put(key, value);
     }
 
     @Override

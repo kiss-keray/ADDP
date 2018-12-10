@@ -12,6 +12,7 @@ import io.netty.channel.ChannelHandler;
 public class ARPCCodec implements Codec {
 
     private final ChannelHandler encoder = new ProtocolCodeBasedEncoder(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE));
+
     @Override
     public ChannelHandler newEncoder() {
         return encoder;

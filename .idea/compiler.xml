@@ -17,8 +17,5 @@
         <module name="addp-web-start" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="addp-rpc-remoting" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

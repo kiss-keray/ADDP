@@ -8,7 +8,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class AOPTest {
     public static void main(String[] args) {
-        ClassPathXmlApplicationContext application = new ClassPathXmlApplicationContext("classpath:rpc-spring-aop.xml");
+        ClassPathXmlApplicationContext application = new ClassPathXmlApplicationContext("classpath:rpc-springboot-aop.xml");
 
     }
 }

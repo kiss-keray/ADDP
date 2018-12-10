@@ -21,8 +21,8 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * redis配置
- *  @author keray
  *
+ * @author keray
  */
 @Configuration
 @EnableCaching

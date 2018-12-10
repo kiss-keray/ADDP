@@ -36,7 +36,7 @@ public class ARPCCommandFactory implements CommandFactory {
 
     @Override
     public RPCPackage createExceptionResponse(int id, String errMsg) {
-        RPCPackage rpcPackage = RPCPackage.createMessage(id,RPCPackageCode.RESPONSE_ERROR);
+        RPCPackage rpcPackage = RPCPackage.createMessage(id, RPCPackageCode.RESPONSE_ERROR);
         rpcPackage.setContent(errMsg.getBytes());
         return rpcPackage;
     }

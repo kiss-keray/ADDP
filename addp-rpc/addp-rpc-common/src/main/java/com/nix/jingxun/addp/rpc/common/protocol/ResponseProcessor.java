@@ -9,10 +9,10 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2018/11/06 下午7:09
  */
 @Slf4j
-public class ResponseProcessor  extends AbstractRemotingProcessor<RemotingCommand> {
+public class ResponseProcessor extends AbstractRemotingProcessor<RemotingCommand> {
     @Override
     public void doProcess(RemotingContext ctx, RemotingCommand cmd) throws Exception {
-        log.debug("收到响应数据包 {}",cmd);
+        log.debug("收到响应数据包 {}", cmd);
         Connection conn = ctx.getChannelContext().channel().attr(Connection.CONNECTION).get();
         InvokeFuture future = conn.removeInvokeFuture(cmd.getId());
         ClassLoader oldClassLoader = null;
