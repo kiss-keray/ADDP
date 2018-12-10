@@ -32,7 +32,7 @@ class ShellBox extends Component{
         this.state.xterm.write(data);
     }
     createWebsocket = (call) => {
-        let socket = new WebSocket(`ws://ssh.xx11.top/ws/terminals/`);
+        let socket = new WebSocket(`wss://ssh.xx11.top/ws/terminals/`);
         socket.onopen = ev => {
             console.log("websocket open",ev);
             call();

@@ -7,7 +7,7 @@ import time
 import sys
 import json
 import requests
-
+import certifi
 # 配置服务器信息
 PORT = 22
 THREAD_COUNT = 0
@@ -30,7 +30,7 @@ class MyThread(threading.Thread):
 
 
 def httpGet(id):
-    res=requests.get("http://ssh.xx11.top/ssh/shell/get/" + id)
+    res = requests.get("http://ssh.xx11.top/ssh/shell/get/" + id,verify=False)
     return res.text
 
 class webSSHServer(tornado.websocket.WebSocketHandler):
@@ -91,4 +91,5 @@ if __name__ == '__main__':
     # 启动服务器
     http_server = tornado.httpserver.HTTPServer(app)
     http_server.listen(8900)
+    print("server start....")
     tornado.ioloop.IOLoop.current().start()
