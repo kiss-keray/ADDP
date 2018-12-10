@@ -32,6 +32,7 @@ public class ARPCDecoder implements CommandDecoder {
             in.readBytes(content);
             message.setContent(content);
             message.deserialize();
+            log.debug("decode : {}",message);
             out.add(message);
         }catch (Exception e) {
             log.error("decode error ",e);

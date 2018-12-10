@@ -32,30 +32,30 @@ public class RPCRemotingServer extends AbstractRemotingServer{
      *
      * IO密集型处理器线程池
      */
-    private final static ThreadPoolExecutor IMAGE_PROCESSOR_EXECUTOR = new ThreadPoolExecutor(
+    protected final static ThreadPoolExecutor IMAGE_PROCESSOR_EXECUTOR = new ThreadPoolExecutor(
             500, 500, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<>(),
             r -> {
                 Thread thread = new Thread(r);
                 thread.setName("image-processor-thread");
                 return thread;
             });
-    private ChannelFuture channelFuture;
-    private ServerBootstrap bootstrap;
-    private ConnectionEventHandler connectionEventHandler;
-    private DefaultConnectionManager connectionManager;
-    private RemotingAddressParser                       addressParser;
-    private ConnectionEventListener connectionEventListener = new ConnectionEventListener();
-    private static final EventLoopGroup BOSS_GROUP = NettyEventLoopUtil.newEventLoopGroup(1,
+    protected ChannelFuture channelFuture;
+    protected ServerBootstrap bootstrap;
+    protected ConnectionEventHandler connectionEventHandler;
+    protected DefaultConnectionManager connectionManager;
+    protected RemotingAddressParser                       addressParser;
+    protected ConnectionEventListener connectionEventListener = new ConnectionEventListener();
+    protected static final EventLoopGroup BOSS_GROUP = NettyEventLoopUtil.newEventLoopGroup(1,
                     new NamedThreadFactory(
                             "Rpc-netty-server-boss",
                             false));
-    private static final EventLoopGroup WORKER_GROUP = NettyEventLoopUtil.newEventLoopGroup(
+    protected static final EventLoopGroup WORKER_GROUP = NettyEventLoopUtil.newEventLoopGroup(
                     Runtime.getRuntime().availableProcessors() * 2,
                     new NamedThreadFactory(
                             "Rpc-netty-server-worker",
                             true));
-    private Codec codec = new ARPCCodec();
-    private final ChannelHandler serverIdleHandler;
+    protected Codec codec = new ARPCCodec();
+    protected final ChannelHandler serverIdleHandler;
 
     protected RPCRemotingServer(int port, ChannelHandler serverIdleHandler) {
         super(port);
@@ -131,14 +131,6 @@ public class RPCRemotingServer extends AbstractRemotingServer{
                 }
             }
         });
-        //注册channel事件处理器
-        ConnectionEventProcessor connectionEventProcessor = (remoteAddr, conn) -> {
-            connectionManager.remove(conn);
-//            ClientContainer.removeClient(conn);
-            conn.close();
-        };
-        connectionEventListener.addConnectionEventProcessor(ConnectionEventType.CLOSE, connectionEventProcessor);
-        connectionEventListener.addConnectionEventProcessor(ConnectionEventType.EXCEPTION, connectionEventProcessor);
         // 注册协议处理器
         ProtocolManager.registerProtocol(ARPCProtocolV1.VIDEO_PROTOCOL,ARPCProtocolV1.PROTOCOL_CODE);
         registerDefaultExecutor(ARPCProtocolV1.PROTOCOL_CODE,IMAGE_PROCESSOR_EXECUTOR);

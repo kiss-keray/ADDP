@@ -82,10 +82,14 @@ public class RPCRemotingClient extends BaseRemoting {
             connectionEventHandler.setReconnectManager(reconnectManager);
             log.warn("Switch on reconnect manager");
         }
-        ProtocolManager.registerProtocol(ARPCProtocolV1.VIDEO_PROTOCOL,ARPCProtocolV1.PROTOCOL_CODE);
-        ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerDefaultExecutor(IMAGE_PROCESSOR_EXECUTOR);
-        ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_SYN_COMMAND,new ARPCHeardProcessor());
-        ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_ACK_COMMAND,new ARPCHeardProcessor());
+        try {
+            ProtocolManager.registerProtocol(ARPCProtocolV1.VIDEO_PROTOCOL,ARPCProtocolV1.PROTOCOL_CODE);
+            ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerDefaultExecutor(IMAGE_PROCESSOR_EXECUTOR);
+            ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_SYN_COMMAND,new ARPCHeardProcessor());
+            ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_ACK_COMMAND,new ARPCHeardProcessor());
+        }catch (Exception e) {
+            log.info("client注册协议失败");
+        }
     }
 
     public Connection getAndCreateIfAbsent(String url) {

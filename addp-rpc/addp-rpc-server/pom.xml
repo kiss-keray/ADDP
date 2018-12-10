@@ -116,6 +116,12 @@
         <dependency>
             <groupId>com.nix.jingxun</groupId>
             <artifactId>addp-rpc-common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
     <build>

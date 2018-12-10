@@ -1,9 +1,14 @@
 package com.nix.jingxun.addp.rpc.server.netty;
 
+import com.alipay.remoting.ConnectionEventProcessor;
+import com.alipay.remoting.ConnectionEventType;
 import com.nix.jingxun.addp.rpc.common.RPCRemotingServer;
+import com.nix.jingxun.addp.rpc.common.config.CommonConfig;
 import com.nix.jingxun.addp.rpc.common.protocol.ARPCProtocolV1;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
+import com.nix.jingxun.addp.rpc.server.handler.ProducerHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -16,11 +21,15 @@ import javax.annotation.PostConstruct;
 @Component
 public class ServerRemotingServer extends RPCRemotingServer {
 
-
-    private static final int PORT = Integer.parseInt(System.getProperty("rpc.server.port","15100"));
+    @Autowired
+    private ProducerRegisterProcessor producerRegisterProcessor;
+    @Autowired
+    private ConsumerGetMsgProcessor consumerGetMsgProcessor;
+    @Autowired
+    private ProducerHandler producerHandler;
 
     private ServerRemotingServer() {
-        super(PORT,new ServerIdleHandler());
+        super(CommonConfig.SERVER_PORT,new ServerIdleHandler());
     }
 
     @PostConstruct
@@ -31,8 +40,17 @@ public class ServerRemotingServer extends RPCRemotingServer {
     @Override
     protected void doInit() {
         super.doInit();
-        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.CONSUMER_GET_MSG,new ConsumerGetMsgProcessor());
-        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.PRODUCER_REGISTER,new ProducerRegisterProcessor());
+
+        //注册channel事件处理器
+        ConnectionEventProcessor connectionEventProcessor = (remoteAddr, conn) -> {
+            connectionManager.remove(conn);
+            producerHandler.producerLeave(conn.getChannel());
+            conn.close();
+        };
+        connectionEventListener.addConnectionEventProcessor(ConnectionEventType.CLOSE, connectionEventProcessor);
+        connectionEventListener.addConnectionEventProcessor(ConnectionEventType.EXCEPTION, connectionEventProcessor);
+        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.CONSUMER_GET_MSG,consumerGetMsgProcessor);
+        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.PRODUCER_REGISTER,producerRegisterProcessor);
     }
 
 }

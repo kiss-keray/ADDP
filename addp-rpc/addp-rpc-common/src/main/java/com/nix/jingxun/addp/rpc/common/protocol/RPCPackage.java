@@ -1,6 +1,7 @@
 package com.nix.jingxun.addp.rpc.common.protocol;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alipay.remoting.CommandCode;
 import com.alipay.remoting.InvokeContext;
 import com.alipay.remoting.ProtocolCode;
@@ -13,6 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -40,6 +42,7 @@ public class RPCPackage implements RemotingCommand {
     /**
      * 内容
      * */
+    @JSONField(serialize = false)
     protected byte[] content = new byte[0];
 
     private Object object;
@@ -64,7 +67,7 @@ public class RPCPackage implements RemotingCommand {
 
     @Override
     public void serialize() throws SerializationException {
-        if (getSerializer() == 1) {
+        if (getSerializer() == 1 && this.object != null) {
             this.jsonObject = new PackeageObject(this.object.getClass(),this.object);
             setContent(JSON.toJSONString(jsonObject).getBytes());
         }
@@ -72,7 +75,7 @@ public class RPCPackage implements RemotingCommand {
 
     @Override
     public void deserialize() throws DeserializationException {
-        if (getSerializer() == 1) {
+        if (getSerializer() == 1 && this.getContent() != null && this.getContent().length > 0) {
             this.jsonObject = JSON.parseObject(new String(getContent()),PackeageObject.class);
             this.object = JSON.parseObject(JSON.toJSONString(jsonObject.getData()),jsonObject.getClazz());
         }
@@ -135,5 +138,16 @@ public class RPCPackage implements RemotingCommand {
     }
     public static RPCPackage createHeardAckMessage() {
         return createRequestMessage(RPCPackageCode.HEART_ACK_COMMAND);
+    }
+
+    @Override
+    public String toString() {
+        return "RPCPackage{" +
+                "id=" + id +
+                ", commandCode=" + commandCode +
+                ", object=" + object +
+                ", jsonObject=" + jsonObject +
+                ", throwable=" + throwable +
+                '}';
     }
 }

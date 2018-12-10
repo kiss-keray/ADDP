@@ -21,11 +21,9 @@ public class ProducerRegisterProcessor extends AbstractRPCRequestProcessor<RPCPa
 
     @Override
     public RPCPackage process(RemotingContext ctx, RPCPackage msg) throws Exception {
-        RPCPackage response;
-        if (producerHandler.registerInterface((Producer2ServerRequest) msg.getObject())) {
-            response = RPCPackage.createMessage(msg.getId(), RPCPackageCode.RESPONSE_SUCCESS);
+        if (producerHandler.registerInterface((Producer2ServerRequest) msg.getObject(),ctx.getChannelContext().channel())) {
+            return RPCPackage.createMessage(msg.getId(), RPCPackageCode.RESPONSE_SUCCESS);
         }
-        response = RPCPackage.createMessage(msg.getId(), RPCPackageCode.RESPONSE_ERROR);
-        return response;
+        return RPCPackage.createMessage(msg.getId(), RPCPackageCode.RESPONSE_ERROR);
     }
 }
