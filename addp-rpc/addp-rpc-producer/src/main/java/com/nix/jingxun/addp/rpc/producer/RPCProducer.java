@@ -5,6 +5,7 @@ import com.nix.jingxun.addp.rpc.common.RPCRemotingClient;
 import com.nix.jingxun.addp.rpc.common.config.CommonConfig;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
+import com.nix.jingxun.addp.rpc.producer.netty.ProducerClient;
 import com.nix.jingxun.addp.rpc.producer.netty.ProducerRemotingServer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +44,7 @@ public final class RPCProducer {
             log.info("注册服务 {}",request);
             RPCPackage rpcPackage = RPCPackage.createRequestMessage(RPCPackageCode.PRODUCER_REGISTER);
             rpcPackage.setObject(request);
-            RPCPackage response = RPCRemotingClient.CLIENT.invokeSync(CommonConfig.SERVER_HOST, rpcPackage, 10000);
+            RPCPackage response = ProducerClient.CLIENT.invokeSync(CommonConfig.SERVER_HOST, rpcPackage, 10000);
             if (response.getCmdCode() != RPCPackageCode.RESPONSE_SUCCESS) {
                 throw new RuntimeException("服务方法注册失败 response:" + response);
             }

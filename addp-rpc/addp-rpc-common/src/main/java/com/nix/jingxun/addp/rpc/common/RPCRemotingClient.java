@@ -52,8 +52,6 @@ public class RPCRemotingClient extends BaseRemoting {
                 return thread;
             });
 
-    public static final RPCRemotingClient CLIENT = new RPCRemotingClient(new RpcCommandFactory());
-
     /**
      * default constructor
      */

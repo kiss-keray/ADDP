@@ -28,6 +28,8 @@ public class ServerRemotingServer extends RPCRemotingServer {
     private ConsumerGetMsgProcessor consumerGetMsgProcessor;
     @Autowired
     private ProducerHandler producerHandler;
+    @Autowired
+    private ProducerReconnectProcessor reconnectProcessor;
 
     private ServerRemotingServer() {
         super(CommonConfig.SERVER_PORT, new ServerIdleHandler());
@@ -51,8 +53,14 @@ public class ServerRemotingServer extends RPCRemotingServer {
         };
         connectionEventListener.addConnectionEventProcessor(ConnectionEventType.CLOSE, connectionEventProcessor);
         connectionEventListener.addConnectionEventProcessor(ConnectionEventType.EXCEPTION, connectionEventProcessor);
+        connectionEventListener.addConnectionEventProcessor(ConnectionEventType.CONNECT, (remoteAddr, conn) -> {
+            if (producerHandler.reconnect(conn.getChannel())) {
+                log.info("{} 重连成功",conn.getRemoteAddress());
+            }
+        });
         registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.CONSUMER_GET_MSG, consumerGetMsgProcessor);
         registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.PRODUCER_REGISTER, producerRegisterProcessor);
+        registerProcessor(ARPCProtocolV1.PROTOCOL_CODE, RPCPackageCode.PRODUCER_RECON, reconnectProcessor);
     }
 
 }

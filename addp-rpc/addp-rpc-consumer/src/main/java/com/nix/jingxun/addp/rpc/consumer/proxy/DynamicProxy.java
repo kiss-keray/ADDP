@@ -7,6 +7,7 @@ import com.nix.jingxun.addp.rpc.common.config.CommonConfig;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
 import com.nix.jingxun.addp.rpc.consumer.RPCContext;
+import com.nix.jingxun.addp.rpc.consumer.netty.ConsumerClient;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
@@ -40,11 +41,11 @@ public class DynamicProxy implements InvocationHandler {
                 if (consumer.timeout() == 0) {
                     throw new RuntimeException("同步rpc调用timeout 必须大于 0");
                 }
-                responsePackage = RPCRemotingClient.CLIENT.invokeSync(producerHost, rpcPackage, consumer.timeout());
+                responsePackage = ConsumerClient.CLIENT.invokeSync(producerHost, rpcPackage, consumer.timeout());
             }
             break;
             case ASYNC_EXEC_METHOD:
-                return RPCRemotingClient.CLIENT.invokeWithFuture(producerHost, responsePackage, 0);
+                return ConsumerClient.CLIENT.invokeWithFuture(producerHost, responsePackage, 0);
             default:
                 break;
         }
@@ -82,6 +83,6 @@ public class DynamicProxy implements InvocationHandler {
         log.info("rpc 调用 {}", interfaceKey);
         RPCPackage request = RPCPackage.createRequestMessage(RPCPackageCode.CONSUMER_GET_MSG);
         request.setObject(interfaceKey);
-        return RPCRemotingClient.CLIENT.invokeSync(CommonConfig.SERVER_HOST, request, 1000).getObject().toString();
+        return ConsumerClient.CLIENT.invokeSync(CommonConfig.SERVER_HOST, request, 1000).getObject().toString();
     }
 }

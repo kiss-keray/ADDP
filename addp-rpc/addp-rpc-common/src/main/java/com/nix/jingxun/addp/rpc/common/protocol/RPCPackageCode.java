@@ -13,7 +13,8 @@ public enum RPCPackageCode implements CommandCode {
     HEART_ACK_COMMAND((short) 0x08, "确认心跳数据包"),
     RPC_INVOKE((short) 0x10, "RPC调用"),
     PRODUCER_REGISTER((short) 0x12, "服务方注册服务"),
-    CONSUMER_GET_MSG((short) 0x13, "消费者获取接口信息");
+    CONSUMER_GET_MSG((short) 0x13, "消费者获取接口信息"),
+    PRODUCER_RECON((short) 0x14, "服务方重连中心");
 
     short code;
 

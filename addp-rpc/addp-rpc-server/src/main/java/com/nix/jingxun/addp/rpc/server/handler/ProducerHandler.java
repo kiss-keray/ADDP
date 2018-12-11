@@ -16,6 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -28,6 +32,15 @@ public class ProducerHandler {
     @Autowired
     private RedisTemplate<String, String> template;
 
+    private final static int TIMEOUT_DEL_PRODUCER = 10000;
+    private final static String RECON_DEL_PRODUCER_KEY = "RECON_DEL_PRODUCER_KEY";
+
+    private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1, r -> {
+        Thread thread = new Thread(r);
+        thread.setName("rpc-server-producer-handler");
+        return thread;
+    });
+
     /**
      * 服务提供方注册服务
      */
@@ -38,12 +51,16 @@ public class ProducerHandler {
         String interfaceKey = RPCMethodParser.getMethodKey(request.getInterfaceName(), request.getAppName(), request.getGroup(), request.getVersion());
         String producerHost = request.getHost();
         if (Boolean.valueOf(true).equals(template.opsForSet().isMember(interfaceKey,request.getHost())) || Long.valueOf(1).equals(template.opsForSet().add(interfaceKey, request.getHost()))) {
-            template.opsForValue().set(producerHost, JSON.toJSONString(request));
+            template.opsForSet().add(producerHost, JSON.toJSONString(request));
             log.info("服务注册success");
             return true;
         }
         log.info("服务注册fail");
         return false;
+    }
+
+    public boolean reconnect(Channel channel) {
+        return Long.valueOf(1).equals(template.opsForSet().remove(RECON_DEL_PRODUCER_KEY,RemotingUtil.parseRemoteAddress(channel)));
     }
 
     /**
@@ -55,19 +72,27 @@ public class ProducerHandler {
     }
 
     public void producerLeave(Channel channel) {
-        String host = template.opsForValue().get(RemotingUtil.parseRemoteAddress(channel));
-        template.delete(RemotingUtil.parseRemoteAddress(channel));
-        if (StringUtils.isNotBlank(host)) {
-            String interfaceMsgJson = template.opsForValue().get(host);
-            template.delete(host);
-            if (StringUtils.isNotBlank(interfaceMsgJson)) {
-                Producer2ServerRequest interfaceMsg = JSON.parseObject(interfaceMsgJson, Producer2ServerRequest.class);
-                String interfaceKey = RPCMethodParser.getMethodKey(interfaceMsg.getInterfaceName(), interfaceMsg.getAppName(), interfaceMsg.getGroup(), interfaceMsg.getVersion());
-                template.opsForSet().remove(interfaceKey, host);
-                if (Long.valueOf(0).equals(template.opsForSet().size(interfaceKey))) {
-                    template.delete(interfaceKey);
+        String chanelUrl = RemotingUtil.parseRemoteAddress(channel);
+        template.opsForSet().add(RECON_DEL_PRODUCER_KEY,chanelUrl);
+        scheduledExecutorService.schedule(() -> {
+            if (Boolean.valueOf(true).equals(template.opsForSet().isMember(RECON_DEL_PRODUCER_KEY,chanelUrl))) {
+                template.delete(chanelUrl);
+                String host = template.opsForValue().get(chanelUrl);
+                if (StringUtils.isNotBlank(host)) {
+                    template.delete(chanelUrl);
+                    String interfaceMsgJson = template.opsForValue().get(host);
+                    template.delete(host);
+                    if (StringUtils.isNotBlank(interfaceMsgJson)) {
+                        Producer2ServerRequest interfaceMsg = JSON.parseObject(interfaceMsgJson, Producer2ServerRequest.class);
+                        String interfaceKey = RPCMethodParser.getMethodKey(interfaceMsg.getInterfaceName(), interfaceMsg.getAppName(), interfaceMsg.getGroup(), interfaceMsg.getVersion());
+                        template.opsForSet().remove(interfaceKey, host);
+                        if (Long.valueOf(0).equals(template.opsForSet().size(interfaceKey))) {
+                            template.delete(interfaceKey);
+                        }
+                    }
                 }
             }
-        }
+        },TIMEOUT_DEL_PRODUCER, TimeUnit.MILLISECONDS);
+
     }
 }
