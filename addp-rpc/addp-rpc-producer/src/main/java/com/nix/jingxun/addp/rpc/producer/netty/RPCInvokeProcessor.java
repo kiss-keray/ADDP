@@ -20,7 +20,6 @@ import java.lang.reflect.Method;
 @Slf4j
 public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> {
     private RPCResponse invoke(RPCRequest request) {
-        log.info("rpc invoke {}", request);
         RPCResponse response = new RPCResponse();
         try {
             response.setContext(request.getContext());
@@ -46,6 +45,7 @@ public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> 
 
     @Override
     public RPCPackage process(RemotingContext ctx, RPCPackage msg) throws Exception {
+        log.info("rpc invoke {}", msg);
         RPCRequest request = (RPCRequest) msg.getObject();
         if (request.getParamData() != null) {
             for (RPCRequest.ParamsData paramsData : request.getParamData()) {

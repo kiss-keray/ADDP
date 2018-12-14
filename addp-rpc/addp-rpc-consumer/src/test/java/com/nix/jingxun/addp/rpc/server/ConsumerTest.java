@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.rpc.server;
 
+import com.nix.jingxun.addp.rpc.consumer.proxy.RPCConsumerFactory;
 import com.nix.jingxun.addp.rpc.producer.test.Hello;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,21 +10,28 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author keray
  * @date 2018/12/07 16:48
  */
 
- @RunWith(SpringJUnit4ClassRunner.class) //使用junit4进行测试
-@ContextConfiguration(locations={"classpath:application.xml"}) //加载配置文件
+// @RunWith(SpringJUnit4ClassRunner.class) //使用junit4进行测试
+//@ContextConfiguration(locations={"classpath:application.xml"}) //加载配置文件
 public class ConsumerTest {
-
-    @Autowired
-    private ApplicationContext application;
     @Test
     public void main() {
-        Hello hello = application.getBean(Hello.class);
-        System.out.println(hello.getHello());
-        hello.sayHello("hahahhaha");
+        Hello hello = RPCConsumerFactory.consumer(Hello.class,10000,null);
+//        System.out.println(hello.getHello());
+//        hello.sayHello("sayHello");
+        List<String> list = new ArrayList<>();
+        list.add("a");
+        list.add("b");
+        list.add("c");
+        hello.sayHello1(list);
+//        hello.updateUser(null,null);
     }
 }
