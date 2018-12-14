@@ -25,15 +25,17 @@ public class RegisterProducer implements BeanPostProcessor {
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         Class<?>[] interfaces = bean.getClass().getInterfaces();
-        if (interfaces != null && interfaces.length == 1) {
-            Annotation[] annotations = interfaces[0].getAnnotations();
-            if (annotations != null && annotations.length > 0) {
-                for (Annotation annotation : annotations) {
-                    if (annotation instanceof RPCInterfaceAnnotation) {
-                        String appName = ((RPCInterfaceAnnotation) annotation).appName();
-                        String group = ((RPCInterfaceAnnotation) annotation).group();
-                        String version = ((RPCInterfaceAnnotation) annotation).version();
-                        RPCProducer.registerProducer(bean, appName, group, version);
+        if (interfaces != null) {
+            for (Class<?> clazz:interfaces) {
+                Annotation[] annotations = clazz.getAnnotations();
+                if (annotations != null && annotations.length > 0) {
+                    for (Annotation annotation : annotations) {
+                        if (annotation instanceof RPCInterfaceAnnotation) {
+                            String appName = ((RPCInterfaceAnnotation) annotation).appName();
+                            String group = ((RPCInterfaceAnnotation) annotation).group();
+                            String version = ((RPCInterfaceAnnotation) annotation).version();
+                            RPCProducer.registerProducer(clazz,bean, appName, group, version);
+                        }
                     }
                 }
             }

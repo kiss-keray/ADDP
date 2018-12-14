@@ -26,8 +26,7 @@ public final class RPCProducer {
         nettyServer.start();
     }
 
-    public static void registerProducer(Object producer, String app, String group, String version) throws RuntimeException {
-        Class<?> interfaceClass = producer.getClass().getInterfaces()[0];
+    public static void registerProducer(Class<?> interfaceClass,Object producer, String app, String group, String version) throws RuntimeException {
         try {
             String host = (CommonConfig.PRODUCER_INVOKE_LOCALHOST == null ?
                     Inet4Address.getLocalHost().getHostAddress() : CommonConfig.PRODUCER_INVOKE_LOCALHOST) + ":" + CommonConfig.PRODUCER_INVOKE_PORT;
