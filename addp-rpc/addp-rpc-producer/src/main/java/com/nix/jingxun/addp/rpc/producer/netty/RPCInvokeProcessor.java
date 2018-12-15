@@ -51,9 +51,9 @@ public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> 
         if (request.getParamData() != null) {
             for (int i = 0;i < request.getMethodParamTypes().length;i ++ ) {
                 try {
-                    request.getParamData().get(i).setData(JSON.parseObject(JSON.toJSONString(request.getParamData().get(i).getData()), request.getParamData().get(i).getClazz()));
+                    request.getParamData()[i].setData(JSON.parseObject(JSON.toJSONString(request.getParamData()[i].getData()), request.getParamData()[i].getClazz()));
                 }catch (JSONException e) {
-                    request.getParamData().get(i).setData(JSON.parseObject(JSON.toJSONString(request.getParamData().get(i).getData()), request.getMethodParamTypes()[i]));
+                    request.getParamData()[i].setData(JSON.parseObject(JSON.toJSONString(request.getParamData()[i].getData()), request.getMethodParamTypes()[i]));
                 }
             }
         }

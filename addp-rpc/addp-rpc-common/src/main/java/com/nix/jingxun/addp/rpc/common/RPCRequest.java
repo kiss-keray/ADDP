@@ -70,7 +70,7 @@ public class RPCRequest implements Serializable {
     private long timeout;
     private Map<String, String> context;
     private Date date;
-    private List<ParamsData> paramData;
+    private ParamsData[] paramData;
     private Source source;
     private String[] methodParamTypes;
 
@@ -92,7 +92,7 @@ public class RPCRequest implements Serializable {
         if (paramData == null) {
             return null;
         }
-        return getParamData().stream().map(ParamsData::getData).toArray();
+        return Stream.of(paramData).map(ParamsData::getData).toArray();
     }
 
     @Data

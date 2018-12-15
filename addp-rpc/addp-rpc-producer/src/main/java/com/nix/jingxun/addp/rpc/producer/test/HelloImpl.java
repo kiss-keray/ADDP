@@ -30,6 +30,8 @@ public class HelloImpl implements Hello {
 
     @Override
     public User updateUser(User user, Boolean clear) throws TimeoutException, InterruptedException {
-        return new User("xsxs",22,null);
+        user.setChild(new User("01",22,new User("02",23,new User("03",34,null))));
+        System.out.println("boolean:" + clear);
+        return user;
     }
 }

@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.rpc.server;
 
 import com.nix.jingxun.addp.rpc.consumer.proxy.RPCConsumerFactory;
 import com.nix.jingxun.addp.rpc.producer.test.Hello;
+import com.nix.jingxun.addp.rpc.producer.test.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author keray
@@ -23,11 +25,12 @@ import java.util.List;
 //@ContextConfiguration(locations={"classpath:application.xml"}) //加载配置文件
 public class ConsumerTest {
     @Test
-    public void main() {
+    public void main() throws TimeoutException, InterruptedException {
         Hello hello = RPCConsumerFactory.consumer(Hello.class,10000,null);
 //        System.out.println(hello.getHello());
         hello.sayHello("sayHello");
         hello.sayHello1(Arrays.asList("a","b","c"));
-//        hello.updateUser(null,null);
+        User user = hello.updateUser(new User("99",20,new User("100",19,null)),true);
+        System.out.println(user.getChild());
     }
 }

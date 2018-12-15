@@ -77,7 +77,15 @@ public class ASM {
         request.setMethod(method);
         request.setDate(new Date());
         if (args != null && args.length > 0) {
-            request.setParamData(Stream.of(args).map(item -> new RPCRequest.ParamsData(item.getClass(), item)).collect(Collectors.toList()));
+            RPCRequest.ParamsData[] paramsData = new RPCRequest.ParamsData[args.length];
+            for (int i = 0;i < args.length;i ++) {
+                if (args[i] == null) {
+                    paramsData[i] = new RPCRequest.ParamsData(null,null);
+                } else {
+                    paramsData[i] = new RPCRequest.ParamsData(args[i].getClass(),args[i]);
+                }
+            }
+            request.setParamData(paramsData);
         }
         return request;
     }
