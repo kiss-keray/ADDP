@@ -86,6 +86,7 @@ public class RPCConsumerFactory {
         mw.visitVarInsn(Opcodes.ALOAD,0);
         mw.visitLdcInsn(method.getName());
         if (paramCount > 0) {
+            // 设置方法参数值Object[]
             if (paramCount > 5) {
                 mw.visitVarInsn(Opcodes.BIPUSH, paramCount);
             } else {
@@ -102,10 +103,28 @@ public class RPCConsumerFactory {
                 mw.visitVarInsn(Opcodes.ALOAD, i + 1);
                 mw.visitInsn(Opcodes.AASTORE);
             }
+            // 设置方法参数类型Class[]
+            if (paramCount > 5) {
+                mw.visitVarInsn(Opcodes.BIPUSH, paramCount);
+            } else {
+                mw.visitInsn(Opcodes.ICONST_0 + paramCount);
+            }
+            mw.visitMultiANewArrayInsn("[Ljava/lang/String;", 1);
+            for (int i = 0; i < paramCount; i++) {
+                mw.visitInsn(Opcodes.DUP);
+                if (i > 5) {
+                    mw.visitVarInsn(Opcodes.BIPUSH, i);
+                } else {
+                    mw.visitInsn(Opcodes.ICONST_0 + i);
+                }
+                mw.visitLdcInsn(method.getParameterTypes()[i].getName());
+                mw.visitInsn(Opcodes.AASTORE);
+            }
         } else {
             mw.visitInsn(Opcodes.ACONST_NULL);
+            mw.visitInsn(Opcodes.ACONST_NULL);
         }
-        mw.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ASM.class), "invoke", Type.getMethodDescriptor(ASM.class.getMethod("invoke",Object.class,String.class,Object[].class)));
+        mw.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ASM.class), "invoke", Type.getMethodDescriptor(ASM.class.getMethod("invoke",Object.class,String.class,Object[].class,String[].class)));
         if (method.getReturnType().equals(void.class)) {
             mw.visitInsn(Opcodes.POP);
             mw.visitInsn(Opcodes.RETURN);

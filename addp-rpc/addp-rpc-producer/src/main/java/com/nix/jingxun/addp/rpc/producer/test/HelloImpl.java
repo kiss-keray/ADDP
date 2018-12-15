@@ -20,7 +20,6 @@ public class HelloImpl implements Hello {
 
     @Override
     public void sayHello1(List<String> strs) {
-        System.out.println("xsxsaxsaxsaxsa");
         System.out.println(Arrays.toString(strs.toArray()));
     }
 

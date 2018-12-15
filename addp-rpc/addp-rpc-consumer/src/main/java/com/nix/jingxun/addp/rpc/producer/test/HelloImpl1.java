@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.rpc.producer.test;
 
 import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
 import com.nix.jingxun.addp.rpc.common.RPCType;
+import com.nix.jingxun.addp.rpc.consumer.proxy.ASM;
 
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 public class HelloImpl1 implements Hello{
     @Override
     public void sayHello(String str) {
-
+        ASM.invoke(this, "sayHello1", new Object[]{str},new String[]{String.class.getName()});
     }
 
     @Override

@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  */
 @Slf4j
 public class ASM {
-    public static Object invoke(Object _this,String methodName,Object[] args) {
+    public static Object invoke(Object _this,String methodName,Object[] args,String[] methodParamTypes) {
         try {
             Class<?> proxyInterface = _this.getClass().getInterfaces()[0];
             RPCInterfaceAnnotation consumer = _this.getClass().getAnnotation(RPCInterfaceAnnotation.class);
@@ -33,6 +33,7 @@ public class ASM {
             String producerHost = getProducerHost(RPCMethodParser.getMethodKey(proxyInterface.getName(), consumer.appName(), consumer.group(), consumer.version()));
             RPCPackage responsePackage = null;
             RPCRequest request = createInvokeRPCRequest(proxyInterface, methodName, args);
+            request.setMethodParamTypes(methodParamTypes);
             RPCPackage rpcPackage = RPCPackage.createRequestMessage(RPCPackageCode.RPC_INVOKE);
             rpcPackage.setObject(request);
             switch (consumer.type()) {

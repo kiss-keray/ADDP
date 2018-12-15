@@ -1,6 +1,7 @@
 package com.nix.jingxun.addp.rpc.producer.netty;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
 import com.alipay.remoting.RemotingContext;
 import com.nix.jingxun.addp.rpc.common.RPCRequest;
 import com.nix.jingxun.addp.rpc.common.RPCResponse;
@@ -48,8 +49,12 @@ public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> 
         log.info("rpc invoke {}", msg);
         RPCRequest request = (RPCRequest) msg.getObject();
         if (request.getParamData() != null) {
-            for (RPCRequest.ParamsData paramsData : request.getParamData()) {
-                paramsData.setData(JSON.parseObject(JSON.toJSONString(paramsData.getData()), paramsData.getClazz()));
+            for (int i = 0;i < request.getMethodParamTypes().length;i ++ ) {
+                try {
+                    request.getParamData().get(i).setData(JSON.parseObject(JSON.toJSONString(request.getParamData().get(i).getData()), request.getParamData().get(i).getClazz()));
+                }catch (JSONException e) {
+                    request.getParamData().get(i).setData(JSON.parseObject(JSON.toJSONString(request.getParamData().get(i).getData()), request.getMethodParamTypes()[i]));
+                }
             }
         }
         RPCPackage responsePackage = RPCPackage.createMessage(msg.getId(), RPCPackageCode.RESPONSE_SUCCESS);

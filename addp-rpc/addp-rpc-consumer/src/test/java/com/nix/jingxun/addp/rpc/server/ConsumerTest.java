@@ -26,12 +26,8 @@ public class ConsumerTest {
     public void main() {
         Hello hello = RPCConsumerFactory.consumer(Hello.class,10000,null);
 //        System.out.println(hello.getHello());
-//        hello.sayHello("sayHello");
-        List<String> list = new ArrayList<>();
-        list.add("a");
-        list.add("b");
-        list.add("c");
-        hello.sayHello1(list);
+        hello.sayHello("sayHello");
+        hello.sayHello1(Arrays.asList("a","b","c"));
 //        hello.updateUser(null,null);
     }
 }

@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * {
@@ -71,12 +72,20 @@ public class RPCRequest implements Serializable {
     private Date date;
     private List<ParamsData> paramData;
     private Source source;
+    private String[] methodParamTypes;
 
     public Class[] getMethodParamTypes() {
-        if (paramData == null) {
+        if (methodParamTypes == null || methodParamTypes.length == 0) {
             return null;
         }
-        return getParamData().stream().map(ParamsData::getClazz).toArray(Class[]::new);
+        return Stream.of(methodParamTypes).map(item -> {
+            try {
+                return Class.forName(item);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).toArray(Class[]::new);
     }
 
     public Object[] getParams() {
