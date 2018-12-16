@@ -2,13 +2,12 @@ package com.nix.jingxun.addp.rpc.consumer.proxy;
 
 import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
 import com.nix.jingxun.addp.rpc.common.RPCType;
-import com.nix.jingxun.addp.rpc.producer.test.Hello;
+import com.nix.jingxun.addp.rpc.common.util.CommonUtil;
 import org.objectweb.asm.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 /**
@@ -34,9 +33,10 @@ public class RPCConsumerFactory {
         try {
 
             RPCInterfaceAnnotation interfaceAnnotation = interfaceClazz.getAnnotation(RPCInterfaceAnnotation.class);
-            String newClassPath = className2FilePath(interfaceClazz.getName()) + "Impl";
+            String newClassPath = CommonUtil.className2FilePath(interfaceClazz.getName()) + "Impl";
             ClassWriter cw = new ClassWriter(0);
-            cw.visit(Opcodes.V1_7,Opcodes.ACC_PUBLIC, newClassPath, null, "java/lang/Object", new String[]{className2FilePath(interfaceClazz.getName())});
+            //
+            cw.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, newClassPath, null, "java/lang/Object", new String[]{CommonUtil.className2FilePath(interfaceClazz.getName())});
             //添加注解
             AnnotationVisitor annotationVisitor = cw.visitAnnotation(Type.getDescriptor(RPCInterfaceAnnotation.class),true);
             annotationVisitor.visit("appName",interfaceAnnotation.appName());
@@ -54,7 +54,7 @@ public class RPCConsumerFactory {
             mw.visitCode();
             //生成构造方法的字节码指令
             mw.visitVarInsn(Opcodes.ALOAD, 0);
-            mw.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+            mw.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V",false);
             mw.visitInsn(Opcodes.RETURN);
             mw.visitMaxs(1, 1);
             mw.visitEnd();
@@ -72,7 +72,7 @@ public class RPCConsumerFactory {
             FileOutputStream out = new FileOutputStream(file);
             out.write(data);
             out.close();
-            return (T) Class.forName(filepath2ClassName(newClassPath)).newInstance();
+            return (T) Class.forName(CommonUtil.filepath2ClassName(newClassPath)).newInstance();
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -124,7 +124,7 @@ public class RPCConsumerFactory {
             mw.visitInsn(Opcodes.ACONST_NULL);
             mw.visitInsn(Opcodes.ACONST_NULL);
         }
-        mw.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ASM.class), "invoke", Type.getMethodDescriptor(ASM.class.getMethod("invoke",Object.class,String.class,Object[].class,String[].class)));
+        mw.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ASM.class), "invoke", Type.getMethodDescriptor(ASM.class.getMethod("invoke",Object.class,String.class,Object[].class,String[].class)),false);
         if (method.getReturnType().equals(void.class)) {
             mw.visitInsn(Opcodes.POP);
             mw.visitInsn(Opcodes.RETURN);
@@ -135,12 +135,5 @@ public class RPCConsumerFactory {
         mw.visitMaxs(Integer.MAX_VALUE, 1 + paramCount);
         //字节码生成完成
         mw.visitEnd();
-    }
-
-    private static String className2FilePath(String clazzName) {
-        return clazzName.replaceAll("\\.","/");
-    }
-    private static String filepath2ClassName(String filepath) {
-        return filepath.replaceAll("/",".");
     }
 }

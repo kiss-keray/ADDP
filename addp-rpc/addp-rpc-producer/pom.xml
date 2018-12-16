@@ -46,6 +46,10 @@
             <artifactId>spring-test</artifactId>
             <version>5.0.4.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

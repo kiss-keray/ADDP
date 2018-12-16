@@ -1,7 +1,6 @@
 package com.nix.jingxun.addp.rpc.producer;
 
 import com.nix.jingxun.addp.rpc.common.Producer2ServerRequest;
-import com.nix.jingxun.addp.rpc.common.RPCRemotingClient;
 import com.nix.jingxun.addp.rpc.common.config.CommonConfig;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
@@ -26,7 +25,12 @@ public final class RPCProducer {
         nettyServer.start();
     }
 
-    public static void registerProducer(Class<?> interfaceClass,Object producer, String app, String group, String version) throws RuntimeException {
+    public static Object registerProducer(Class<?> interfaceClass,Object producer, String app, String group, String version,Object newBean) throws Exception {
+        // 防止bean被多个factory注入
+
+        if (InvokeContainer.isExistImpl(interfaceClass.getName())) {
+            return newBean;
+        }
         try {
             String host = (CommonConfig.PRODUCER_INVOKE_LOCALHOST == null ?
                     Inet4Address.getLocalHost().getHostAddress() : CommonConfig.PRODUCER_INVOKE_LOCALHOST) + ":" + CommonConfig.PRODUCER_INVOKE_PORT;
@@ -51,6 +55,9 @@ public final class RPCProducer {
             throw new RuntimeException(e);
         }
         log.info("服务注册SUCCESS");
-        InvokeContainer.addInterface(interfaceClass.getName(), producer);
+        RPCInvoke rpcBean = ASM.changeBean(producer);
+        InvokeContainer.addInterface(interfaceClass.getName(), rpcBean);
+        return rpcBean;
     }
+
 }

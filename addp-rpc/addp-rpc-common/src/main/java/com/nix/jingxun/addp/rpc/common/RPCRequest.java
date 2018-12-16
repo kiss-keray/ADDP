@@ -75,7 +75,7 @@ public class RPCRequest implements Serializable {
     private String[] methodParamTypes;
 
     public Class[] getMethodParamTypes() {
-        if (methodParamTypes == null || methodParamTypes.length == 0) {
+        if (methodParamTypes == null) {
             return null;
         }
         return Stream.of(methodParamTypes).map(item -> {

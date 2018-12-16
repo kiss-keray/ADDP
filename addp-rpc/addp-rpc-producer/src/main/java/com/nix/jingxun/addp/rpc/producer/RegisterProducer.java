@@ -2,7 +2,9 @@ package com.nix.jingxun.addp.rpc.producer;
 
 import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
 import com.nix.jingxun.addp.rpc.producer.springboot.BootConfig;
+import com.nix.jingxun.addp.rpc.producer.test.HelloImpl;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +26,7 @@ public class RegisterProducer implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        Object newBean = null;
         Class<?>[] interfaces = bean.getClass().getInterfaces();
         if (interfaces != null) {
             for (Class<?> clazz:interfaces) {
@@ -34,7 +37,12 @@ public class RegisterProducer implements BeanPostProcessor {
                             String appName = ((RPCInterfaceAnnotation) annotation).appName();
                             String group = ((RPCInterfaceAnnotation) annotation).group();
                             String version = ((RPCInterfaceAnnotation) annotation).version();
-                            RPCProducer.registerProducer(clazz,bean, appName, group, version);
+                            try {
+                                newBean = RPCProducer.registerProducer(clazz,bean, appName, group, version,newBean);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                throw new BeanCreationException(e.getMessage(),e.getCause());
+                            }
                         }
                     }
                 }

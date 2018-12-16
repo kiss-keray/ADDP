@@ -14,7 +14,6 @@ import javax.annotation.PostConstruct;
 public class BootConfig {
     @PostConstruct
     public void init() {
-        System.out.println("BootConfig");
     }
 
     private String localhost;

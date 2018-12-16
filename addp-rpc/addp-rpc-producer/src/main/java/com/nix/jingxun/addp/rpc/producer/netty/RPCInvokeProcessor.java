@@ -9,7 +9,9 @@ import com.nix.jingxun.addp.rpc.common.protocol.AbstractRPCRequestProcessor;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
 import com.nix.jingxun.addp.rpc.common.serializable.JsonSerializer;
+import com.nix.jingxun.addp.rpc.producer.ASM;
 import com.nix.jingxun.addp.rpc.producer.InvokeContainer;
+import com.nix.jingxun.addp.rpc.producer.RPCInvoke;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Method;
@@ -24,15 +26,9 @@ public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> 
         RPCResponse response = new RPCResponse();
         try {
             response.setContext(request.getContext());
-            Class<?> clazz = InvokeContainer.getImpl(request.getInterfaceName()).getClass();
-            Class[] methodParamSign = request.getMethodParamTypes();
-            Method method;
-            if (methodParamSign == null) {
-                method = clazz.getMethod(request.getMethod());
-            } else {
-                method = clazz.getMethod(request.getMethod(), methodParamSign);
-            }
-            Object result = method.invoke(InvokeContainer.getImpl(request.getInterfaceName()), request.getParams());
+            RPCInvoke invoke = InvokeContainer.getImpl(request.getInterfaceName());
+            Class<?>[] methodParamSign = request.getMethodParamTypes();
+            Object result = invoke.invoke(ASM.getMethodSign(request.getMethod(),methodParamSign),request.getParams());
             response.setCode(RPCResponse.ResponseCode.SUCCESS);
             if (result != null) {
                 response.setResult(new RPCResponse.SuccessResult(result.getClass(), result));
