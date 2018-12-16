@@ -43,11 +43,11 @@ public class RPCConsumerFactory {
             annotationVisitor.visit("group",interfaceAnnotation.group());
             annotationVisitor.visit("version",interfaceAnnotation.version());
             annotationVisitor.visit("timeout",timeout);
-//            if (type != null) {
-//                annotationVisitor.visitEnum("type", Type.getInternalName(RPCType.class), type.name());
-//            } else {
-//                annotationVisitor.visitEnum("type", Type.getInternalName(RPCType.class), RPCType.SYNC_EXEC_METHOD.name());
-//            }
+            if (type != null) {
+                annotationVisitor.visitEnum("type", Type.getDescriptor(RPCType.class), type.name());
+            } else {
+                annotationVisitor.visitEnum("type", Type.getDescriptor(RPCType.class), RPCType.SYNC_EXEC_METHOD.name());
+            }
             annotationVisitor.visitEnd();
             //生成默认的构造方法
             MethodVisitor mw = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
@@ -65,13 +65,8 @@ public class RPCConsumerFactory {
                 }
             }
             cw.visitEnd();
-
             // 生成class
-            byte[] data = cw.toByteArray();
-            File file = new File(RPCConsumerFactory.class.getResource("/").getPath() + newClassPath + ".class");
-            FileOutputStream out = new FileOutputStream(file);
-            out.write(data);
-            out.close();
+            createClass(newClassPath,cw.toByteArray());
             return (T) Class.forName(CommonUtil.filepath2ClassName(newClassPath)).newInstance();
         }catch (Exception e) {
             e.printStackTrace();
@@ -135,5 +130,17 @@ public class RPCConsumerFactory {
         mw.visitMaxs(Integer.MAX_VALUE, 1 + paramCount);
         //字节码生成完成
         mw.visitEnd();
+    }
+
+    private static void createClass(String classPath,byte[] bytes) throws Exception {
+        String fileName = RPCConsumerFactory.class.getResource("/").getPath() + classPath.substring(0,classPath.lastIndexOf("/")) + "/";
+        File file = new File(fileName);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        file = new File(RPCConsumerFactory.class.getResource("/").getPath() + classPath + ".class");
+        FileOutputStream out = new FileOutputStream(file);
+        out.write(bytes);
+        out.close();
     }
 }
