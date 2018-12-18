@@ -1,7 +1,7 @@
 package com.nix.jingxun.addp.rpc.common;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author keray
@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 public class IClassLoader extends ClassLoader {
-    private final static Map<String,Class> LOADER_CLASS = new ConcurrentHashMap<>(32);
+    private final static Map<String,Class> LOADER_CLASS = new HashMap<>(32);
     private byte[] data;
 
     public IClassLoader( ClassLoader parent) {
