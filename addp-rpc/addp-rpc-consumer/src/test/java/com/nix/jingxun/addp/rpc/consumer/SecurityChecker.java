@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.rpc.server;
+package com.nix.jingxun.addp.rpc.consumer;
 
 /**
  * @author keray

@@ -76,20 +76,22 @@ public class ProducerHandler {
         template.opsForSet().add(RECON_DEL_PRODUCER_KEY,chanelUrl);
         scheduledExecutorService.schedule(() -> {
             if (Boolean.valueOf(true).equals(template.opsForSet().isMember(RECON_DEL_PRODUCER_KEY,chanelUrl))) {
-                template.delete(chanelUrl);
+                template.opsForSet().remove(RECON_DEL_PRODUCER_KEY,chanelUrl);
+                log.info("移除服务方 {}",chanelUrl);
                 String host = template.opsForValue().get(chanelUrl);
                 if (StringUtils.isNotBlank(host)) {
                     template.delete(chanelUrl);
-                    String interfaceMsgJson = template.opsForValue().get(host);
-                    template.delete(host);
-                    if (StringUtils.isNotBlank(interfaceMsgJson)) {
-                        Producer2ServerRequest interfaceMsg = JSON.parseObject(interfaceMsgJson, Producer2ServerRequest.class);
-                        String interfaceKey = RPCMethodParser.getMethodKey(interfaceMsg.getInterfaceName(), interfaceMsg.getAppName(), interfaceMsg.getGroup(), interfaceMsg.getVersion());
-                        template.opsForSet().remove(interfaceKey, host);
-                        if (Long.valueOf(0).equals(template.opsForSet().size(interfaceKey))) {
-                            template.delete(interfaceKey);
-                        }
+                    Set<String> interfaces = template.opsForSet().members(host);
+                    if (interfaces != null) {
+                        interfaces.forEach(interfaceMsgJson -> {
+                            if (StringUtils.isNotBlank(interfaceMsgJson)) {
+                                Producer2ServerRequest interfaceMsg = JSON.parseObject(interfaceMsgJson, Producer2ServerRequest.class);
+                                String interfaceKey = RPCMethodParser.getMethodKey(interfaceMsg.getInterfaceName(), interfaceMsg.getAppName(), interfaceMsg.getGroup(), interfaceMsg.getVersion());
+                                template.opsForSet().remove(interfaceKey, host);
+                            }
+                        });
                     }
+                    template.delete(host);
                 }
             }
         },TIMEOUT_DEL_PRODUCER, TimeUnit.MILLISECONDS);

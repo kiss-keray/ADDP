@@ -9,7 +9,7 @@ import java.util.concurrent.TimeoutException;
  * @author keray
  * @date 2018/12/08 16:36
  */
-@RPCInterfaceAnnotation(appName = "app")
+@RPCInterfaceAnnotation(appName = "app1")
 public interface Hello {
     void sayHello(String str);
 

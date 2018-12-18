@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.rpc.server;
+package com.nix.jingxun.addp.rpc.consumer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

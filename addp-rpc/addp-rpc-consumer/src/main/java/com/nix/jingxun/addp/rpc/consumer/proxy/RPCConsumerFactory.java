@@ -5,8 +5,6 @@ import com.nix.jingxun.addp.rpc.common.RPCType;
 import com.nix.jingxun.addp.rpc.common.util.CommonUtil;
 import org.objectweb.asm.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
@@ -66,8 +64,7 @@ public class RPCConsumerFactory {
             }
             cw.visitEnd();
             // 生成class
-            createClass(newClassPath,cw.toByteArray());
-            return (T) Class.forName(CommonUtil.filepath2ClassName(newClassPath)).newInstance();
+            return (T) CommonUtil.createClassLoader(cw.toByteArray(),CommonUtil.filepath2ClassName(newClassPath)).newInstance();
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -119,7 +116,7 @@ public class RPCConsumerFactory {
             mw.visitInsn(Opcodes.ACONST_NULL);
             mw.visitInsn(Opcodes.ACONST_NULL);
         }
-        mw.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(ASM.class), "invoke", Type.getMethodDescriptor(ASM.class.getMethod("invoke",Object.class,String.class,Object[].class,String[].class)),false);
+        mw.visitMethodInsn(Opcodes.INVOKESTATIC, Type.getInternalName(Invoke.class), "invoke", Type.getMethodDescriptor(Invoke.class.getMethod("invoke",Object.class,String.class,Object[].class,String[].class)),false);
         if (method.getReturnType().equals(void.class)) {
             mw.visitInsn(Opcodes.POP);
             mw.visitInsn(Opcodes.RETURN);
@@ -132,15 +129,5 @@ public class RPCConsumerFactory {
         mw.visitEnd();
     }
 
-    private static void createClass(String classPath,byte[] bytes) throws Exception {
-        String fileName = RPCConsumerFactory.class.getResource("/").getPath() + classPath.substring(0,classPath.lastIndexOf("/")) + "/";
-        File file = new File(fileName);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        file = new File(RPCConsumerFactory.class.getResource("/").getPath() + classPath + ".class");
-        FileOutputStream out = new FileOutputStream(file);
-        out.write(bytes);
-        out.close();
-    }
+
 }

@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  * @date 2018/12/14 17:42
  */
 @Slf4j
-public class ASM {
+public class Invoke {
     public static Object invoke(Object _this,String methodName,Object[] args,String[] methodParamTypes) {
         try {
             Class<?> proxyInterface = _this.getClass().getInterfaces()[0];

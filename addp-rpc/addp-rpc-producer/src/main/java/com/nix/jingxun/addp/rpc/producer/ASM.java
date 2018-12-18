@@ -3,8 +3,6 @@ package com.nix.jingxun.addp.rpc.producer;
 import com.nix.jingxun.addp.rpc.common.util.CommonUtil;
 import org.objectweb.asm.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
@@ -26,15 +24,8 @@ public class ASM {
         createInit(cw,newClassPath);
         createInvokeMethod(impl.getMethods(),cw,newClassPath);
         cw.visitEnd();
-        byte[] code = cw.toByteArray();
-        File file = new File(RPCProducer.class.getResource("/").getPath() + CommonUtil.className2FilePath(newClassPath) + ".class");
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-        FileOutputStream out = new FileOutputStream(file);
-        out.write(code);
-        out.close();
-        Constructor constructor = Class.forName(CommonUtil.filepath2ClassName(newClassPath)).getConstructor(Object.class);
+        Class<?> clazz = CommonUtil.createClassFile(cw.toByteArray(),CommonUtil.filepath2ClassName(newClassPath));
+        Constructor constructor = clazz.getConstructor(Object.class);
         return (RPCInvoke) constructor.newInstance(bean);
     }
 
