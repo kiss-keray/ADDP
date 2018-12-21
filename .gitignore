@@ -12,10 +12,12 @@
 
 ### IntelliJ IDEA ###
 .idea
+.out
 *.iws
 *.iml
 *.ipr
 *.map
+.gradle
 
 ### NetBeans ###
 /nbproject/private/
