@@ -30,7 +30,7 @@ public class Invoke {
                 throw new RuntimeException("非rpc代理接口 执行失败");
             }
             // 到注册中心去找服务提供方法
-            String producerHost = getProducerHost(RPCMethodParser.getMethodKey(proxyInterface.getName(), consumer.appName(), consumer.group(), consumer.version()));
+            String producerHost = getProducerHost(RPCMethodParser.getMethodKey(new RPCMethodParser.ServiceModel(proxyInterface.getName(), consumer.appName(), consumer.group(), consumer.version())));
             RPCPackage responsePackage = null;
             RPCRequest request = createInvokeRPCRequest(proxyInterface, methodName, args);
             request.setMethodParamTypes(methodParamTypes);
