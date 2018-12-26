@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.rpc.server.service;
 
+import com.nix.jingxun.addp.rpc.common.Producer2ServerRequest;
 import com.nix.jingxun.addp.rpc.common.RPCMethodParser;
 import org.springframework.stereotype.Service;
 
@@ -23,4 +24,16 @@ public interface OpsService {
      * @return
      * */
     List<RPCMethodParser.ServiceModel> search(String key,SearchType type);
+
+    /**
+     * 获取服务接口的详情
+     * @param sign 服务接口签名
+     * @return
+     * */
+    Producer2ServerRequest serviceDetail(String sign);
+
+    /**
+     * 获取服务提供方集合
+     * */
+    List<String> producers(String sign);
 }

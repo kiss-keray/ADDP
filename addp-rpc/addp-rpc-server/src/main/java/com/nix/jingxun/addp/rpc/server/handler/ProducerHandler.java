@@ -10,18 +10,15 @@ import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -137,11 +134,25 @@ public class ProducerHandler {
      * */
     public List<RPCMethodParser.ServiceModel> ipSearch(String ip) {
         try {
-            ip = ip.contains(":") ? ip : ip + CommonConfig.PRODUCER_INVOKE_PORT;
+            ip = ip.contains(":") ? ip : ip + ":" + CommonConfig.PRODUCER_INVOKE_PORT;
             return template.opsForSet().members(ip).parallelStream().map(RPCMethodParser::methodKey2Model).collect(Collectors.toList());
         }catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * 根据签名获取服务详情
+     * */
+    public Producer2ServerRequest serviceDetail(String sign) {
+        return JSON.parseObject(template.opsForValue().get(sign + INTERFACE_DETAIL_SUFFIX),Producer2ServerRequest.class);
+    }
+
+    /**
+     * 获取服务的所有服务提供方（ip：port）
+     * */
+    public List<String> producers(String sign) {
+        return new ArrayList<>(Objects.requireNonNull(template.opsForSet().members(sign)));
     }
 
     /**

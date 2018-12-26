@@ -7,3 +7,10 @@
   float: right;
   font-size: 22px;
 }
+.conetntDiv{
+  margin:20px 5%;
+  background-color : #fff;
+}
+.conetntDiv h4{
+  padding: 10px 1%;
+}

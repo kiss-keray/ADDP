@@ -8,7 +8,10 @@
     "quotemark": false,
     "no-unused-variable":true,
     "object-literal-sort-keys": false,
-    "noUnusedParameters":false
+    "noUnusedParameters":false,
+    "jsx-no-lambda":false,
+    "prefer-const":false,
+    "no-string-literal":false
   },
   "linterOptions": {
     "exclude": [

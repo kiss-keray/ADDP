@@ -42,7 +42,11 @@ public final class RPCProducer {
             request.setVersion(version);
             Method[] methods = interfaceClass.getMethods();
             if (methods != null && methods.length > 0) {
-                request.setMethods(Stream.of(methods).map(item -> new Producer2ServerRequest.MethodMsg(item.getName(), item.getParameterTypes())).toArray(Producer2ServerRequest.MethodMsg[]::new));
+                request.setMethods(Stream.of(methods)
+                        .map(item -> new Producer2ServerRequest.MethodMsg(item.getName(),
+                                Stream.of(item.getParameterTypes())
+                                        .map(Class::getName).toArray(String[]::new)))
+                        .toArray(Producer2ServerRequest.MethodMsg[]::new));
             }
             log.info("注册服务 {}",request);
             RPCPackage rpcPackage = RPCPackage.createRequestMessage(RPCPackageCode.PRODUCER_REGISTER);

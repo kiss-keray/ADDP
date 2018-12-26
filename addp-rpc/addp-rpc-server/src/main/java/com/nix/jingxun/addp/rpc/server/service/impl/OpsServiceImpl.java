@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.rpc.server.service.impl;
 
+import com.nix.jingxun.addp.rpc.common.Producer2ServerRequest;
 import com.nix.jingxun.addp.rpc.common.RPCMethodParser;
 import com.nix.jingxun.addp.rpc.server.handler.ProducerHandler;
 import com.nix.jingxun.addp.rpc.server.service.OpsService;
@@ -24,5 +25,15 @@ public class OpsServiceImpl implements OpsService {
             case app:return producerHandler.appSearch(key);
             default:return null;
         }
+    }
+
+    @Override
+    public Producer2ServerRequest serviceDetail(String sign) {
+        return producerHandler.serviceDetail(sign);
+    }
+
+    @Override
+    public List<String> producers(String sign) {
+        return producerHandler.producers(sign);
     }
 }

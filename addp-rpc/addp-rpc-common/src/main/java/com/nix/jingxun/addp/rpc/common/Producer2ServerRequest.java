@@ -30,6 +30,6 @@ public class Producer2ServerRequest {
     @ToString
     public static class MethodMsg {
         private String methodName;
-        private Class[] paramType;
+        private String[] paramType;
     }
 }
