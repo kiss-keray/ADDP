@@ -36,11 +36,11 @@ class App extends React.Component<any, any> {
   }
   constructor(props: any) {
     super(props);
+    window['AddpContext']['App'] = {};
     this.selectSearchClick = this.selectSearchClick.bind(this);
   }
   public setState(state: any) {
-    super.setState(state);
-    window['AddpContext']['App'] = this.state;
+    super.setState(state,() => window['AddpContext']['App'] = this.state);
   }
   // 服务搜索按钮点击
   public selectSearchClick = (searchSelect: string, searchDesc: string) => () => {
