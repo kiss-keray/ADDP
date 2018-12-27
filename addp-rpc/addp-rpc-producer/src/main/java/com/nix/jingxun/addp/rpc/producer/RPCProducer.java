@@ -58,7 +58,7 @@ public final class RPCProducer {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        log.info("服务注册SUCCESS");
+        log.info("服务注册SUCCESS {}",interfaceClass.getName());
         RPCInvoke rpcBean = ASM.changeBean(producer);
         InvokeContainer.addInterface(interfaceClass.getName(), rpcBean);
         return rpcBean;

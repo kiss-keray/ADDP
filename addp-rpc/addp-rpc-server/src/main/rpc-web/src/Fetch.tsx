@@ -47,6 +47,6 @@ class ApiResponse {
         return this;
     }
 }
-export function Fetch(url: string, data: IFetchData): ApiResponse {
+export default function Fetch(url: string, data: IFetchData): ApiResponse {
     return new ApiResponse(url, data);
 };
