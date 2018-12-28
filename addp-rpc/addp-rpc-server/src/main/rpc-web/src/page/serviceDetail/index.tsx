@@ -1,10 +1,11 @@
 import * as React from 'react';
-import './App.css';
-import { Table,message } from "antd";
-import {SearchSelectButton} from "./MyComponent"
+import '../../App.css';
+import { Table } from "antd";
+import { SearchSelectButton } from "../../MyComponent"
 import 'antd/dist/antd.css';
-import Fetch from './Fetch'
-import {withRouter} from 'react-router-dom';
+import { setNavType } from '../../rpc-redux/actions/index'
+import { withRouter } from 'react-router-dom';
+import { connect, ConnectedComponentClass } from 'react-redux';
 interface IServiceTableType {
     ip: string,
     port: number,
@@ -16,44 +17,25 @@ const searchSelectStyle = {
     minWidth: '100px'
 }
 
-class ServiceDetail extends React.Component<any,any> {
+class ServiceDetail extends React.Component<any, any> {
     public state = {
         detailSelectType: 'producer',
         serviceDetailTable: []
     }
-    constructor(props:any) {
+    constructor(props: any) {
         super(props);
         window['AddpContext']['ServiceDetail'] = {};
-        if (props.location.state && props.location.state.sign) {
-            this.getServiceProducers(props.location.state.sign);
-        }
     }
     public setState(state: any) {
-        super.setState(state,() => window['AddpContext']['ServiceDetail'] = this.state);
-      }
+        super.setState(state, () => window['AddpContext']['ServiceDetail'] = this.state);
+    }
     // 详情界面纬度选择按钮时间
     public selectDetailType = (detailSelectType: 'producer' | 'consumer') => () => {
         this.setState({ detailSelectType });
     }
-    // 获取服务所有的服务提供方
-    public getServiceProducers = (sign: string): void => {
-        Fetch(`/ops/producers/?sign=${sign}`, {
-            method: 'GET'
-        }).then((serviceDetailTable: any[]) => {
-            serviceDetailTable = serviceDetailTable.map(item => {
-                return {
-                    ip: item.split(':')[0],
-                    port: Number.parseInt(item.split(':')[1], 10)
-                }
-            });
-            this.setState({ serviceDetailTable })
-        }).catch(error => {
-            console.log("error", error);
-            message.error('获取服务详情失败！！！');
-        });
-    }
     public render() {
-        window['navFun']('service_detail');
+        console.log("ServiceDetail start...")
+        this.props.dispatch(setNavType('service_detail'));
         return (
             <div className='conetntDiv'>
                 <h4>服务器列表</h4>
@@ -73,7 +55,7 @@ class ServiceDetail extends React.Component<any,any> {
                         unSelectStyle={{ borderColor: '#fff', borderWidth: 'initial' }}
                         searchDesc='服务消费者' />
                 </div>
-                <Table<IServiceTableType> dataSource={this.state.serviceDetailTable} pagination={{ pageSize: 50 }} scroll={{ y: 240 }} >
+                <Table<IServiceTableType> dataSource={this.props.redux.data.serviceDetailTable} pagination={{ pageSize: 50 }} scroll={{ y: 240 }} >
                     <Table.Column<IServiceTableType> title="服务方IP" dataIndex="ip" width="70%" />
                     <Table.Column<IServiceTableType> title="服务方端口" dataIndex="port" width="30%" />
                 </Table>
@@ -81,4 +63,15 @@ class ServiceDetail extends React.Component<any,any> {
         );
     }
 }
-export default withRouter(ServiceDetail);
+export default withRouter((connect(
+    (state: any) => {
+        return {
+            redux: state.detail
+        }
+    },
+    (dispatch) => ({
+        dispatch: (func: any) => func(dispatch)
+    }),
+    null,
+    { withRef: false }
+)(ServiceDetail) as ConnectedComponentClass<typeof ServiceDetail, any>));
