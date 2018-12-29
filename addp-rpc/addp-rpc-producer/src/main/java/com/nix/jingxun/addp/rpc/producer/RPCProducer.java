@@ -45,7 +45,8 @@ public final class RPCProducer {
                 request.setMethods(Stream.of(methods)
                         .map(item -> new Producer2ServerRequest.MethodMsg(item.getName(),
                                 Stream.of(item.getParameterTypes())
-                                        .map(Class::getName).toArray(String[]::new)))
+                                        .map(Class::getName).toArray(String[]::new),
+                                item.getReturnType().getName()))
                         .toArray(Producer2ServerRequest.MethodMsg[]::new));
             }
             log.info("注册服务 {}",request);

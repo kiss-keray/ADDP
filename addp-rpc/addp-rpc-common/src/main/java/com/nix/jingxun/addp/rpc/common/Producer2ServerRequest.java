@@ -31,5 +31,6 @@ public class Producer2ServerRequest {
     public static class MethodMsg {
         private String methodName;
         private String[] paramType;
+        private String returnType;
     }
 }

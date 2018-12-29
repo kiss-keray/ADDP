@@ -33,3 +33,9 @@ export function SearchSelectButton(props: any) {
         onClick={props.clickFun(props.code, props.searchDesc)}
     >{props.desc}</Button>
 }
+
+export function SearchTab(props:any) {
+    return <div className='itab'>
+        {props.desc}
+    </div>;
+}

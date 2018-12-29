@@ -13,6 +13,13 @@ export const setNavType = (key: string) => (dispatch:(data:IDisDataType<any>)=>v
     });
 }
 export const serviceSearch = (type:string,key:string) => (dispatch:(data:IDisDataType<any>)=>void) => {
+    dispatch({
+        type:CONST.ADDP_SEARCH_INDEX_DATA,
+        data:{
+            serviceList:[]
+        },
+        sign:'index'
+    });
     Fetch(`/ops/search/${type}?key=${key}`, {
         method: 'GET'
     }).then((serviceData: any[]) => {
@@ -31,6 +38,13 @@ export const serviceSearch = (type:string,key:string) => (dispatch:(data:IDisDat
     });
 }
 export const serviceDetail = (sign:string) => (dispatch:(data:IDisDataType<any>)=>void) => {
+    dispatch({
+        type:CONST.ADDP_SERVICE_DETAIL,
+        data:{
+            serviceDetailTable:[]
+        },
+        sign:'detail'
+    });
     Fetch(`/ops/producers/?sign=${sign}`, {
         method: 'GET'
     }).then((serviceDetailTable: any[]) => {

@@ -1,16 +1,15 @@
 import * as React from 'react';
 import './App.css';
-import { SearchSelectButton } from "./MyComponent"
-import { Input } from "antd";
+import { Input, Tabs } from "antd";
 const Search = Input.Search;
 import { connect, ConnectedComponentClass } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import {serviceSearch} from './rpc-redux/actions';
+import { serviceSearch } from './rpc-redux/actions';
 const searchSelectStyle = {
-    border: 'none',
-    borderRadius: '10px 10px 0 0',
-    minWidth: '100px'
+    margin: '0 5% 30px 5%',
+    width: 'auto'
 }
+const TabPane = Tabs.TabPane;
 class SearchInput extends React.Component<any, any>{
     public state = {
         searchSelect: "service",
@@ -25,19 +24,49 @@ class SearchInput extends React.Component<any, any>{
         super.setState(state, () => window['AddpContext']['App'] = this.state);
     }
     // 服务搜索按钮类型点击
-    public selectSearchClick = (searchSelect: string, searchDesc: string) => () => {
+    public selectSearchClick = (searchSelect: string, searchDesc?: string) => () => {
         this.setState({ searchSelect, searchDesc })
     };
     // 服务搜索
     public searchFetch = (searchInput: string) => {
         this.props.history.push('/index');
-        this.props.dispatch(serviceSearch(this.state.searchSelect,searchInput));
+        this.props.dispatch(serviceSearch(this.state.searchSelect, searchInput));
     };
     public render() {
         // console.log("SearchInput start...");
         return (
             <div style={{ padding: '20px 5%' }}>
-                <div>
+                <Tabs onChange={this.selectSearchClick} type="card"
+                    style={{ backgroundColor: '#fff' }} tabBarGutter={0}
+                    tabBarStyle={{
+                        backgroundColor:'rgb(240,242,245)'
+                    }}>
+                    <TabPane tab='服务' key="service" style={searchSelectStyle} className={'itab'}>
+                        <Search
+                            placeholder='服务格式 com.xxx.xxx.Service:1.0.0'
+                            enterButton="Search"
+                            size="large"
+                            onSearch={key => this.searchFetch(key)}
+                        />
+                    </TabPane>
+                    <TabPane tab='IP' key="ip" style={searchSelectStyle} className='itab'>
+                        <Search
+                            placeholder='IP 192.168.0.1'
+                            enterButton="Search"
+                            size="large"
+                            onSearch={key => this.searchFetch(key)}
+                        />
+                    </TabPane>
+                    <TabPane tab='应用' key="app" style={searchSelectStyle} className='itab'>
+                        <Search
+                            placeholder='应用名 app'
+                            enterButton="Search"
+                            size="large"
+                            onSearch={key => this.searchFetch(key)}
+                        />
+                    </TabPane>
+                </Tabs>
+                {/* <div>
                     <SearchSelectButton desc='服务' code='service'
                         select={this.state.searchSelect}
                         clickFun={this.selectSearchClick}
@@ -67,7 +96,7 @@ class SearchInput extends React.Component<any, any>{
                         size="large"
                         onSearch={key => this.searchFetch(key)}
                     />
-                </div>
+                </div> */}
             </div>
         );
     }

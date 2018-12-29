@@ -1,3 +1,7 @@
+*{
+  margin: 0;
+  padding: 0;
+}
 .logo {
   height: 32px;
   background: rgba(255, 255, 255, .2);
@@ -36,4 +40,9 @@ a:hover {
 
 a:active {
   color: #fff;
+}
+.paramType{
+  background-color: #ccc;
+  margin: 2px;
+  display: inline-block;
 }
