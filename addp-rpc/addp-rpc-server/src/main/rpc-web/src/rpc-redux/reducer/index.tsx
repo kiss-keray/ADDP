@@ -45,8 +45,24 @@ export const detail = (state = {
       return state;
   }
 }
+export const serviceMethod = (state = {
+  type: '',
+  data: {
+    method: {
+      
+    }
+  },
+  sign: 'detail'
+}, action: IDisDataType<any>) => {
+  switch (action.type) {
+    case CONST.ADDP_SERVICE_METHOD: return action;
+    default:
+      return state;
+  }
+}
 export default combineReducers({
   nav,
   index,
-  detail
+  detail,
+  serviceMethod
 })

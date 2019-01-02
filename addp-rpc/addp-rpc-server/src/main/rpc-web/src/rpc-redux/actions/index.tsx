@@ -3,6 +3,7 @@ import Fetch from '../../Fetch';
 import { message } from "antd";
 import { IDisDataType } from '../reducer';
 
+// 设置导航侧当前状态
 export const setNavType = (key: string) => (dispatch:(data:IDisDataType<any>)=>void) => {
     dispatch({
         type: CONST.ADDP_NAV_TYPE,
@@ -12,6 +13,7 @@ export const setNavType = (key: string) => (dispatch:(data:IDisDataType<any>)=>v
         sign:'nav'
     });
 }
+// 地点服务搜索
 export const serviceSearch = (type:string,key:string) => (dispatch:(data:IDisDataType<any>)=>void) => {
     dispatch({
         type:CONST.ADDP_SEARCH_INDEX_DATA,
@@ -37,6 +39,7 @@ export const serviceSearch = (type:string,key:string) => (dispatch:(data:IDisDat
         message.error('查询服务列表失败！！！');
     });
 }
+// 点击获取服务详情
 export const serviceDetail = (sign:string) => (dispatch:(data:IDisDataType<any>)=>void) => {
     dispatch({
         type:CONST.ADDP_SERVICE_DETAIL,
@@ -64,5 +67,15 @@ export const serviceDetail = (sign:string) => (dispatch:(data:IDisDataType<any>)
     }).catch(error => {
         console.log("error", error);
         message.error('获取服务详情失败！！！');
+    });
+}
+// 点击具体的每个方法测试
+export const methodTest = (method:any) => (dispatch:(data:IDisDataType<any>)=>void) => {
+    dispatch({
+        type:CONST.ADDP_SERVICE_METHOD,
+        data:{
+            method
+        },
+        sign:'serviceTest'
     });
 }

@@ -34,7 +34,7 @@ class ServiceDetail extends React.Component<any, any> {
         this.setState({ detailSelectType });
     }
     public render() {
-        console.log("ServiceDetail start...")
+        console.log("ServiceDetail start...",this.props)
         this.props.dispatch(setNavType('service_detail'));
         return (
             <div className='conetntDiv'>

@@ -23,7 +23,7 @@ class Nav extends React.Component<any, any> {
         this.props.history.push(nav);
     };
     public render() {
-        console.log("nav start...")
+        console.log("nav start...",this.props)
         return (
             <Sider
                 collapsible={true}
