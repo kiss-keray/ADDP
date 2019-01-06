@@ -1,9 +1,12 @@
 package com.nix.jingxun.addp.rpc.common.util;
 
 import com.nix.jingxun.addp.rpc.common.IClassLoader;
+import com.nix.jingxun.addp.rpc.common.RPCContext;
+import com.nix.jingxun.addp.rpc.common.RPCRequest;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Date;
 
 /**
  * @author keray
@@ -36,4 +39,24 @@ public class CommonUtil {
         System.out.println("loader=" + Thread.currentThread().getContextClassLoader().getClass());
         return new IClassLoader(Thread.currentThread().getContextClassLoader()).loadClass(data,name);
     }
+    public static RPCRequest createInvokeRPCRequest(String proxyInterface, String method, Object[] args) {
+        RPCRequest request = new RPCRequest();
+        request.setContext(RPCContext.getContext());
+        request.setInterfaceName(proxyInterface);
+        request.setMethod(method);
+        request.setDate(new Date());
+        if (args != null && args.length > 0) {
+            RPCRequest.ParamsData[] paramsData = new RPCRequest.ParamsData[args.length];
+            for (int i = 0;i < args.length;i ++) {
+                if (args[i] == null) {
+                    paramsData[i] = new RPCRequest.ParamsData(null,null);
+                } else {
+                    paramsData[i] = new RPCRequest.ParamsData(args[i].getClass().getName(),args[i]);
+                }
+            }
+            request.setParamData(paramsData);
+        }
+        return request;
+    }
+
 }

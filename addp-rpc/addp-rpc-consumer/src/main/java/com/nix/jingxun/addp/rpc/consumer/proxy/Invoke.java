@@ -9,12 +9,9 @@ import com.nix.jingxun.addp.rpc.common.RPCResponse;
 import com.nix.jingxun.addp.rpc.common.config.CommonConfig;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
-import com.nix.jingxun.addp.rpc.consumer.RPCContext;
+import com.nix.jingxun.addp.rpc.common.util.CommonUtil;
 import com.nix.jingxun.addp.rpc.consumer.netty.ConsumerClient;
 import lombok.extern.slf4j.Slf4j;
-import java.util.Date;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author keray
@@ -32,7 +29,7 @@ public class Invoke {
             // 到注册中心去找服务提供方法
             String producerHost = getProducerHost(RPCMethodParser.getMethodKey(new RPCMethodParser.ServiceModel(proxyInterface.getName(), consumer.appName(), consumer.group(), consumer.version())));
             RPCPackage responsePackage = null;
-            RPCRequest request = createInvokeRPCRequest(proxyInterface, methodName, args);
+            RPCRequest request = CommonUtil.createInvokeRPCRequest(proxyInterface.getName(), methodName, args);
             request.setMethodParamTypes(methodParamTypes);
             RPCPackage rpcPackage = RPCPackage.createRequestMessage(RPCPackageCode.RPC_INVOKE);
             rpcPackage.setObject(request);
@@ -69,25 +66,6 @@ public class Invoke {
             throwable.printStackTrace();
         }
         return null;
-    }
-    private static RPCRequest createInvokeRPCRequest(Class<?> proxyInterface, String method, Object[] args) {
-        RPCRequest request = new RPCRequest();
-        request.setContext(RPCContext.getContext());
-        request.setInterfaceName(proxyInterface.getName());
-        request.setMethod(method);
-        request.setDate(new Date());
-        if (args != null && args.length > 0) {
-            RPCRequest.ParamsData[] paramsData = new RPCRequest.ParamsData[args.length];
-            for (int i = 0;i < args.length;i ++) {
-                if (args[i] == null) {
-                    paramsData[i] = new RPCRequest.ParamsData(null,null);
-                } else {
-                    paramsData[i] = new RPCRequest.ParamsData(args[i].getClass(),args[i]);
-                }
-            }
-            request.setParamData(paramsData);
-        }
-        return request;
     }
 
     private static String getProducerHost(String interfaceKey) throws RemotingException, InterruptedException {

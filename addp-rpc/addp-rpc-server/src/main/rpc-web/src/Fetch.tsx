@@ -15,7 +15,7 @@ class ApiResponse {
         try {
             fetch(this.url, {
                 method: this.data.method,
-                body: !this.data.data ? null : this.data.data.toString(),
+                body: !this.data.data ? null : JSON.stringify(this.data.data),
                 headers: new Headers({
                     'Content-Type': 'application/x-www-form-urlencoded'
                 })

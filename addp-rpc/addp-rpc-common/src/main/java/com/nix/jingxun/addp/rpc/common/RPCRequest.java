@@ -110,16 +110,8 @@ public class RPCRequest implements Serializable {
     @NoArgsConstructor
     @ToString
     public static class ParamsData {
-        private Class clazz;
+        private String clazz;
         private Object data;
-
-        public void setClazz(String clazz) {
-            try {
-                this.clazz = Class.forName(clazz);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
 

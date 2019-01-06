@@ -66,9 +66,10 @@ public class Result<T> {
     public <S2> Result<S2> map(Function<T,S2> function) {
         return of(() -> function.apply(this.getData()));
     }
-    public void logFail() {
+    public Result<T> logFail() {
         if (this instanceof FailResult) {
             log.error("logFail:{}",this.toString());
         }
+        return this;
     }
 }

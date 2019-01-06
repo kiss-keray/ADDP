@@ -36,4 +36,9 @@ public interface OpsService {
      * 获取服务提供方集合
      * */
     List<String> producers(String sign);
+
+    /**
+     * rpc方法测试
+     * */
+    Object methodInvoke(String interfaceName,String methodName, String[] paramTypes,Object[] data,String appName,String group,String version);
 }

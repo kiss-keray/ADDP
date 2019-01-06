@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -48,7 +47,7 @@ public class RPCPackage implements RemotingCommand {
 
     private Object object;
 
-    private PackeageObject jsonObject;
+    private PackageObject jsonObject;
     private Throwable throwable;
 
     @Override
@@ -69,7 +68,7 @@ public class RPCPackage implements RemotingCommand {
     @Override
     public void serialize() throws SerializationException {
         if (getSerializer() == 1 && this.object != null) {
-            this.jsonObject = new PackeageObject(this.object.getClass(), this.object);
+            this.jsonObject = new PackageObject(this.object.getClass(), this.object);
             setContent(JSON.toJSONString(jsonObject).getBytes());
         }
     }
@@ -77,7 +76,7 @@ public class RPCPackage implements RemotingCommand {
     @Override
     public void deserialize() throws DeserializationException {
         if (getSerializer() == 1 && this.getContent() != null && this.getContent().length > 0) {
-            this.jsonObject = JSON.parseObject(new String(getContent()), PackeageObject.class);
+            this.jsonObject = JSON.parseObject(new String(getContent()), PackageObject.class);
             this.object = JSON.parseObject(JSON.toJSONString(jsonObject.getData()), jsonObject.getClazz());
         }
     }
@@ -130,7 +129,7 @@ public class RPCPackage implements RemotingCommand {
     @AllArgsConstructor
     @NoArgsConstructor
     @ToString
-    public static class PackeageObject {
+    public static class PackageObject {
         private Class<?> clazz;
         private Object data;
     }

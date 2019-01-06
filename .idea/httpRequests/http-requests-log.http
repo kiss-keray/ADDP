@@ -1,0 +1,86 @@
+POST http://localhost:8100/ops/methodTest
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json;charset=UTF-8
+
+{"paramData":["123"],"paramType":["java.lang.String"],"interfaceName":"com.nix.jingxun.addp.rpc.producer.test.Hello","methodName":"sayHello","appName":"app1","group":"RPC","version":"1.0.0"}
+
+<> 2019-01-06T112643.200.json
+
+###
+
+POST http://localhost:8100/ops/methodTest
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json;charset=UTF-8
+
+{"paramData":["123"],"paramType":["java.lang.String"],"interfaceName":"com.nix.jingxun.addp.rpc.producer.test.Hello","methodName":"sayHello","appName":"app1","group":"RPC","version":"1.0.0"}
+
+<> 2019-01-06T112556.200.json
+
+###
+
+POST http://localhost:8100/ops/methodTest
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json;charset=UTF-8
+
+{"paramData":["123"],"paramType":["java.lang.String"],"interfaceName":"com.nix.jingxun.addp.rpc.producer.test.Hello","methodName":"sayHello","appName":"app1","group":"RPC","version":"1.0.0"}
+
+<> 2019-01-06T112131.200.json
+
+###
+
+POST http://localhost:8100/ops/methodTest
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json;charset=UTF-8
+
+{"paramData":["123"],"paramType":["java.lang.String"],"interfaceName":"com.nix.jingxun.addp.rpc.producer.test.Hello","methodName":"sayHello","appName":"app1","group":"RPC","version":"1.0.0"}
+
+<> 2019-01-06T112007.200.json
+
+###
+
+POST http://localhost:8100/ops/methodTest
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json;charset=UTF-8
+
+{"paramData":["123"],"paramType":["java.lang.String"],"interfaceName":"com.nix.jingxun.addp.rpc.producer.test.Hello","methodName":"sayHello","appName":"app1","group":"RPC","version":"1.0.0"}
+
+<> 2019-01-06T111527.200.json
+
+###
+
+POST http://localhost:8100/ops/methodTest
+Accept: */*
+Cache-Control: no-cache
+Content-Type: application/json;charset=UTF-8
+
+{"paramData":["123"],"paramType":["java.lang.String"],"interfaceName":"com.nix.jingxun.addp.rpc.producer.test.Hello","methodName":"sayHello","appName":"app1","group":"RPC","version":"1.0.0"}
+
+<> 2019-01-06T111448.200.json
+
+###
+
+POST http://localhost:8100/ops/methodTest
+Accept: */*
+Cache-Control: no-cache
+
+{"paramData":["123"],"paramType":["java.lang.String"],"interfaceName":"com.nix.jingxun.addp.rpc.producer.test.Hello","methodName":"sayHello","appName":"app1","group":"RPC","version":"1.0.0"}
+
+<> 2019-01-06T111354.415.json
+
+###
+
+POST http://localhost:8100/ops/methodTest
+Accept: */*
+Cache-Control: no-cache
+
+{"paramData":["123"],"paramType":["java.lang.String"],"interfaceName":"com.nix.jingxun.addp.rpc.producer.test.Hello","methodName":"sayHello","appName":"app1","group":"RPC","version":"1.0.0"}
+
+<> 2019-01-06T110413.400.json
+
+###
+

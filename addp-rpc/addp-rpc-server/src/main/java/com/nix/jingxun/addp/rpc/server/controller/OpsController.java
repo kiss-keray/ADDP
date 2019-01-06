@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author keray
@@ -30,10 +31,10 @@ public class OpsController {
     public Result<List<RPCMethodParser.ServiceModel>> search(@RequestParam("key") String key, @PathVariable OpsService.SearchType type) {
         return Result.of(() -> {
             if (StringUtils.isEmpty(key)) {
-                return Collections.emptyList();
+                return Collections.<RPCMethodParser.ServiceModel>emptyList();
             }
             return opsService.search(key, type);
-        });
+        }).logFail();
     }
 
     /**
@@ -41,7 +42,7 @@ public class OpsController {
      * */
     @GetMapping("/detail")
     public Result<Producer2ServerRequest> interfaceDetail(@RequestParam("sign") String sign) {
-        return Result.of(() -> opsService.serviceDetail(sign));
+        return Result.of(() -> opsService.serviceDetail(sign)).logFail();
     }
 
     /**
@@ -50,6 +51,25 @@ public class OpsController {
      * */
     @GetMapping("/producers")
     public Result<List<String>> producers(@RequestParam("sign") String sign) {
-        return Result.of(() -> opsService.producers(sign));
+        return Result.of(() -> opsService.producers(sign)).logFail();
+    }
+
+    /**
+     * ops控制台测试rpc方法
+     *
+     * */
+    @PostMapping(value = "/methodTest" , produces ="application/json;charset=UTF-8")
+    public Result<Object> methodTest(
+            @RequestBody Map<String,Object> body
+            ) {
+        return Result.of(() -> opsService.methodInvoke(
+                body.get("interfaceName").toString(),
+                body.get("methodName").toString(),
+                (String[]) ((List) body.get("paramType")).toArray(new String[0]),
+                ((List) body.get("paramData")).toArray(),
+                body.get("appName").toString(),
+                body.get("group").toString(),
+                body.get("version").toString()
+        )).logFail();
     }
 }

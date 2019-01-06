@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.rpc.consumer;
+package com.nix.jingxun.addp.rpc.common;
 
 import com.nix.jingxun.addp.rpc.common.RPCRequest;
 
