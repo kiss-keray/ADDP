@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.service.base;
+package com.nix.jingxun.addp.web.iservice;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,7 +12,7 @@ public interface BaseService<M extends Object,ID extends Serializable>{
      * 保存对象M
      * @param m
      * */
-    M add(M m)  throws Exception;
+    M save(M m)  throws Exception;
     /**
      * 删除对象M
      * @param id
@@ -42,5 +42,12 @@ public interface BaseService<M extends Object,ID extends Serializable>{
      * @return 全部对象
      * */
     List<M> findAll();
+
+    /**
+     * 获取实体one-one映射的实体
+     * */
+    <T> T oneToOneModel(Class<T> clazz,Long id);
+
+    <T> List<T> oneToMany(Class<T> clazz, Long foreignKey,String foreignKeyName);
 
 }

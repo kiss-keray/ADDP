@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.web.start.aop.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.nix.jingxun.addp.web.start.aop.ControllerLog;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,7 +20,8 @@ public class Log4jControllerLog implements ControllerLog {
         if (joinPoint != null) {
             log.info(joinPoint.getSignature().getDeclaringTypeName());
             log.info(joinPoint.getSignature().getName());
-            log.info(joinPoint.getArgs());
+            String str = JSON.toJSONString(joinPoint.getArgs());
+            log.info(str.length() > 1024 ? joinPoint.getArgs().toString() : str);
         }
         log.info("==============================================");
     }
@@ -28,7 +30,8 @@ public class Log4jControllerLog implements ControllerLog {
     public void after(Object returnObject) {
         log.info("+++++++++++++++++method return+++++++++++++++++");
         if (returnObject != null) {
-            log.info("return:" + (returnObject.toString().length() > 1024 ? returnObject.hashCode() : returnObject));
+            String returnJson = JSON.toJSONString(returnObject);
+            log.info("return:" + (returnJson.length() > 1024 ? returnObject.hashCode() : returnJson));
         }
         log.info("+++++++++++++++++++++++++++++++++++++++++++++++");
     }
