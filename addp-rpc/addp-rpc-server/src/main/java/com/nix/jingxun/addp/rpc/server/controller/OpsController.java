@@ -58,18 +58,16 @@ public class OpsController {
      * ops控制台测试rpc方法
      *
      * */
-    @PostMapping(value = "/methodTest" , produces ="application/json;charset=UTF-8")
+    @PostMapping(value = "/methodTest" )
     public Result<Object> methodTest(
-            @RequestBody Map<String,Object> body
+            @RequestParam("interfaceName") String interfaceName,
+            @RequestParam("methodName") String methodName,
+            @RequestParam("paramType") String[] paramType,
+            @RequestParam("paramData") Object[] paramData,
+            @RequestParam("appName") String appName,
+            @RequestParam("group") String group,
+            @RequestParam("version") String version
             ) {
-        return Result.of(() -> opsService.methodInvoke(
-                body.get("interfaceName").toString(),
-                body.get("methodName").toString(),
-                (String[]) ((List) body.get("paramType")).toArray(new String[0]),
-                ((List) body.get("paramData")).toArray(),
-                body.get("appName").toString(),
-                body.get("group").toString(),
-                body.get("version").toString()
-        )).logFail();
+        return Result.of(() -> opsService.methodInvoke(interfaceName, methodName, paramType, paramData, appName, group, version)).logFail();
     }
 }

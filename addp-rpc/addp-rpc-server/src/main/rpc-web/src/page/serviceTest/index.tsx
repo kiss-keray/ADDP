@@ -21,6 +21,7 @@ class ServiceTest extends React.Component<any, any>{
             "methods": {
                 "methodName": "sayHello",
                 "paramType": [
+                    "java.lang.String",
                     "java.lang.String"
                 ],
                 "returnType": "void"
@@ -35,23 +36,23 @@ class ServiceTest extends React.Component<any, any>{
         this.setState({
             testLogin: true
         })
+        let formData = new FormData();
+        this.paramData.forEach(data => formData.append("paramData",data));
+        this.props.redux.data.methods.paramType.forEach((data:any) => formData.append("paramType",data));
+        formData.append("interfaceName",this.props.redux.data.interfaceName);
+        formData.append("methodName",this.props.redux.data.methods.methodName);
+        formData.append("appName",this.props.redux.data.appName);
+        formData.append("group",this.props.redux.data.group);
+        formData.append("version",this.props.redux.data.version);
         Fetch('/ops/methodTest', {
             method: 'POST',
-            data: {
-                paramData: this.paramData,
-                paramType: this.props.redux.data.methods.paramType,
-                interfaceName:this.props.redux.data.interfaceName,
-                methodName:this.props.redux.data.methods.methodName,
-                appName:this.props.redux.data.appName,
-                group:this.props.redux.data.group,
-                version:this.props.redux.data.version
-            }
+            data: formData
         }).then((result: any) => {
             console.log(result);
             this.setState({
                 testLogin: false
             })
-        }).catch((error) => {
+        }).catch((error:any) => {
             message.error('請求失敗！！！');
             console.log(error);
             this.setState({

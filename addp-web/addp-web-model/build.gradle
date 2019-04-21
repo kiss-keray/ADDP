@@ -1,0 +1,4 @@
+dependencies{
+    compile project(":addp-web")
+}
+description = 'addp-web-model'

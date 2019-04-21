@@ -64,7 +64,7 @@ public class RPCConsumerFactory {
             }
             cw.visitEnd();
             // 生成class
-            return (T) CommonUtil.createClassLoader(cw.toByteArray(),CommonUtil.filepath2ClassName(newClassPath)).newInstance();
+            return (T) CommonUtil.createClassFile(cw.toByteArray(),CommonUtil.filepath2ClassName(newClassPath)).newInstance();
         }catch (Exception e) {
             e.printStackTrace();
         }

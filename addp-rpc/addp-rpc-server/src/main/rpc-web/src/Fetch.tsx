@@ -1,6 +1,7 @@
 interface IFetchData {
     method: string,
-    data?: object | null | undefined
+    data?: BodyInit | null | undefined,
+    headers?:Headers
 }
 class ApiResponse {
     private e: boolean = false;
@@ -15,10 +16,8 @@ class ApiResponse {
         try {
             fetch(this.url, {
                 method: this.data.method,
-                body: !this.data.data ? null : JSON.stringify(this.data.data),
-                headers: new Headers({
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                })
+                body: this.data.data,
+                headers: this.data.headers
             }).then(result => {
                 if (!result.ok) {
                     this.errorFunc(result);
