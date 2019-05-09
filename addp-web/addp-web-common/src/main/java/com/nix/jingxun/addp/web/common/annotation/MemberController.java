@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.start.common.annotation;
+package com.nix.jingxun.addp.web.common.annotation;
 
 import java.lang.annotation.*;
 

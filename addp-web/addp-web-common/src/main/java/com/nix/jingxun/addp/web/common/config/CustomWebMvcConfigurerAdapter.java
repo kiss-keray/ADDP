@@ -1,6 +1,6 @@
-package com.nix.jingxun.addp.web.start.common.config;
+package com.nix.jingxun.addp.web.common.config;
 
-import com.nix.jingxun.addp.web.start.common.supper.PermissionInterceptor;
+import com.nix.jingxun.addp.web.common.supper.PermissionInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

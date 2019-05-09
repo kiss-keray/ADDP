@@ -5,12 +5,9 @@ import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
-import com.nix.jingxun.addp.web.start.common.Result;
-import com.nix.jingxun.addp.web.start.common.cache.MemberCache;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.nix.jingxun.addp.web.common.Result;
+import com.nix.jingxun.addp.web.common.cache.MemberCache;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -43,6 +40,14 @@ public class ChangeBranchController {
                 e.printStackTrace();
                 return Result.fail(e);
             }
+        }).logFail();
+    }
+
+    @PostMapping("/start")
+    public Result start(@RequestParam("id") Long id) {
+        return Result.of(() -> {
+//            ChangeBranchModel changeBranchModel =
+            return null;
         }).logFail();
     }
 }

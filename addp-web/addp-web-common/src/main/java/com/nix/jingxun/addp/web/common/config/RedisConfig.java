@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.start.common.config;
+package com.nix.jingxun.addp.web.common.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

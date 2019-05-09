@@ -28,4 +28,8 @@ public class ServicesModel implements Serializable {
     private String password;
     private String sshKey;
     private Long memberId;
+
+    public MemberModel getMember() {
+        return null;
+    }
 }

@@ -1,0 +1,5 @@
+
+dependencies {
+    compileOnly project(":addp-web:addp-web-model")
+}
+description = 'addp-web-common'

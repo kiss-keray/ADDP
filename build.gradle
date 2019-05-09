@@ -8,18 +8,29 @@ allprojects {
     group = 'com.nix.jingxun'
     version = '1.0.0'
 }
-
 subprojects {
     apply plugin: 'java'
+//    apply plugin: 'idea'
     repositories {
         mavenLocal()
         maven {
             url = 'http://repo.maven.apache.org/maven2'
         }
     }
+
+//    configurations {
+//        provided
+//        provided.extendsFrom(compile)
+//    }
+//    idea {
+//        module {
+//            print("111")
+//        }
+//    }
     ext {
         springbootVersion = '2.1.4.RELEASE'
     }
+
     sourceCompatibility = '1.8'
 
     tasks.withType(JavaCompile) {
@@ -27,7 +38,8 @@ subprojects {
     }
     dependencies {
         compile 'com.alibaba:fastjson:1.2.50'
-        runtime "mysql:mysql-connector-java:5.1.45"
+        compile "mysql:mysql-connector-java:5.1.45"
         compile "org.projectlombok:lombok:1.18.6"
+        annotationProcessor "org.projectlombok:lombok:1.18.6"
     }
 }

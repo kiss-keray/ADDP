@@ -1,7 +1,7 @@
-package com.nix.jingxun.addp.web.start.common.supper;
+package com.nix.jingxun.addp.web.common.supper;
 
-import com.nix.jingxun.addp.web.start.common.PermissionHandler;
-import com.nix.jingxun.addp.web.start.common.cache.MemberCache;
+import com.nix.jingxun.addp.web.common.PermissionHandler;
+import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;

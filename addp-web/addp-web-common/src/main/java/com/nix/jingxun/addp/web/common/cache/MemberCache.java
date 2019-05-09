@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.start.common.cache;
+package com.nix.jingxun.addp.web.common.cache;
 
 import com.nix.jingxun.addp.web.model.MemberModel;
 

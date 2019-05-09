@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.start.common;
+package com.nix.jingxun.addp.web.common;
 
 /**
  * @author Kiss

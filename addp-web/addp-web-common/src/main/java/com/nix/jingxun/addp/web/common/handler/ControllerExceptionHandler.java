@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.start.common.handler;
+package com.nix.jingxun.addp.web.common.handler;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -4,6 +4,6 @@
 
 
 dependencies {
-    compile project(":addp-web:addp-web-model")
+    compileOnly project(":addp-web:addp-web-model")
 }
 description = 'addp-web-iservice'

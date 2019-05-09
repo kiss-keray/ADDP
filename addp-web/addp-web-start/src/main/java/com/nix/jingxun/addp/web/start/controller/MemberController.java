@@ -2,8 +2,8 @@ package com.nix.jingxun.addp.web.start.controller;
 
 import com.nix.jingxun.addp.web.iservice.IMemberService;
 import com.nix.jingxun.addp.web.model.MemberModel;
-import com.nix.jingxun.addp.web.start.common.Result;
-import com.nix.jingxun.addp.web.start.common.cache.MemberCache;
+import com.nix.jingxun.addp.web.common.Result;
+import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
