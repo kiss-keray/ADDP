@@ -15,8 +15,6 @@ dependencies {
     compile "org.springframework.data:spring-data-rest-hal-browser:3.0.5.RELEASE"
     compile "org.springframework.session:spring-session-core:2.0.2.RELEASE"
     compile "com.jcraft:jsch:0.1.51"
-    testCompile "org.springframework.boot:spring-boot-starter-test:${springbootVersion}"
-    testCompile "io.projectreactor:reactor-test:3.1.5.RELEASE"
 }
 
 description = 'addp-ssh'

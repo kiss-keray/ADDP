@@ -12,8 +12,6 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-data-jpa:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-devtools:${springbootVersion}"
-    testCompile "org.springframework.boot:spring-boot-starter-test:${springbootVersion}"
-    testCompile "io.projectreactor:reactor-test:3.1.5.RELEASE"
 }
 
 description = "addp-web"

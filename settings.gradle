@@ -8,8 +8,8 @@ include(':addp-ssh')
 include 'addp-ssh:addp-ssh-web'
 include 'addp-ssh:addp-ssh-common'
 
-project(':addp-ssh:addp-ssh-web')?.name = 'addp-ssh-web'
-project(':addp-ssh:addp-ssh-common')?.name = 'addp-ssh-common'
+project(':addp-ssh:addp-ssh-web').projectDir = file('addp-ssh/addp-ssh-web')
+project(':addp-ssh:addp-ssh-common').projectDir = file('addp-ssh/addp-ssh-common')
 //web
 include(':addp-web')
 include(':addp-web:addp-web-start')

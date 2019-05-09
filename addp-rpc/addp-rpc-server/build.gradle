@@ -7,7 +7,6 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-cache:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-data-rest:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-web:${springbootVersion}"
-    compile "org.springframework.boot:spring-boot-starter-web-services:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-webflux:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-websocket:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-thymeleaf:${springbootVersion}"
@@ -18,8 +17,6 @@ dependencies {
     compile (project(":addp-rpc:addp-rpc-common")) {
         exclude group: "org.slf4j"
     }
-    testCompile "org.springframework.boot:spring-boot-starter-test:${springbootVersion}"
-    testCompile "io.projectreactor:reactor-test:3.1.5.RELEASE"
 }
 
 description = "addp-rpc-server"

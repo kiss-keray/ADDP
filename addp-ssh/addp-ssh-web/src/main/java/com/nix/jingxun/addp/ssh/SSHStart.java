@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.ssh.web;
+package com.nix.jingxun.addp.ssh;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
