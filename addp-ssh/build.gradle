@@ -7,7 +7,6 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-cache:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-data-rest:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-web:${springbootVersion}"
-    compile "org.springframework.boot:spring-boot-starter-web-services:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-webflux:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-websocket:${springbootVersion}"
     compile "org.springframework.boot:spring-boot-starter-thymeleaf:${springbootVersion}"

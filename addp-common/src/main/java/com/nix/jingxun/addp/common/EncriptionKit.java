@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.common;
+package com.nix.jingxun.addp.common;
 
 /**
  * Created by 11723 on 2017/7/29.

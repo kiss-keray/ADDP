@@ -37,3 +37,6 @@ project(':addp-rpc:addp-rpc-consumer').projectDir = file('addp-rpc/addp-rpc-cons
 project(':addp-rpc:addp-rpc-producer').projectDir = file('addp-rpc/addp-rpc-producer')
 project(':addp-rpc:addp-rpc-common').projectDir = file('addp-rpc/addp-rpc-common')
 
+//addp
+include 'addp-common'
+

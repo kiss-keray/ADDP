@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.common;
+package com.nix.jingxun.addp.common;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -1,8 +1,8 @@
 package com.nix.jingxun.addp.rpc.server.controller;
 
+import com.nix.jingxun.addp.common.Result;
 import com.nix.jingxun.addp.rpc.common.Producer2ServerRequest;
 import com.nix.jingxun.addp.rpc.common.RPCMethodParser;
-import com.nix.jingxun.addp.rpc.server.Result;
 import com.nix.jingxun.addp.rpc.server.service.OpsService;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
