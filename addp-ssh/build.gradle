@@ -3,22 +3,21 @@
  */
 
 dependencies {
-    compile 'org.springframework.boot:spring-boot-starter-aop:2.0.0.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-cache:2.0.0.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-data-rest:2.0.0.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-web:2.0.0.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-web-services:2.0.0.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-webflux:2.0.0.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-websocket:2.0.0.RELEASE'
-    compile 'org.springframework.data:spring-data-rest-hal-browser:3.0.5.RELEASE'
-    compile 'org.springframework.session:spring-session-core:2.0.2.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-thymeleaf:2.0.0.RELEASE'
-    compile 'org.springframework.boot:spring-boot-configuration-processor:2.0.0.RELEASE'
-    compile 'org.springframework.boot:spring-boot-starter-data-redis:2.0.0.RELEASE'
-    compile 'org.projectlombok:lombok:1.16.20'
-    compile 'com.jcraft:jsch:0.1.51'
-    testCompile 'org.springframework.boot:spring-boot-starter-test:2.0.0.RELEASE'
-    testCompile 'io.projectreactor:reactor-test:3.1.5.RELEASE'
+    compile "org.springframework.boot:spring-boot-starter-aop:${springbootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-cache:${springbootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-data-rest:${springbootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-web:${springbootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-web-services:${springbootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-webflux:${springbootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-websocket:${springbootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-thymeleaf:${springbootVersion}"
+    compile "org.springframework.boot:spring-boot-configuration-processor:${springbootVersion}"
+    compile "org.springframework.boot:spring-boot-starter-data-redis:${springbootVersion}"
+    compile "org.springframework.data:spring-data-rest-hal-browser:3.0.5.RELEASE"
+    compile "org.springframework.session:spring-session-core:2.0.2.RELEASE"
+    compile "com.jcraft:jsch:0.1.51"
+    testCompile "org.springframework.boot:spring-boot-starter-test:${springbootVersion}"
+    testCompile "io.projectreactor:reactor-test:3.1.5.RELEASE"
 }
 
 description = 'addp-ssh'

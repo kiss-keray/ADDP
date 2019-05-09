@@ -1,0 +1,5 @@
+
+dependencies {
+
+    compile project(':addp-ssh:addp-ssh-common')
+}

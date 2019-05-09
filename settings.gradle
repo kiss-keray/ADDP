@@ -3,28 +3,37 @@
  */
 
 rootProject.name = 'addp-all'
+//ssh
 include(':addp-ssh')
+include 'addp-ssh:addp-ssh-web'
+include 'addp-ssh:addp-ssh-common'
+
+project(':addp-ssh:addp-ssh-web')?.name = 'addp-ssh-web'
+project(':addp-ssh:addp-ssh-common')?.name = 'addp-ssh-common'
+//web
+include(':addp-web')
 include(':addp-web:addp-web-start')
 include(':addp-web:addp-web-jpa')
 include(':addp-web:addp-web-iservice')
 include(':addp-web:addp-web-service')
 include(':addp-web:addp-web-model')
 include(':addp-web:addp-web-common')
-include(':addp-web')
-include(':addp-rpc:addp-rpc-server')
-include(':addp-rpc:addp-rpc-consumer')
-include(':addp-rpc:addp-rpc-producer')
-include(':addp-rpc:addp-rpc-common')
-include(':addp-rpc')
-// web
+
 project(':addp-web:addp-web-start').projectDir = file('addp-web/addp-web-start')
 project(':addp-web:addp-web-jpa').projectDir = file('addp-web/addp-web-jpa')
 project(':addp-web:addp-web-iservice').projectDir = file('addp-web/addp-web-iservice')
 project(':addp-web:addp-web-service').projectDir = file('addp-web/addp-web-service')
 project(':addp-web:addp-web-model').projectDir = file('addp-web/addp-web-model')
 project(':addp-web:addp-web-common').projectDir = file('addp-web/addp-web-common')
-// rpc
+//rpc
+include(':addp-rpc')
+include(':addp-rpc:addp-rpc-server')
+include(':addp-rpc:addp-rpc-consumer')
+include(':addp-rpc:addp-rpc-producer')
+include(':addp-rpc:addp-rpc-common')
+
 project(':addp-rpc:addp-rpc-server').projectDir = file('addp-rpc/addp-rpc-server')
 project(':addp-rpc:addp-rpc-consumer').projectDir = file('addp-rpc/addp-rpc-consumer')
 project(':addp-rpc:addp-rpc-producer').projectDir = file('addp-rpc/addp-rpc-producer')
 project(':addp-rpc:addp-rpc-common').projectDir = file('addp-rpc/addp-rpc-common')
+

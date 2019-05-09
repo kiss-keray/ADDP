@@ -1,19 +1,17 @@
-package com.nix.jingxun.addp.web;
+package com.nix.jingxun.addp.ssh.web;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
  * @author jingxun.zds
  */
-@SpringBootApplication(scanBasePackages = "com.nix.jingxun.addp.web.*")
+@SpringBootApplication
 @EnableSwagger2
-public class WebStart {
-
+public class SSHStart {
 
     public static void main(String[] args) {
-        SpringApplication.run(WebStart.class, args);
+        SpringApplication.run(SSHStart.class, args);
     }
 }

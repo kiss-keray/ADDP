@@ -5,6 +5,7 @@ import com.nix.jingxun.addp.web.model.MemberModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
 import com.nix.jingxun.addp.web.common.Result;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
+import io.swagger.annotations.Api;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/service")
+@Api("服务器管理api")
 public class ServicesController {
 
     @Resource
