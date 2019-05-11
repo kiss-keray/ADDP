@@ -13,9 +13,5 @@
     <packaging>jar</packaging>
     <name>addp-web-model</name>
     <dependencies>
-        <dependency>
-            <groupId>com.nix.jingxun</groupId>
-            <artifactId>addp-web-util</artifactId>
-        </dependency>
     </dependencies>
 </project>

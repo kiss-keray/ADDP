@@ -24,7 +24,7 @@ public class ServicesModel implements Serializable {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
-    @Pattern(regexp = "[\\d]{1,3}:[\\d]{1,3}:[\\d]{1,3}:[\\d]{1,3}")
+    @Pattern(regexp = "[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}")
     @Column(nullable = false)
     private String ip;
     private Integer port;
