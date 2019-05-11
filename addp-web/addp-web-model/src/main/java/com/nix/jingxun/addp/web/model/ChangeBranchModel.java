@@ -1,7 +1,9 @@
 package com.nix.jingxun.addp.web.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,6 +17,8 @@ import java.io.Serializable;
 @Data
 @Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "nix_change_branch")
 public class ChangeBranchModel implements Serializable {
 

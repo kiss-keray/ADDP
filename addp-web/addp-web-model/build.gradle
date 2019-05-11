@@ -1,8 +1,0 @@
-
-
-dependencies{
-    compile project(":addp-web")
-//    compileOnly project(":addp-web:addp-web-iservice")
-//    compileOnly project(":addp-web:addp-web-common")
-}
-description = 'addp-web-model'

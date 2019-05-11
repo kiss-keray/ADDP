@@ -13,7 +13,7 @@ import javax.annotation.Resource;
  * @author keray
  * @date 2019/04/21 13:58
  */
-@Service
+@Service("changeBranchServiceImpl")
 public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel,Long> implements IChangeBranchService {
     @Resource
     private ChangeBranchJpa changeBranchJpa;

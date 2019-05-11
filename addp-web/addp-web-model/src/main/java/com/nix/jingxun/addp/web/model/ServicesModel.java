@@ -1,7 +1,9 @@
 package com.nix.jingxun.addp.web.model;
-
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
@@ -15,6 +17,8 @@ import java.io.Serializable;
 @Data
 @Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "nix_services")
 public class ServicesModel implements Serializable {
     @Id
@@ -29,7 +33,14 @@ public class ServicesModel implements Serializable {
     private String sshKey;
     private Long memberId;
 
+    @Transient
+    private MemberModel memberModel;
+
     public MemberModel getMember() {
-        return null;
+        if (memberModel == null) {
+            JpaRepository jpaRepository = SpringContextHolder.getBean("memberJpa");
+            memberModel = (MemberModel) jpaRepository.getOne(memberId);
+        }
+        return memberModel;
     }
 }

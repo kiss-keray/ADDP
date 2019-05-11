@@ -1,15 +1,14 @@
-package com.nix.jingxun.addp.web.common;
+package com.nix.jingxun.addp.web.model;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.thymeleaf.util.Validate;
+import org.springframework.stereotype.Component;
 /**
  * @author keray
  * @date 2019/04/21 21:49
  */
-
 
 
 /**
@@ -19,6 +18,7 @@ import org.thymeleaf.util.Validate;
  *
  */
 @Slf4j
+@Component
 public class SpringContextHolder implements ApplicationContextAware, DisposableBean {
     private static ApplicationContext applicationContext = null;
     /**
@@ -46,7 +46,7 @@ public class SpringContextHolder implements ApplicationContextAware, DisposableB
     public void setApplicationContext(ApplicationContext applicationContext) {
         log.debug("注入ApplicationContext到SpringContextHolder:{}", applicationContext);
         if (SpringContextHolder.applicationContext != null) {
-            log.warn("SpringContextHolder中的ApplicationContext被覆盖, 原有ApplicationContext为:{}",SpringContextHolder.applicationContext);
+            log.warn("SpringContextHolder中的ApplicationContext被覆盖, 原有ApplicationContext为:{}", SpringContextHolder.applicationContext);
         }
         SpringContextHolder.applicationContext = applicationContext; //NOSONAR
     }
