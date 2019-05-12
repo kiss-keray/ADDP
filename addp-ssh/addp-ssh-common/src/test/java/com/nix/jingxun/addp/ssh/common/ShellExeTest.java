@@ -12,16 +12,32 @@ public class ShellExeTest {
 
     private ShellExe shellExe = ShellExe.connect("59.110.234.213","root","Kiss4400");
 
-    public ShellExeTest() throws JSchException {
+    public ShellExeTest() throws Exception {
     }
 
     @Test
     public void lsTest() {
-        shellExe.execute("ls", System.out::println);
+        shellExe.syncExecute("ls", System.out::println)
+        .syncExecute("cd /usr/", System.out::println)
+        .syncExecute("ls", System.out::println);
     }
+
 
     @Test
     public void topTest() {
-        shellExe.execute("top", System.out::println);
+        shellExe.AsyncExecute("top",System.out::println);
+    }
+
+    public static void main(String[] args) throws Exception {
+        ShellExe shellExe = new ShellExeTest().shellExe;
+        while (true) {
+            byte[] b = new byte[1024];
+            System.in.read(b);
+            String command = new String(b);
+            System.out.println(command.replaceAll("[\\W]",""));
+            shellExe.AsyncExecute(command.replaceAll("[\\W]",""),System.out::print);
+        }
+
+
     }
 }

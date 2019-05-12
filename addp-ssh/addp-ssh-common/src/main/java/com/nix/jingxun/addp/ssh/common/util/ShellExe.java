@@ -1,13 +1,19 @@
 package com.nix.jingxun.addp.ssh.common.util;
 
-import cn.hutool.core.io.IoUtil;
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.ChannelShell;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Optional;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.ConnectException;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -16,22 +22,23 @@ import java.util.function.Consumer;
  */
 @Slf4j
 public class ShellExe {
-
+    private final static ThreadPoolExecutor THREAD_POOL_EXECUTOR =
+            new ThreadPoolExecutor(10, 200, 10,
+                    TimeUnit.SECONDS, new LinkedBlockingDeque<>(1024),
+                    r -> {
+                        Thread t = new Thread(r);
+                        t.setName("shell");
+                        return t;
+                    });
     private final static JSch jsch = new JSch();
-    //远程主机的ip地址
-    private String ip;
-    //远程主机登录用户名
-    private String username;
-    //远程主机的登录密码
-    private String password;
     //设置ssh连接的远程端口
     private static final int DEFAULT_SSH_PORT = 22;
     private final Session session;
+    private ChannelShell channelShell;
+    private BufferedReader read;
+    private PrintWriter writer;
 
-    private ShellExe(String ip, String username, String password) throws JSchException {
-        this.ip = ip;
-        this.username = username;
-        this.password = password;
+    private ShellExe(String ip, String username, String password,long time) throws Exception {
         //创建session并且打开连接，因为创建session之后要主动打开连接
         session = jsch.getSession(username, ip, DEFAULT_SSH_PORT);
         session.setPassword(password);
@@ -39,67 +46,125 @@ public class ShellExe {
         SSHUser userInfo = new SSHUser();
         session.setUserInfo(userInfo);
         session.connect();
+        channelShell = (ChannelShell) session.openChannel("shell");
+        writer = new PrintWriter(new OutputStreamWriter(channelShell.getOutputStream()));
+        read = new BufferedReader(new InputStreamReader(channelShell.getInputStream()));
+        channelShell.connect(3000);
+        Future<Boolean> welcomeTask = THREAD_POOL_EXECUTOR.submit(() -> {
+            try {
+                String line;
+                while ((line = read.readLine()) != null) {
+                    System.out.println(line);
+                    if (line.contains("Welcome")) {
+                        return true;
+                    }
+                }
+                return false;
+            }catch (Exception e) {
+                return false;
+            }
+        });
+        if (!welcomeTask.get(time,TimeUnit.MILLISECONDS)) {
+            throw new ConnectException("shell content fail");
+        }
     }
-    public static ShellExe connect(String ip, String username, String password) throws JSchException {
-        return new ShellExe(ip,username,password);
+
+    public static ShellExe connect(String ip, String username, String password) throws Exception {
+        return new ShellExe(ip, username, password,3000);
     }
 
     /**
      * 执行命令 一次性命令
+     *
      * @param command 命令
-     * func 0 执行成功后执行
-     *      1 执行失败后执行
-     *      2 不管执行成功还是失败都执行
-     * */
+     *                func 0 执行成功后执行
+     *                1 执行失败后执行
+     *                2 不管执行成功还是失败都执行
+     */
     @SafeVarargs
-    public final ShellExe execute(String command, Consumer<Object>... func) {
+    public final ShellExe AsyncExecute(String command, Consumer<Object>... func) {
+
+        return execute(command,false,func);
+    }
+
+
+
+    public final ShellExe syncExecute(String command, Consumer<Object>... func) {
+        return execute(command,true,func);
+    }
+
+    private ShellExe execute(String command,Boolean sync,Consumer<Object>... func) {
+        Future<String> task = THREAD_POOL_EXECUTOR.submit(() -> {
+            try {
+                writer.println(command);
+                writer.flush();
+                StringBuilder result = new StringBuilder();
+                String line;
+                boolean start = false;
+                while ((line = read.readLine()) != null) {
+                    if (!start) {
+                        if (line.matches("\\[[^\\[|^\\]]+][#|$][\\s]*" + command + ".*")) {
+                            start = true;
+                            if (!sync) {
+                                if (func != null && func.length > 0) {
+                                    func[0].accept(line + System.lineSeparator());
+                                }
+                            }
+                            result.append(line).append(System.lineSeparator());
+                            continue;
+                        }
+                    }
+                    if (start) {
+                        if (!sync) {
+                            if (func != null && func.length > 0) {
+                                func[0].accept(line + System.lineSeparator());
+                            }
+                        }
+                        result.append(line).append(System.lineSeparator());
+                        if (line.matches("\\[[^\\[|^\\]]+][#|$].*")) {
+                            return result.toString();
+                        }
+                    }
+                }
+                return result.toString();
+            }catch (Exception e) {
+                if (!sync) {
+                    e.printStackTrace();
+                    if (func != null && func.length > 1) {
+                        func[1].accept(e);
+                    }
+                }
+                throw new RuntimeException(e);
+            }finally {
+                if (!sync) {
+                    if (func != null && func.length > 2) {
+                        func[2].accept(null);
+                    }
+                }
+            }
+        });
+        if (!sync) {
+            return this;
+        }
         try {
-            ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
-            InputStream in = channelExec.getInputStream();
-            channelExec.setCommand(command);
-            channelExec.setErrStream(System.err);
-            channelExec.connect();
-            String result  = IoUtil.read(in,"UTF-8");
-            channelExec.disconnect();
-            if (func != null && func.length > 0 && func[0] != null) {
+            String result = task.get();
+            if (func != null && func.length > 0) {
                 func[0].accept(result);
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            if (func != null && func.length > 1 && func[1] != null) {
+            if (func != null && func.length > 1) {
                 func[1].accept(e);
             }
-        }
-        if (func != null && func.length > 2 && func[2] != null) {
-            func[2].accept(null);
+        }finally {
+            if (func != null && func.length > 2) {
+                func[2].accept(null);
+            }
         }
         return this;
     }
-
-    /**
-     * 执行top tail -f 等命令
-     * @param command 命令
-     * @param optional 获取到一行数据后执行
-     * */
-    public final ShellExe execute(String command, Optional<Object> optional) {
-        try {
-
-            Channel channel = session.openChannel("exec");
-            ChannelExec channelExec = (ChannelExec)channel;
-            channelExec.setInputStream(null);
-            channelExec.setCommand(command);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(channelExec.getInputStream()));
-            channelExec.connect();
-            //接收远程服务器执行命令的结果
-            String line = "";
-            while (!channelExec.isClosed() || line != null) {
-                if ((line = reader.readLine()) != null) {
-
-                }
-            }
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-        return this;
+    public void close() {
+        channelShell.disconnect();
+        session.disconnect();
     }
 }
