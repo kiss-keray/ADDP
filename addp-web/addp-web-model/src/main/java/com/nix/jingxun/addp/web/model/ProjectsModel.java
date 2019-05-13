@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -46,4 +47,15 @@ public class ProjectsModel implements Serializable {
 
     @NotNull
     private Long servicesId;
+
+    @Transient
+    private ServicesModel servicesModel;
+
+    public ServicesModel getServicesModel() {
+        if (servicesModel == null) {
+            JpaRepository jpaRepository = SpringContextHolder.getBean("servicesJpa");
+            servicesModel = (ServicesModel) jpaRepository.getOne(servicesId);
+        }
+        return servicesModel;
+    }
 }

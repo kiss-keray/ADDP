@@ -76,16 +76,9 @@
             <artifactId>addp-web-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-            <version>5.1.6.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-            <version>5.1.6.RELEASE</version>
-            <scope>compile</scope>
+            <groupId>com.nix.jingxun</groupId>
+            <artifactId>addp-ssh-common</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
     <build>

@@ -1,8 +1,10 @@
 package com.nix.jingxun.addp.web;
 
 import com.nix.jingxun.addp.web.iservice.IMemberService;
+import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.model.MemberModel;
+import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +25,8 @@ public class WebTest {
     private IMemberService memberService;
     @Resource
     private IServicesService servicesService;
+    @Resource
+    private IProjectsService projectsService;
 
     @Test
     public void jpaBeanTest() {
@@ -57,6 +61,23 @@ public class WebTest {
                 .port(22).build();
         try {
             servicesService.save(model);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void createProject() {
+        ProjectsModel projectsModel = ProjectsModel.builder()
+                .servicesId(1L)
+                .memberId(1L)
+                .name("ceemoo")
+                .gitUrl("http://git.ceemoo.com:10086/ceemoo/cmcore.git/")
+                .gitUsername("xxxxx")
+                .gitPassword("xxxxx")
+                .build();
+        try {
+            projectsService.save(projectsModel);
         } catch (Exception e) {
             e.printStackTrace();
         }

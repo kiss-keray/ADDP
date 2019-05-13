@@ -30,6 +30,5 @@ spring:
   redis:
     host: 59.110.234.213
 logging:
-  level:
-    com.dragon.study.spring.boot: DEBUG
+  level: debug
   file: ./addp.log

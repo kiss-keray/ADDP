@@ -1,6 +1,7 @@
 package com.nix.jingxun.addp.web.start.controller;
 
 import com.nix.jingxun.addp.common.Result;
+import com.nix.jingxun.addp.ssh.common.exception.ShellConnectException;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
@@ -39,7 +40,11 @@ public class ProjectsController {
                 if (!MemberCache.currentUser().getId().equals(servicesModel.getMemberId())) {
                     return Result.fail("1401","no permission:" + projectsModel.getServicesId());
                 }
+                projectsModel.setMemberId(servicesModel.getMemberId());
+                projectsModel.setServicesModel(servicesModel);
                 return projectsService.save(projectsModel);
+            } catch (ShellConnectException e) {
+                return Result.fail("1404","服务器连接失败");
             } catch (Exception e) {
                 e.printStackTrace();
                 return Result.fail(e);

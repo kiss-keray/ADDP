@@ -2,7 +2,11 @@ package com.nix.jingxun.addp.ssh.common;
 
 import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
+import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import org.junit.Test;
+
+import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 
 /**
  * @author keray
@@ -10,34 +14,34 @@ import org.junit.Test;
  */
 public class ShellExeTest {
 
-    private ShellExe shellExe = ShellExe.connect("59.110.234.213","root","Kiss4400");
+    private ShellExe shellExe = ShellExe.connect("59.110.234.213", "root", "Kiss4400");
 
     public ShellExeTest() throws Exception {
     }
 
     @Test
     public void lsTest() {
-        shellExe.syncExecute("ls", System.out::println)
-        .syncExecute("cd /usr/", System.out::println)
-        .syncExecute("ls", System.out::println);
+        shellExe.syncExecute("cd /usr/addp/",System.out::println)
+                .syncExecute("git clone http://git.ceemoo.com:10086/ceemoo/cmcore.git", System.out::println)
+                .syncExecute("xxxxx", System.out::println)
+                .syncExecute("xxxxxx",System.out::println)
+        .close();
     }
 
 
     @Test
     public void topTest() {
-        shellExe.AsyncExecute("top",System.out::println);
+        shellExe.AsyncExecute("top", System.out::println);
     }
 
     public static void main(String[] args) throws Exception {
-        ShellExe shellExe = new ShellExeTest().shellExe;
-        while (true) {
-            byte[] b = new byte[1024];
-            System.in.read(b);
-            String command = new String(b);
-            System.out.println(command.replaceAll("[\\W]",""));
-            shellExe.AsyncExecute(command.replaceAll("[\\W]",""),System.out::print);
-        }
+        System.out.println(("[root@izkiqfmzrlha3jz ~]# mkdir -p /usr/addp/\r\n" +
+                "[root@izkiqfmzrlha3jz ~]# \r\n" +
+                "[root@izkiqfmzrlha3jz ~]# \r\n").matches("[\\S|\\s]*#[\\s]*"));
+    }
 
-
+    @Test
+    public void test() {
+        System.out.println(Arrays.toString("With great power comes great responsibility.".getBytes()));
     }
 }

@@ -2,19 +2,20 @@ package com.nix.jingxun.addp.ssh.common.util;
 
 import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
+import com.nix.jingxun.addp.ssh.common.exception.ShellConnectException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.ConnectException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+
+import static com.nix.jingxun.addp.ssh.common.util.ShellUtil.shellEnd;
 
 /**
  * @author keray
@@ -35,10 +36,10 @@ public class ShellExe {
     private static final int DEFAULT_SSH_PORT = 22;
     private final Session session;
     private ChannelShell channelShell;
-    private BufferedReader read;
-    private PrintWriter writer;
+    private OutputStream writer;
+    private InputStream read;
 
-    private ShellExe(String ip, String username, String password,long time) throws Exception {
+    private ShellExe(String ip, String username, String password, long time) throws IOException, JSchException {
         //创建session并且打开连接，因为创建session之后要主动打开连接
         session = jsch.getSession(username, ip, DEFAULT_SSH_PORT);
         session.setPassword(password);
@@ -47,30 +48,29 @@ public class ShellExe {
         session.setUserInfo(userInfo);
         session.connect();
         channelShell = (ChannelShell) session.openChannel("shell");
-        writer = new PrintWriter(new OutputStreamWriter(channelShell.getOutputStream()));
-        read = new BufferedReader(new InputStreamReader(channelShell.getInputStream()));
+        writer = channelShell.getOutputStream();
+        read = channelShell.getInputStream();
         channelShell.connect(3000);
         Future<Boolean> welcomeTask = THREAD_POOL_EXECUTOR.submit(() -> {
             try {
-                String line;
-                while ((line = read.readLine()) != null) {
-                    System.out.println(line);
-                    if (line.contains("Welcome")) {
-                        return true;
-                    }
-                }
-                return false;
-            }catch (Exception e) {
+                String resultStr = read();
+                return resultStr.contains("Welcome") || resultStr.contains("welcome");
+            } catch (Exception e) {
                 return false;
             }
         });
-        if (!welcomeTask.get(time,TimeUnit.MILLISECONDS)) {
-            throw new ConnectException("shell content fail");
+        try {
+            if (!welcomeTask.get(time, TimeUnit.MILLISECONDS)) {
+                throw new ShellConnectException("shell content fail");
+            }
+        } catch (Exception e) {
+            welcomeTask.cancel(true);
+            throw new ShellConnectException(e.getMessage());
         }
     }
 
     public static ShellExe connect(String ip, String username, String password) throws Exception {
-        return new ShellExe(ip, username, password,3000);
+        return new ShellExe(ip, username, password, 3000);
     }
 
     /**
@@ -84,50 +84,37 @@ public class ShellExe {
     @SafeVarargs
     public final ShellExe AsyncExecute(String command, Consumer<Object>... func) {
 
-        return execute(command,false,func);
+        return execute(command, false, func);
     }
 
 
-
+    @SafeVarargs
     public final ShellExe syncExecute(String command, Consumer<Object>... func) {
-        return execute(command,true,func);
+        return execute(command, true, func);
     }
 
-    private ShellExe execute(String command,Boolean sync,Consumer<Object>... func) {
+    private ShellExe execute(String command, Boolean sync, Consumer<Object>... func) {
         Future<String> task = THREAD_POOL_EXECUTOR.submit(() -> {
             try {
-                writer.println(command);
+                writer.write((command + "\r").getBytes(StandardCharsets.UTF_8));
                 writer.flush();
                 StringBuilder result = new StringBuilder();
-                String line;
-                boolean start = false;
-                while ((line = read.readLine()) != null) {
-                    if (!start) {
-                        if (line.matches("\\[[^\\[|^\\]]+][#|$][\\s]*" + command + ".*")) {
-                            start = true;
-                            if (!sync) {
-                                if (func != null && func.length > 0) {
-                                    func[0].accept(line + System.lineSeparator());
-                                }
-                            }
-                            result.append(line).append(System.lineSeparator());
-                            continue;
+                System.out.println("+++++++++++++++++++++++++++++++++：" + command);
+                while (true) {
+                    String line = read();
+                    result.append(line);
+                    if (!sync) {
+                        if (func != null && func.length > 0) {
+                            func[0].accept(line);
                         }
                     }
-                    if (start) {
-                        if (!sync) {
-                            if (func != null && func.length > 0) {
-                                func[0].accept(line + System.lineSeparator());
-                            }
-                        }
-                        result.append(line).append(System.lineSeparator());
-                        if (line.matches("\\[[^\\[|^\\]]+][#|$].*")) {
-                            return result.toString();
-                        }
+                    if (shellEnd(line)) {
+                        break;
                     }
                 }
+//                System.out.println("---------------------------------");
                 return result.toString();
-            }catch (Exception e) {
+            } catch (Exception e) {
                 if (!sync) {
                     e.printStackTrace();
                     if (func != null && func.length > 1) {
@@ -135,7 +122,7 @@ public class ShellExe {
                     }
                 }
                 throw new RuntimeException(e);
-            }finally {
+            } finally {
                 if (!sync) {
                     if (func != null && func.length > 2) {
                         func[2].accept(null);
@@ -156,15 +143,29 @@ public class ShellExe {
             if (func != null && func.length > 1) {
                 func[1].accept(e);
             }
-        }finally {
+        } finally {
             if (func != null && func.length > 2) {
                 func[2].accept(null);
             }
         }
         return this;
     }
+
+    public String read() throws IOException {
+        while (true) {
+            byte[] bytes = new byte[2048];
+            int len = read.read(bytes);
+            return new String(bytes,0,len);
+        }
+    }
     public void close() {
-        channelShell.disconnect();
-        session.disconnect();
+        try {
+            writer.close();
+            channelShell.disconnect();
+            session.disconnect();
+            read.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
