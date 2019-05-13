@@ -69,7 +69,7 @@ public class ShellExe {
         }
     }
 
-    public static ShellExe connect(String ip, String username, String password) throws Exception {
+    public static ShellExe connect(String ip, String username, String password) throws  IOException, JSchException {
         return new ShellExe(ip, username, password, 3000);
     }
 
@@ -83,7 +83,6 @@ public class ShellExe {
      */
     @SafeVarargs
     public final ShellExe AsyncExecute(String command, Consumer<Object>... func) {
-
         return execute(command, false, func);
     }
 
@@ -91,6 +90,14 @@ public class ShellExe {
     @SafeVarargs
     public final ShellExe syncExecute(String command, Consumer<Object>... func) {
         return execute(command, true, func);
+    }
+
+    public final String oneway(String command) {
+        StringBuilder builder = new StringBuilder();
+        syncExecute(command, builder::append,e -> {
+            throw new RuntimeException((Throwable) e);
+        });
+        return builder.toString();
     }
 
     private ShellExe execute(String command, Boolean sync, Consumer<Object>... func) {
@@ -102,6 +109,7 @@ public class ShellExe {
                 System.out.println("+++++++++++++++++++++++++++++++++：" + command);
                 while (true) {
                     String line = read();
+                    System.out.println(line);
                     result.append(line);
                     if (!sync) {
                         if (func != null && func.length > 0) {
@@ -112,7 +120,7 @@ public class ShellExe {
                         break;
                     }
                 }
-//                System.out.println("---------------------------------");
+                System.out.println("---------------------------------");
                 return result.toString();
             } catch (Exception e) {
                 if (!sync) {

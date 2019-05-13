@@ -38,4 +38,16 @@ public final class ShellUtil {
     public static boolean shellNeedKeydown(String shell) {
         return shell.endsWith(": ");
     }
+
+
+    public static boolean cd(String cdDir,ShellExe shellExe) {
+        try {
+            String result = shellExe.oneway("cd " + cdDir);
+            String endDir = cdDir.split("/")[cdDir.split("/").length > 0 ? cdDir.split("/").length - 1 : 0];
+            return result.matches("[\\s|\\S]*\\[.*" + endDir + "][#|$].*");
+        }catch (RuntimeException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

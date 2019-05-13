@@ -29,44 +29,46 @@ public class Result<T> {
     @ToString(callSuper = true)
     @EqualsAndHashCode(callSuper = true)
     @Data
-    public static class FailResult<T> extends Result<T> {
+    public static class FailResult<E extends Exception,T> extends Result<T> {
         private String errorCode;
         private String errorMsg;
-        private Exception exception;
+        private E exception;
         public FailResult() {
             success = false;
         }
     }
-    public static <T> FailResult<T> fail(T data,String errorCode,String errorMsg,Exception e) {
-        FailResult<T> failResult = new FailResult<>();
+    public static <E extends Exception,T> FailResult<E,T> fail(T data,String errorCode,String errorMsg,E e) {
+        FailResult<E,T> failResult = new FailResult<>();
         failResult.setData(data);
         failResult.setErrorCode(errorCode);
         failResult.setErrorMsg(errorMsg);
         failResult.setException(e);
         return failResult;
     }
-    public static <T> FailResult<T> fail(String errorCode,String errorMsg,Exception e) {
+    public static <E extends Exception,T> FailResult<E,T> fail(String errorCode,String errorMsg,E e) {
         return fail(null,errorCode,errorMsg,e);
     }
-    public static <T> FailResult<T> fail(String errorCode,String errorMsg) {
+    public static <E extends Exception,T> FailResult<E,T> fail(String errorCode,String errorMsg) {
         return fail(null,errorCode,errorMsg,null);
     }
-    public static <T> FailResult<T> fail(String errorCode) {
+    public static <E extends Exception,T> FailResult<E,T> fail(String errorCode) {
         return fail(null,errorCode,null,null);
     }
-    public static <T> FailResult<T> fail(Exception e) {
+    public static <E extends Exception,T> FailResult<E,T> fail(E e) {
         return fail(null,null,null,e);
     }
     public static <T> Result<T> success(T data) {
-        return Result.of(() -> data);
+        return new SuccessResult<>(data);
     }
     public static <T> Result<T> of(Supplier<T> supplier) {
         try {
-            Object result = supplier.get();
+            T result = supplier.get();
             if (result instanceof Result) {
                 return (Result<T>) result;
-            } else {
-                return new SuccessResult<T>((T) result);
+            } else if (result instanceof Exception) {
+                return FailResult.fail((Exception) result);
+            }else {
+                return SuccessResult.success(result);
             }
         }catch (Exception e) {
             return FailResult.fail(e);
@@ -91,10 +93,21 @@ public class Result<T> {
             return Result.fail(e);
         }
     }
+    public  Result<T> failFlat(Function<FailResult<? extends Exception,T>,Result<T>> function) {
+        if (this instanceof FailResult) {
+            return function.apply((FailResult<? extends Exception, T>) this);
+        }
+        return  this;
+    }
     public Result<T> logFail() {
         if (this instanceof FailResult) {
             log.error("logFail:{}",this.toString());
         }
         return this;
+    }
+    public void throwException() {
+        if (this instanceof FailResult && ((FailResult) this).getException() != null) {
+            throw new ResultException(((FailResult) this).getException());
+        }
     }
 }

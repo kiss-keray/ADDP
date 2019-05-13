@@ -14,9 +14,8 @@
     <name>addp-web</name>
     <modules>
         <module>addp-web-common</module>
-        <module>addp-web-iservice</module>
         <module>addp-web-jpa</module>
-        <module>addp-web-model</module>
+        <module>addp-web-base</module>
         <module>addp-web-service</module>
         <module>addp-web-start</module>
     </modules>
@@ -40,7 +39,7 @@
 
             <dependency>
                 <groupId>com.nix.jingxun</groupId>
-                <artifactId>addp-web-model</artifactId>
+                <artifactId>addp-web-base</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

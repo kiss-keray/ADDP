@@ -1,11 +1,9 @@
 package com.nix.jingxun.addp.ssh.common;
 
-import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import org.junit.Test;
 
-import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 
 /**
@@ -43,5 +41,10 @@ public class ShellExeTest {
     @Test
     public void test() {
         System.out.println(Arrays.toString("With great power comes great responsibility.".getBytes()));
+    }
+
+    @Test
+    public void cdTest() {
+        System.out.println(ShellUtil.cd("/usr/addp",shellExe));
     }
 }

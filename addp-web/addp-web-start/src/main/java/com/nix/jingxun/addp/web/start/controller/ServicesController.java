@@ -21,7 +21,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/service")
 @Api("服务器管理api")
-public class ServicesController {
+public class ServicesController  extends BaseController{
 
     @Resource
     private IServicesService servicesService;

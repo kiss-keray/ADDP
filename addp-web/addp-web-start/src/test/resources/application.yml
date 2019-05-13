@@ -33,3 +33,6 @@ logging:
   level:
     com.dragon.study.spring.boot: DEBUG
   file: ./addp.log
+jingxun:
+  web:
+    addpBase: /usr/addp/

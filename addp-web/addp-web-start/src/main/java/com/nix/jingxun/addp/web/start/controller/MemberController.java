@@ -15,7 +15,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/member")
-public class MemberController {
+public class MemberController  extends BaseController{
     @Resource
     private IMemberService memberService;
 
@@ -29,7 +29,7 @@ public class MemberController {
             }
             MemberCache.setCurrentUser(member);
             return Result.success(member);
-        }).logFail();
+        }).failFlat(this::failFlat).logFail();
     }
 
     @PostMapping("/login")

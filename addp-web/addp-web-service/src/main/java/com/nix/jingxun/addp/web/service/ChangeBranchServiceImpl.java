@@ -1,8 +1,18 @@
 package com.nix.jingxun.addp.web.service;
 
+import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
+import com.nix.jingxun.addp.ssh.common.util.ShellExe;
+import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
+import com.nix.jingxun.addp.web.common.config.WebConfig;
+import com.nix.jingxun.addp.web.exception.Code;
+import com.nix.jingxun.addp.web.exception.WebRunException;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
+import com.nix.jingxun.addp.web.iservice.IProjectsService;
+import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ChangeBranchJpa;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
+import com.nix.jingxun.addp.web.model.ProjectsModel;
+import com.nix.jingxun.addp.web.model.ServicesModel;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -18,6 +28,12 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel,L
     @Resource
     private ChangeBranchJpa changeBranchJpa;
 
+    @Resource
+    private IProjectsService projectsService;
+
+    @Resource
+    private IServicesService servicesService;
+
     @Override
     protected JpaRepository<ChangeBranchModel, Long> jpa() {
         return changeBranchJpa;
@@ -27,4 +43,25 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel,L
     protected Class<ChangeBranchModel> modelType() {
         return ChangeBranchModel.class;
     }
+
+    /**
+     * 创建变更（创建分支）
+     * */
+    @Override
+    public ChangeBranchModel save(ChangeBranchModel changeBranchModel) throws Exception {
+        ProjectsModel projectsModel = changeBranchModel.getProjectsModel();
+        ServicesModel servicesModel = projectsModel.getServicesModel();
+        ShellExe shellExe = servicesService.shellExeByUsername(servicesModel);
+        if (!ShellUtil.cd(WebConfig.addpBaseFile + projectsModel.getName(),shellExe)) {
+            throw new WebRunException(Code.dataError,WebConfig.addpBaseFile + projectsModel.getName() + " 文件夹不存在");
+        }
+        gitCreateBranch(changeBranchModel.getBranchName(),shellExe);
+        return super.save(changeBranchModel);
+    }
+
+    public void gitCreateBranch(String branchName, ShellExe shellExe) throws ShellExeException {
+
+    }
+
+
 }

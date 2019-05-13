@@ -9,17 +9,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>addp-web-service</artifactId>
+    <artifactId>addp-web-base</artifactId>
     <packaging>jar</packaging>
-    <name>addp-web-service</name>
+    <name>addp-web-base</name>
     <dependencies>
         <dependency>
             <groupId>com.nix.jingxun</groupId>
-            <artifactId>addp-web-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.nix.jingxun</groupId>
-            <artifactId>addp-web-common</artifactId>
+            <artifactId>addp-ssh-common</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

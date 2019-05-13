@@ -18,7 +18,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/change")
-public class ChangeBranchController {
+public class ChangeBranchController extends BaseController{
 
     @Resource
     private IChangeBranchService changeBranchService;
@@ -28,19 +28,18 @@ public class ChangeBranchController {
     @PostMapping("/create")
     public Result create(@Valid @ModelAttribute ChangeBranchModel changeBranchModel) {
         return Result.of(() -> {
-            try {
-                ProjectsModel projectsModel = projectsService.findById(changeBranchModel.getProjectId());
-                if (!MemberCache.currentUser().getId().equals(
-                        projectsService.oneToOneModel(ServicesModel.class,projectsModel.getServicesId()).getMemberId())
-                ) {
-                    return Result.fail("1401","no project permission " + projectsModel.getName());
-                }
-                return changeBranchService.save(changeBranchModel);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Result.fail(e);
+            ProjectsModel projectsModel = projectsService.findById(changeBranchModel.getProjectId());
+            if (!MemberCache.currentUser().getId().equals(
+                    projectsService.oneToOneModel(ServicesModel.class,projectsModel.getServicesId()).getMemberId())
+            ) {
+                return Result.fail("1401","no project permission " + projectsModel.getName());
             }
-        }).logFail();
+            try {
+                return changeBranchService.save(changeBranchModel);
+            }catch (Exception e) {
+                return e;
+            }
+        }).failFlat(this::failFlat).logFail();
     }
 
     @PostMapping("/start")
@@ -48,6 +47,6 @@ public class ChangeBranchController {
         return Result.of(() -> {
 //            ChangeBranchModel changeBranchModel =
             return null;
-        }).logFail();
+        }).failFlat(this::failFlat).logFail();
     }
 }

@@ -21,7 +21,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/projects")
-public class ProjectsController {
+public class ProjectsController  extends BaseController{
 
     @Resource
     private IProjectsService projectsService;

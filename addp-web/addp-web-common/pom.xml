@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>com.nix.jingxun</groupId>
-            <artifactId>addp-web-model</artifactId>
+            <artifactId>addp-web-base</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -4,7 +4,9 @@ import cn.hutool.core.util.StrUtil;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
+import com.nix.jingxun.addp.web.common.config.WebConfig;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
+import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ProjectsJpa;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
@@ -28,6 +30,9 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
     @Resource
     private ProjectsJpa projectsJpa;
 
+    @Resource
+    private IServicesService servicesService;
+
     @Override
     protected JpaRepository<ProjectsModel, Long> jpa() {
         return projectsJpa;
@@ -47,8 +52,11 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
     @Transactional(rollbackFor = Exception.class)
     public ProjectsModel save(ProjectsModel projectsModel) throws Exception {
         ServicesModel servicesModel = projectsModel.getServicesModel();
-        // 拿到服务器执行shell
-        ShellExe shellExe = shellExeByUsername(servicesModel);
+        createGitClone(projectsModel,servicesService.shellExeByUsername(servicesModel));
+        return super.save(projectsModel);
+    }
+
+    public void createGitClone(ProjectsModel projectsModel,ShellExe shellExe) throws ShellExeException {
         final ShellFunc<Object> fail = (error, msg) -> {
             Exception e = (Exception) error;
             log.error(msg, error);
@@ -62,13 +70,13 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
             log.info("{}shell:{}{}{}", System.lineSeparator(), msg, System.lineSeparator(), result);
         };
         // cd /usr/addp 没有则创建
-        shellExe.syncExecute("mkdir -p /usr/addp/",
-                result -> success.accept(result, "mkdir -p /usr/addp/"),
-                error -> fail.accept(error, "mkdir -p /usr/addp/ fail..."))
+        shellExe.syncExecute(StrUtil.format("mkdir -p {}", WebConfig.addpBaseFile),
+                result -> success.accept(result, StrUtil.format("mkdir -p {}", WebConfig.addpBaseFile)),
+                error -> fail.accept(error, StrUtil.format("mkdir -p {} fail", WebConfig.addpBaseFile)))
                 // git clone gitUtl "/usr/addp/{projectName}"
-                .syncExecute(StrUtil.format("git clone {} \"/usr/addp/{}\"", projectsModel.getGitUrl(), projectsModel.getName()),
+                .syncExecute(StrUtil.format("git clone {} \"{}{}\"", projectsModel.getGitUrl(),WebConfig.addpBaseFile, projectsModel.getName()),
                         result -> {
-                            success.accept(result, StrUtil.format("git clone {} \"/usr/addp/{}\"", projectsModel.getGitUrl(), projectsModel.getName()));
+                            success.accept(result, StrUtil.format("git clone {} \"{}{}\"", projectsModel.getGitUrl(),WebConfig.addpBaseFile, projectsModel.getName()));
                             // 判断git是否需要认证
                             if (ShellUtil.commandIsExec(result.toString())) {
                                 //输入账号
@@ -87,14 +95,11 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
                                                 error -> fail.accept(error, "密码输入执行异常"));
                             }
                         },
-                        error -> fail.accept(error, StrUtil.format("git clone {} \"/usr/addp/{}\"", projectsModel.getGitUrl(), projectsModel.getName())));
+                        error -> fail.accept(error, StrUtil.format("git clone {} \"{}{}\" fail", projectsModel.getGitUrl(),WebConfig.addpBaseFile, projectsModel.getName())))
+                .close();
         // git clone成功
-        return super.save(projectsModel);
     }
 
-    private ShellExe shellExeByUsername(ServicesModel servicesModel) throws Exception {
-        return ShellExe.connect(servicesModel.getIp(), servicesModel.getUsername(), servicesModel.getPassword());
-    }
 
 
 }

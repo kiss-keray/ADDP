@@ -1,5 +1,7 @@
 package com.nix.jingxun.addp.web.service;
 
+import com.jcraft.jsch.JSchException;
+import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ServicesJpa;
 import com.nix.jingxun.addp.web.model.MemberModel;
@@ -10,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -35,5 +38,10 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel,Long> imp
     @Override
     public List<ServicesModel> selectMemberServices(MemberModel memberModel) {
         return servicesJpa.findAll(Example.of(ServicesModel.builder().memberId(memberModel.getId()).build()));
+    }
+
+    public ShellExe shellExeByUsername(ServicesModel servicesModel) throws IOException, JSchException {
+        // 拿到服务器执行shell
+        return ShellExe.connect(servicesModel.getIp(), servicesModel.getUsername(), servicesModel.getPassword());
     }
 }
