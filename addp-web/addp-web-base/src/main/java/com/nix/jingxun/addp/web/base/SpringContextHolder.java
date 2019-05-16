@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web;
+package com.nix.jingxun.addp.web.base;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;

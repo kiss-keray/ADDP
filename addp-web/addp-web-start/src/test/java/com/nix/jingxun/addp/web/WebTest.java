@@ -1,14 +1,18 @@
 package com.nix.jingxun.addp.web;
 
+import com.nix.jingxun.addp.web.common.config.WebConfig;
+import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
+import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.MemberModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
@@ -19,6 +23,7 @@ import javax.annotation.Resource;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@ComponentScan("com.nix.jingxun.addp.*")
 public class WebTest {
 
     @Resource
@@ -27,6 +32,10 @@ public class WebTest {
     private IServicesService servicesService;
     @Resource
     private IProjectsService projectsService;
+    @Resource
+    private IChangeBranchService changeBranchService;
+    @Resource
+    private WebConfig webConfig;
 
     @Test
     public void jpaBeanTest() {
@@ -35,7 +44,7 @@ public class WebTest {
 
     @Test
     public void modelJpaTest() {
-        ServicesModel model = ServicesModel.builder().memberId(1L).build();
+        ServicesModel model = servicesService.findById(1L);
         System.out.println(model.getMember());
     }
 
@@ -54,13 +63,14 @@ public class WebTest {
     @Test
     public void createService() {
         ServicesModel model = ServicesModel.builder()
+                .id(1L)
                 .memberId(1L)
-                .ip("59.110.234.213")
+                .ip("59.110.234.212")
                 .username("root")
                 .password("Kiss4400")
                 .port(22).build();
         try {
-            servicesService.save(model);
+            servicesService.update(model);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -71,13 +81,27 @@ public class WebTest {
         ProjectsModel projectsModel = ProjectsModel.builder()
                 .servicesId(1L)
                 .memberId(1L)
-                .name("ceemoo")
-                .gitUrl("http://git.ceemoo.com:10086/ceemoo/cmcore.git/")
-                .gitUsername("xxxxx")
-                .gitPassword("xxxxx")
+                .name("notes")
+                .gitUrl("https://github.com/kiss-yu/notes.git")
+                .gitUsername("1172304645@qq.com")
+                .gitPassword("a1172304645")
                 .build();
         try {
             projectsService.save(projectsModel);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void createChangeBranch() {
+        ChangeBranchModel model = ChangeBranchModel.builder()
+                .name("测试")
+                .branchName("test1")
+                .projectId(8L)
+                .build();
+        try {
+            changeBranchService.save(model);
         } catch (Exception e) {
             e.printStackTrace();
         }

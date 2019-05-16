@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.web.common.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,6 +10,11 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ConfigurationProperties(prefix = "jingxun.web")
+@Data
 public  class WebConfig {
     public static String addpBaseFile;
+
+    public void setAddpBaseFile(String addpBaseFile) {
+        WebConfig.addpBaseFile = addpBaseFile;
+    }
 }

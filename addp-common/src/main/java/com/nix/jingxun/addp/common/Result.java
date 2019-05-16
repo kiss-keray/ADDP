@@ -105,9 +105,10 @@ public class Result<T> {
         }
         return this;
     }
-    public void throwException() {
+    public Result<T> throwException() {
         if (this instanceof FailResult && ((FailResult) this).getException() != null) {
             throw new ResultException(((FailResult) this).getException());
         }
+        return this;
     }
 }

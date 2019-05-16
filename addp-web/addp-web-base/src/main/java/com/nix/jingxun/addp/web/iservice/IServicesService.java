@@ -3,6 +3,7 @@ package com.nix.jingxun.addp.web.iservice;
 import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.model.MemberModel;
+import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
 
 import java.io.IOException;
@@ -15,6 +16,13 @@ import java.util.List;
 public interface IServicesService extends BaseService<ServicesModel,Long> {
 
     List<ServicesModel> selectMemberServices(MemberModel memberModel);
+    /**
+     * 服务器shell链接
+     * */
     ShellExe shellExeByUsername(ServicesModel servicesModel) throws IOException, JSchException;
+    /**
+     * git认证
+     * */
+    ShellExe gitAuth(ShellExe shellExe, ProjectsModel projectsModel);
 
 }

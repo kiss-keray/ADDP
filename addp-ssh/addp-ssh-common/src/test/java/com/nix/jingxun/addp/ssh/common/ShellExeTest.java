@@ -45,6 +45,17 @@ public class ShellExeTest {
 
     @Test
     public void cdTest() {
-        System.out.println(ShellUtil.cd("/usr/addp",shellExe));
+        System.out.println(ShellUtil.cd("/usr/addp/",shellExe));
+    }
+
+
+    @Test
+    public void fetchTest() {
+        shellExe.fetch("cd /usr/addp")
+                .then(System.out::println)
+                .then1(r -> r.split("1")[5])
+                .then(System.out::println)
+                .Catch((e,d) -> e.printStackTrace())
+                .then(System.out::println);
     }
 }

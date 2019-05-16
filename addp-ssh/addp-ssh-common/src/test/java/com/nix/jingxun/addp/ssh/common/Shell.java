@@ -14,21 +14,13 @@ public class Shell{
 
             //jsch.setKnownHosts("/home/foo/.ssh/known_hosts");
 
-            String host=null;
-            if(arg.length>0){
-                host=arg[0];
-            }
-            else{
-                host=JOptionPane.showInputDialog("Enter username@hostname",
-                        System.getProperty("user.name")+
-                                "@localhost");
-            }
+            String host="root@59.110.234.213";
             String user=host.substring(0, host.indexOf('@'));
             host=host.substring(host.indexOf('@')+1);
 
             Session session=jsch.getSession(user, host, 22);
 
-            String passwd = JOptionPane.showInputDialog("Enter password");
+            String passwd = "Kiss4400";
             session.setPassword(passwd);
 
             UserInfo ui = new MyUserInfo(){

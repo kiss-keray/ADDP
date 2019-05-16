@@ -1,12 +1,12 @@
 package com.nix.jingxun.addp.web.model;
 
-import com.nix.jingxun.addp.web.SpringContextHolder;
+import com.nix.jingxun.addp.web.base.SpringContextHolder;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -23,6 +23,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "nix_projects")
+@Proxy(lazy = false)
 public class ProjectsModel implements Serializable {
     @Id
 
@@ -53,6 +54,7 @@ public class ProjectsModel implements Serializable {
     @Transient
     private ServicesModel servicesModel;
 
+    @Transient
     public ServicesModel getServicesModel() {
         if (servicesModel == null) {
             IServicesService servicesService = SpringContextHolder.getBean(IServicesService.class);

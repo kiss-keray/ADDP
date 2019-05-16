@@ -1,11 +1,11 @@
 package com.nix.jingxun.addp.web.model;
-import com.nix.jingxun.addp.web.SpringContextHolder;
+import com.nix.jingxun.addp.web.base.SpringContextHolder;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
@@ -22,6 +22,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "nix_services")
+@Proxy(lazy = false)
 public class ServicesModel implements Serializable {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)

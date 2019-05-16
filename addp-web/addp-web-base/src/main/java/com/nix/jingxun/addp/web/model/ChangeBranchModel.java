@@ -1,11 +1,12 @@
 package com.nix.jingxun.addp.web.model;
 
-import com.nix.jingxun.addp.web.SpringContextHolder;
+import com.nix.jingxun.addp.web.base.SpringContextHolder;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,6 +23,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "nix_change_branch")
+@Proxy(lazy = false)
 public class ChangeBranchModel implements Serializable {
 
     @Id

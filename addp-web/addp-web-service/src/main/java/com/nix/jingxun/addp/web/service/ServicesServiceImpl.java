@@ -1,10 +1,14 @@
 package com.nix.jingxun.addp.web.service;
 
+import cn.hutool.core.util.StrUtil;
 import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
+import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
+import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ServicesJpa;
 import com.nix.jingxun.addp.web.model.MemberModel;
+import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import org.springframework.data.domain.Example;
@@ -12,6 +16,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.security.auth.message.AuthException;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,7 +25,7 @@ import java.util.List;
  * @date 2019/04/21 13:55
  */
 @Service
-public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel,Long> implements IServicesService {
+public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> implements IServicesService {
 
     @Resource
     private ServicesJpa servicesJpa;
@@ -43,5 +48,22 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel,Long> imp
     public ShellExe shellExeByUsername(ServicesModel servicesModel) throws IOException, JSchException {
         // 拿到服务器执行shell
         return ShellExe.connect(servicesModel.getIp(), servicesModel.getUsername(), servicesModel.getPassword());
+    }
+
+    public ShellExe gitAuth(ShellExe shellExe, ProjectsModel projectsModel) {
+        //输入账号
+        return shellExe.syncExecute(projectsModel.getGitUsername(),
+                ShellExeLog.success,
+                (error, cmd) -> ShellExeLog.fail.accept(error, "输入账号异常"))
+                //输入密码
+                .syncExecute(projectsModel.getGitPassword(),
+                        result1 -> {
+                            // 判断shell返回的认证信息；
+                            if (result1.toString().contains("Authentication failed")) {
+                                ShellExeLog.fail.accept(new AuthException(StrUtil.format("fatal: Authentication failed for '{}'", projectsModel.getGitUrl())),
+                                        "git密码验证失败");
+                            }
+                        },
+                        error -> ShellExeLog.fail.accept(error, "密码输入执行异常"));
     }
 }

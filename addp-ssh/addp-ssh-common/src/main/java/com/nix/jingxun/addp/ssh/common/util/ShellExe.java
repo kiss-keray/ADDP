@@ -7,7 +7,9 @@ import com.jcraft.jsch.Session;
 import com.nix.jingxun.addp.ssh.common.exception.ShellConnectException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -54,6 +56,7 @@ public class ShellExe {
         Future<Boolean> welcomeTask = THREAD_POOL_EXECUTOR.submit(() -> {
             try {
                 String resultStr = read();
+                read();
                 return resultStr.contains("Welcome") || resultStr.contains("welcome");
             } catch (Exception e) {
                 return false;
@@ -69,7 +72,7 @@ public class ShellExe {
         }
     }
 
-    public static ShellExe connect(String ip, String username, String password) throws  IOException, JSchException {
+    public static ShellExe connect(String ip, String username, String password) throws IOException, JSchException {
         return new ShellExe(ip, username, password, 3000);
     }
 
@@ -82,25 +85,50 @@ public class ShellExe {
      *                2 不管执行成功还是失败都执行
      */
     @SafeVarargs
-    public final ShellExe AsyncExecute(String command, Consumer<Object>... func) {
+    public final ShellExe AsyncExecute(String command, ShellFunc<Object>... func) {
         return execute(command, false, func);
     }
 
-
     @SafeVarargs
-    public final ShellExe syncExecute(String command, Consumer<Object>... func) {
+    public final ShellExe syncExecute(String command, ShellFunc<Object>... func) {
         return execute(command, true, func);
     }
 
     public final String oneway(String command) {
         StringBuilder builder = new StringBuilder();
-        syncExecute(command, builder::append,e -> {
+        syncExecute(command, builder::append, e -> {
             throw new RuntimeException((Throwable) e);
         });
         return builder.toString();
     }
+    @SafeVarargs
+    public final ShellExe AsyncExecute(String command, Consumer<Object>... func) {
+        return execute(command, false, func);
+    }
+    @SafeVarargs
+    public final ShellExe syncExecute(String command, Consumer<Object>... func) {
+        return execute(command, true, func);
+    }
 
-    private ShellExe execute(String command, Boolean sync, Consumer<Object>... func) {
+    public final Fetch<String> fetch(String command) {
+        return new Fetch<>( oneway(command));
+    }
+
+    @SafeVarargs
+    private final ShellExe execute(String command, Boolean sync, Consumer<Object>... func) {
+        ShellFunc<Object>[] shellFunc = null;
+        if (func != null) {
+            shellFunc = new ShellFunc[func.length];
+            for (int i = 0;i < shellFunc.length;i ++) {
+                final int j = i;
+                shellFunc[i] = (r,c) -> func[j].accept(r);
+            }
+        }
+        return execute(command, sync, shellFunc);
+    }
+
+    @SafeVarargs
+    private final ShellExe execute(String command, Boolean sync, ShellFunc<Object>... func) {
         Future<String> task = THREAD_POOL_EXECUTOR.submit(() -> {
             try {
                 writer.write((command + "\r").getBytes(StandardCharsets.UTF_8));
@@ -113,7 +141,7 @@ public class ShellExe {
                     result.append(line);
                     if (!sync) {
                         if (func != null && func.length > 0) {
-                            func[0].accept(line);
+                            func[0].accept(line,command);
                         }
                     }
                     if (shellEnd(line)) {
@@ -126,14 +154,14 @@ public class ShellExe {
                 if (!sync) {
                     e.printStackTrace();
                     if (func != null && func.length > 1) {
-                        func[1].accept(e);
+                        func[1].accept(e,command);
                     }
                 }
                 throw new RuntimeException(e);
             } finally {
                 if (!sync) {
                     if (func != null && func.length > 2) {
-                        func[2].accept(null);
+                        func[2].accept(null,command);
                     }
                 }
             }
@@ -144,27 +172,26 @@ public class ShellExe {
         try {
             String result = task.get();
             if (func != null && func.length > 0) {
-                func[0].accept(result);
+                func[0].accept(result,command);
             }
         } catch (Exception e) {
             e.printStackTrace();
             if (func != null && func.length > 1) {
-                func[1].accept(e);
+                func[1].accept(e,command);
             }
         } finally {
             if (func != null && func.length > 2) {
-                func[2].accept(null);
+                func[2].accept(null,command);
             }
         }
         return this;
     }
 
-    public String read() throws IOException {
-        while (true) {
-            byte[] bytes = new byte[2048];
-            int len = read.read(bytes);
-            return new String(bytes,0,len);
-        }
+
+    private String read() throws IOException {
+        byte[] bytes = new byte[2048];
+        int len = read.read(bytes);
+        return new String(bytes, 0, len);
     }
     public void close() {
         try {

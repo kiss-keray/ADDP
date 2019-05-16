@@ -9,5 +9,5 @@ import com.nix.jingxun.addp.web.model.ChangeBranchModel;
  * @date 2019/04/21 13:54
  */
 public interface IChangeBranchService extends BaseService<ChangeBranchModel,Long> {
-    void gitCreateBranch(String branchName, ShellExe shellExe) throws ShellExeException;
+    void gitCreateBranch(ChangeBranchModel changeBranchModel, ShellExe shellExe) throws ShellExeException;
 }
