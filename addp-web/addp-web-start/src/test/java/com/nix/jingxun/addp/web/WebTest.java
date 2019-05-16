@@ -84,7 +84,7 @@ public class WebTest {
                 .name("notes")
                 .gitUrl("https://github.com/kiss-yu/notes.git")
                 .gitUsername("1172304645@qq.com")
-                .gitPassword("a1172304645")
+                .gitPassword("xxxxxxx")
                 .build();
         try {
             projectsService.save(projectsModel);
