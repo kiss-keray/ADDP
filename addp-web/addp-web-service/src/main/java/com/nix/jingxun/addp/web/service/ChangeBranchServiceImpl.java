@@ -85,4 +85,9 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
                 }, ShellExeLog.fail);
         // push 远程分支完成
     }
+
+    @Override
+    public void deployBranch(ChangeBranchModel changeBranchModel) throws Exception {
+
+    }
 }
