@@ -4,4 +4,6 @@ APP=$1
 # 环境
 ENV=$2
 
-docker start ${APP}-${ENV}
+./stop.sh $APP $ENV
+
+./start.sh $APP $ENV
