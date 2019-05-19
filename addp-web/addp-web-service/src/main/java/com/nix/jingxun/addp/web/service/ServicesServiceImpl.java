@@ -1,10 +1,12 @@
 package com.nix.jingxun.addp.web.service;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.symmetric.AES;
 import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
+import com.nix.jingxun.addp.web.common.util.AESUtil;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ServicesJpa;
 import com.nix.jingxun.addp.web.model.MemberModel;
@@ -47,7 +49,7 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
 
     public ShellExe shellExeByUsername(ServicesModel servicesModel) throws IOException, JSchException {
         // 拿到服务器执行shell
-        return ShellExe.connect(servicesModel.getIp(), servicesModel.getUsername(), servicesModel.getPassword());
+        return ShellExe.connect(servicesModel.getIp(), servicesModel.getUsername(), AESUtil.decrypt(servicesModel.getPassword()));
     }
 
     public ShellExe gitAuth(ShellExe shellExe, ProjectsModel projectsModel) {
@@ -56,7 +58,7 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
                 ShellExeLog.success,
                 (error, cmd) -> ShellExeLog.fail.accept(error, "输入账号异常"))
                 //输入密码
-                .syncExecute(projectsModel.getGitPassword(),
+                .syncExecute(AESUtil.decrypt(projectsModel.getGitPassword()),
                         result1 -> {
                             // 判断shell返回的认证信息；
                             if (result1.toString().contains("Authentication failed")) {

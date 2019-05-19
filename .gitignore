@@ -26,3 +26,7 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+*conf.yml
+/addp-web/addp-web-start/src/test/java/com/nix/jingxun/addp/web/WebTest.java
+/addp-ssh/addp-ssh-common/src/test/java/com/nix/jingxun/addp/ssh/common/Shell.java
+/addp-ssh/addp-ssh-common/src/test/java/com/nix/jingxun/addp/ssh/common/ShellExeTest.java

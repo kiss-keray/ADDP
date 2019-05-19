@@ -14,7 +14,13 @@ import org.springframework.context.annotation.Configuration;
 public  class WebConfig {
     public static String addpBaseFile;
 
+    public static String aesKey;
+
     public void setAddpBaseFile(String addpBaseFile) {
         WebConfig.addpBaseFile = addpBaseFile;
+    }
+
+    public void setAesKey(String aesKey) {
+        WebConfig.aesKey = aesKey;
     }
 }

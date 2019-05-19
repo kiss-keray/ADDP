@@ -66,7 +66,7 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
                         result -> {
                             ShellExeLog.success.accept(result, StrUtil.format("git clone {} \"{}{}\"", projectsModel.getGitUrl(), WebConfig.addpBaseFile, projectsModel.getName()));
                             // 判断git是否需要认证
-                            if (ShellUtil.commandIsExec(result.toString())) {
+                            if (ShellUtil.shellNeedKeydown(result.toString())) {
                                servicesService.gitAuth(shellExe,projectsModel);
                             }
                         },

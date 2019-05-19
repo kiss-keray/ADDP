@@ -1,12 +1,8 @@
 server:
   port: 8080
-
 spring:
-  datasource:
-    url: jdbc:mysql://59.110.234.213:3306/addp-web
-    username: root
-    password: kiss4400
-    driver-class-name: com.mysql.jdbc.Driver
+  profiles:
+    include: conf
   jpa:
     hibernate:
       ddl-auto: update
@@ -23,10 +19,6 @@ spring:
     static-locations: classpath:/static/
   redis:
     host: 59.110.234.213
-logging:
-  level:
-    com.dragon.study.spring.boot: DEBUG
-  file: ./log/addp.log
 jingxun:
   web:
-    addpBaseFile: /usr/addp/
+    addpBaseFile: /opt/addp/
