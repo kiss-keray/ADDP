@@ -5,11 +5,13 @@ import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @author keray
  * @date 2019/04/20 23:30
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @Entity
@@ -17,10 +19,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Proxy(lazy = false)
 @Table(name = "nix_member",indexes = {@Index(name = "index_username",columnList = "username",unique = true)})
-public class MemberModel implements Serializable {
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
+public class MemberModel  extends BaseModel {
     @Column(length = 64)
     private String username;
     @Column(length = 32)

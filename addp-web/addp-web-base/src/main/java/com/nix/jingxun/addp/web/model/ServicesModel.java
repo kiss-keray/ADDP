@@ -1,21 +1,20 @@
 package com.nix.jingxun.addp.web.model;
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @author keray
  * @date 2019/04/21 13:09
  */
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @Entity
@@ -23,10 +22,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Table(name = "nix_services")
 @Proxy(lazy = false)
-public class ServicesModel implements Serializable {
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
+public class ServicesModel  extends BaseModel {
+
     @Pattern(regexp = "[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}")
     @Column(nullable = false)
     private String ip;

@@ -18,7 +18,7 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/change")
-public class ChangeBranchController extends BaseController{
+public class ChangeBranchController extends BaseController {
 
     @Resource
     private IChangeBranchService changeBranchService;
@@ -30,13 +30,13 @@ public class ChangeBranchController extends BaseController{
         return Result.of(() -> {
             ProjectsModel projectsModel = projectsService.findById(changeBranchModel.getProjectId());
             if (!MemberCache.currentUser().getId().equals(
-                    projectsService.oneToOneModel(ServicesModel.class,projectsModel.getServicesId()).getMemberId())
+                    projectsModel.getServicesModel().getMemberId())
             ) {
-                return Result.fail("1401","no project permission " + projectsModel.getName());
+                return Result.fail("1401", "no project permission " + projectsModel.getName());
             }
             try {
                 return changeBranchService.save(changeBranchModel);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 return e;
             }
         }).failFlat(this::failFlat).logFail();

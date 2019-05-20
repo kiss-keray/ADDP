@@ -16,7 +16,7 @@ import java.util.Map;
  * @author 11723
  */
 public abstract class BaseServiceImpl<M extends Object,ID extends Serializable> implements BaseService<M,ID> {
-    private final static Map<String,JpaRepository> JPA_MAPPING = new HashMap<>();
+    public final static Map<String,JpaRepository> JPA_MAPPING = new HashMap<>();
     protected abstract JpaRepository<M,ID> jpa();
     protected abstract Class<M> modelType();
 

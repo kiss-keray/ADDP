@@ -1,22 +1,24 @@
 package com.nix.jingxun.addp.web.model;
 
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
-import com.nix.jingxun.addp.web.iservice.IServicesService;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServiceReJpa;
+import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
+import lombok.*;
 import org.hibernate.annotations.Proxy;
+import org.springframework.data.domain.Example;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author keray
  * @date 2019/04/21 13:20
  */
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @Entity
@@ -24,11 +26,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Table(name = "nix_projects")
 @Proxy(lazy = false)
-public class ProjectsModel implements Serializable {
-    @Id
-
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
+public class ProjectsModel extends BaseModel {
 
     @Column(nullable = false)
     private String name;
@@ -48,18 +46,21 @@ public class ProjectsModel implements Serializable {
 
     private Long memberId;
 
-    @NotNull
-    private Long servicesId;
-
     @Transient
-    private ServicesModel servicesModel;
+    private List<ProjectsServiceRe> projectsServiceRes;
+
 
     @Transient
     public ServicesModel getServicesModel() {
-        if (servicesModel == null) {
-            IServicesService servicesService = SpringContextHolder.getBean(IServicesService.class);
-            servicesModel = servicesService.findById(servicesId);
+        return getServicesModels().get(0);
+    }
+
+    public List<ServicesModel> getServicesModels () {
+        if (projectsServiceRes == null) {
+            ProjectsServiceReJpa jpa = SpringContextHolder.getBean(ProjectsServiceReJpa.class);
+            ProjectsServiceRe example = ProjectsServiceRe.builder().projectsId(getId()).build();
+            projectsServiceRes = jpa.findAll(Example.of(example));
         }
-        return servicesModel;
+        return projectsServiceRes.stream().map(ProjectsServiceRe::getServicesModel).collect(Collectors.toList());
     }
 }

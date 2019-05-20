@@ -2,21 +2,19 @@ package com.nix.jingxun.addp.web.model;
 
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Proxy;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 /**
  * @author keray
  * @date 2019/04/21 13:26
  */
-
 @Data
 @Builder
 @Entity
@@ -24,11 +22,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Table(name = "nix_change_branch")
 @Proxy(lazy = false)
-public class ChangeBranchModel implements Serializable {
-
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
+public class ChangeBranchModel  extends BaseModel {
 
     @Column(nullable = false)
     private String name;

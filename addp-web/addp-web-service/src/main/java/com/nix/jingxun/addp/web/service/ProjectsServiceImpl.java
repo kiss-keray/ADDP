@@ -12,6 +12,8 @@ import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ProjectsJpa;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
+import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServiceReJpa;
+import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,6 +33,8 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
 
     @Resource
     private ProjectsJpa projectsJpa;
+    @Resource
+    private ProjectsServiceReJpa projectsServiceReJpa;
 
     @Resource
     private IServicesService servicesService;
@@ -55,7 +59,12 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
     public ProjectsModel save(ProjectsModel projectsModel) throws Exception {
         ServicesModel servicesModel = projectsModel.getServicesModel();
         createGitClone(projectsModel, servicesService.shellExeByUsername(servicesModel));
-        return super.save(projectsModel);
+        projectsModel = super.save(projectsModel);
+        for (ProjectsServiceRe re:projectsModel.getProjectsServiceRes()) {
+            re.setProjectsId(projectsModel.getId());
+            projectsServiceReJpa.save(re);
+        }
+        return projectsModel;
     }
 
     public void createGitClone(ProjectsModel projectsModel, ShellExe shellExe) throws ShellExeException {
