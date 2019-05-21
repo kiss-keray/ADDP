@@ -19,9 +19,10 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * <li>mvn 打包</li>
      * <li>
      * 执行项目的ADDP-INF/build.sh (项目名，环境，主机占用端口)
-     * <p>在build执行中的docker run启动了应用</p>
+     * <p>build.sh只构建镜像</p>
      * </li>
      * <h1>三阶段</h1>
+     * <li>./ADDP-INF/start.sh</li>
      * <li>
      * <p>
      * 判断项目启动成功的标志。目前仅做spring系列的
@@ -61,5 +62,5 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * <li>docker logs -f --tail "10" {@link ProjectsModel#getName()}-{@link ReleaseBillModel#getEnvironment()}</li>
      * </li>
      */
-    boolean listener(ReleaseBillModel releaseBillModel) throws Exception;
+    boolean startApp(ReleaseBillModel releaseBillModel) throws Exception;
 }

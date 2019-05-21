@@ -16,6 +16,7 @@ import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -50,6 +51,10 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
         return jpa().findAll(Example.of(ServicesModel.builder().memberId(memberModel.getId()).build()));
     }
 
+    /**
+     * 获取服务器的shell通道
+     * 如果主机是备份环境主机，需要拿真实ip
+     */
     public ShellExe shellExeByUsername(ServicesModel servicesModel) throws IOException, JSchException {
         // 拿到服务器执行shell
         return ShellExe.connect(servicesModel.getIp(), servicesModel.getUsername(), AESUtil.decrypt(servicesModel.getPassword()));
@@ -75,14 +80,14 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
     public boolean moreServiceExec(List<ServicesModel> servicesModels, Consumer<ServicesModel> exec) {
         final CountDownLatch latch = new CountDownLatch(servicesModels.size());
         final AtomicInteger success = new AtomicInteger(0);
-        for (ServicesModel model:servicesModels) {
+        for (ServicesModel model : servicesModels) {
             WebThreadPool.IO_THREAD.execute(() -> {
                 try {
                     exec.accept(model);
                     success.getAndIncrement();
-                }catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
-                }finally {
+                } finally {
                     latch.countDown();
                 }
             });
@@ -94,11 +99,11 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
             return false;
         }
         if (latch.getCount() > 0) {
-            log.error("服务器组执行超时,size={} other={}",servicesModels.size(),latch.getCount());
+            log.error("服务器组执行超时,size={} other={}", servicesModels.size(), latch.getCount());
             return false;
         }
         if (success.get() < servicesModels.size()) {
-            log.error("服务器组执行部分失败,size={} fail={}",servicesModels.size(),servicesModels.size() - success.get());
+            log.error("服务器组执行部分失败,size={} fail={}", servicesModels.size(), servicesModels.size() - success.get());
             return false;
         }
         return true;
@@ -106,12 +111,22 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
 
     @Override
     public List<ServicesModel> selectEnvServices(ProjectsModel projectsModel, ADDPEnvironment environment) {
-        return servicesJpa.selectEnvServices(
+        List<ServicesModel> servicesModels = servicesJpa.selectEnvServices(
                 projectsModel._getProjectsServiceRes()
                         .stream()
                         .map(ProjectsServiceRe::getServicesId)
                         .collect(Collectors.toList())
-                ,environment
+                , environment
         );
+        if (environment == ADDPEnvironment.pro) {
+            servicesModels.addAll(servicesJpa.selectEnvServices(
+                    projectsModel._getProjectsServiceRes()
+                            .stream()
+                            .map(ProjectsServiceRe::getServicesId)
+                            .collect(Collectors.toList())
+                    , ADDPEnvironment.bak
+            ));
+        }
+        return servicesModels;
     }
 }

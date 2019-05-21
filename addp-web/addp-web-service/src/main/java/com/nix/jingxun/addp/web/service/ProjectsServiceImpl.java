@@ -6,12 +6,14 @@ import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.common.config.WebConfig;
+import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ProjectsJpa;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
+import com.nix.jingxun.addp.web.model.ServicesModel;
 import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServiceReJpa;
 import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author keray

@@ -89,11 +89,11 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     }
 
     @Override
-    public boolean listener(ReleaseBillModel releaseBillModel) throws Exception {
+    public boolean startApp(ReleaseBillModel releaseBillModel) throws Exception {
         boolean result = servicesService.moreServiceExec(
                 servicesService.selectEnvServices(releaseBillModel._getChangeBranchModel()._getProjectsModel(), releaseBillModel.getEnvironment()), (service) -> {
                     try {
-                        if (!listener(releaseBillModel, servicesService.shellExeByUsername(service))) {
+                        if (!startApp(releaseBillModel, servicesService.shellExeByUsername(service))) {
                             throw new ShellNoSuccessException("第三阶段执行不成功");
                         }
                     } catch (Exception e) {
@@ -158,7 +158,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                     .syncExecute(StrUtil.format("bash ./ADDP-INF/build.sh {} {} {}",
                             projectsModel.getName(), releaseBillModel.getEnvironment().name(), releaseBillModel.getEnvironment().getPort()),
                             (r, c) -> {
-                                if (r.toString().contains("Successfully") && r.toString().matches("[\\S\\s]+[\\w]{64}[\\S\\s]*")) {
+                                if (r.toString().contains("Successfully")) {
                                     ShellExeLog.success.accept(r, c);
                                 } else {
                                     ShellExeLog.fail.accept(r, c);
@@ -177,7 +177,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     }
 
 
-    private boolean listener(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
+    private boolean startApp(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
         ChangeBranchModel changeBranchModel = releaseBillModel._getChangeBranchModel();
         if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
             return false;
@@ -188,18 +188,29 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicBoolean result = new AtomicBoolean(true);
         try {
-            shellExe.AsyncExecute(StrUtil.format("docker logs -f --tail \"100\" {}-{}",
-                    changeBranchModel._getProjectsModel().getName(), releaseBillModel.getEnvironment().name()), (r, c) -> {
-                if (r.toString().contains("Tomcat started on port(s)")) {
-                    ShellExeLog.success.accept(r, c);
-                    result.set(true);
-                    // 启动成功后ctrl+c停止
-                    shellExe.ctrlC();
-                }
-            }, (e, c) -> {
-                result.set(false);
-                ShellExeLog.fail.accept(e, c);
-            }, (r, c) -> latch.countDown());
+            shellExe.oneCmd(StrUtil.format("docker stop {}-{}", changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()));
+            shellExe.oneCmd(StrUtil.format("docker rm {}-{}", changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()));
+            shellExe.syncExecute(StrUtil.format("bash ./ADDP-INF/start.sh {} {} {}",
+                    changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name(), releaseBillModel.getEnvironment().getPort()),
+                    (r, c) -> {
+                        if (r.toString().matches("[\\S\\s]+[\\w]{64}[\\S\\s]*")) {
+                            ShellExeLog.success.accept(r, c);
+                            return;
+                        }
+                        ShellExeLog.fail.accept(r, c);
+                    }, ShellExeLog.fail)
+                    .AsyncExecute(StrUtil.format("docker logs -f --tail \"100\" {}-{}",
+                            changeBranchModel._getProjectsModel().getName(), releaseBillModel.getEnvironment().name()), (r, c) -> {
+                        if (r.toString().contains("Tomcat started on port(s)")) {
+                            ShellExeLog.success.accept(r, c);
+                            result.set(true);
+                            // 启动成功后ctrl+c停止
+                            shellExe.ctrlC();
+                        }
+                    }, (e, c) -> {
+                        result.set(false);
+                        ShellExeLog.fail.accept(e, c);
+                    }, (r, c) -> latch.countDown());
             releaseBillModel.setReleaseType(ReleaseType.releaseSuccess);
             update(releaseBillModel);
         } catch (Exception e) {

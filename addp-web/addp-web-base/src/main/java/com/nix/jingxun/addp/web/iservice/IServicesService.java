@@ -34,6 +34,7 @@ public interface IServicesService extends BaseService<ServicesModel,Long> {
 
     /**
      * 根据环境得到项目的服务器组
+     * 如果是正式环境机器，在获取备份环境机器
      * */
     List<ServicesModel> selectEnvServices(ProjectsModel projectsModel, ADDPEnvironment environment);
 
