@@ -22,7 +22,7 @@ import java.io.Serializable;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "nix_projects_services")
+@Table(name = "nix_projects_services_re")
 @Proxy(lazy = false)
 public class ProjectsServiceRe  implements Serializable {
 

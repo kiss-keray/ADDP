@@ -24,11 +24,6 @@ public class MemberServiceImpl extends BaseServiceImpl<MemberModel,Long> impleme
     }
 
     @Override
-    protected Class<MemberModel> modelType() {
-        return MemberModel.class;
-    }
-
-    @Override
     public MemberModel register(MemberModel member) {
         if (memberJpa.exists(Example.of(MemberModel.builder().username(member.getUsername()).build()))) {
             return member;

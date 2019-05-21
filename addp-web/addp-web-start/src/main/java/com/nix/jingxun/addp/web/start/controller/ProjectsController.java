@@ -33,14 +33,10 @@ public class ProjectsController  extends BaseController{
     public Result create(@Valid @ModelAttribute ProjectsModel projectsModel) {
         return Result.of(() -> {
             try {
-                ServicesModel servicesModel = projectsModel.getServicesModel();
-                if (servicesModel == null) {
-                    return Result.fail("1404","服务器不存在");
+                if (!projectsModel.getServicesModels().stream().allMatch(servicesModel -> servicesModel.getMemberId().equals(MemberCache.currentUser().getId()))) {
+                    return Result.fail("1401", "no project permission " + projectsModel.getName());
                 }
-                if (!MemberCache.currentUser().getId().equals(servicesModel.getMemberId())) {
-                    return Result.fail("1401","no permission:" + projectsModel.getServicesModel().getIp());
-                }
-                projectsModel.setMemberId(servicesModel.getMemberId());
+                projectsModel.setMemberId(MemberCache.currentUser().getId());
                 return projectsService.save(projectsModel);
             } catch (ShellConnectException e) {
                 return Result.fail("1404","服务器连接失败");

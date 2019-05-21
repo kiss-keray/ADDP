@@ -14,7 +14,7 @@
     <name>addp-ssh</name>
     <modules>
         <module>addp-ssh-common</module>
-        <module>addp-ssh-web</module>
+        <module>addp-ssh-start</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -25,4 +25,12 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <dependencies>
+
+        <dependency>
+            <groupId>com.nix.jingxun</groupId>
+            <artifactId>addp-common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 </project>

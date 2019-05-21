@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.web.model;
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
+import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
@@ -27,11 +28,16 @@ public class ServicesModel  extends BaseModel {
     @Pattern(regexp = "[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}")
     @Column(nullable = false)
     private String ip;
+    // ssh端口 默认22
+    @Column(columnDefinition="int(11) default 22")
     private Integer port;
     private String username;
     private String password;
     private String sshKey;
     private Long memberId;
+    // 服务器所属环境
+    @Enumerated(EnumType.STRING)
+    private ADDPEnvironment environment;
 
     @Transient
     private MemberModel memberModel;

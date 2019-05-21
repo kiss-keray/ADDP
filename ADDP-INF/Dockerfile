@@ -3,6 +3,7 @@ FROM registry.cn-beijing.aliyuncs.com/jingxun/addp:1.0.0
 
 # 指定运行时的系统环境变量,如下请替换appName为自己应用名称
 ARG APP_NAME
+ARG ENV
 # 创建文件夹
 RUN mkdir -p  /home/admin/${APP_NAME}/
 RUN mkdir -p  /home/admin/bin/
@@ -13,6 +14,7 @@ COPY bin/run.sh /home/admin/bin
 COPY ${APP_NAME}.jar /home/admin/${APP_NAME}
 
 RUN echo 'hello word'> /home/admin/bin/${APP_NAME}.name
+RUN echo 'hello word'> /home/admin/bin/${ENV}.env
 
 # 设置文件夹操作权限
 RUN chmod -R a+x /home/admin/bin/run.sh

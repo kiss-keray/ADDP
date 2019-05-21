@@ -16,7 +16,7 @@
         <module>addp-rpc-common</module>
         <module>addp-rpc-consumer</module>
         <module>addp-rpc-producer</module>
-        <module>addp-rpc-server</module>
+        <module>addp-rpc-start</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -56,6 +56,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>5.0.4.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.nix.jingxun</groupId>
+            <artifactId>addp-common</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 </project>

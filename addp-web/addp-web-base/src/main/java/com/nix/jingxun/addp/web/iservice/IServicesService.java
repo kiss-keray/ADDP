@@ -8,6 +8,7 @@ import com.nix.jingxun.addp.web.model.ServicesModel;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author keray
@@ -24,5 +25,10 @@ public interface IServicesService extends BaseService<ServicesModel,Long> {
      * git认证
      * */
     ShellExe gitAuth(ShellExe shellExe, ProjectsModel projectsModel);
+
+    /**
+     * 服务器组执行
+     * */
+    boolean moreServiceExec(List<ServicesModel> servicesModels, Consumer<ServicesModel> exec);
 
 }

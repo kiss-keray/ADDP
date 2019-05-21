@@ -17,7 +17,7 @@ public class BaseModel implements Serializable {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     protected Long id;
-    @Column(columnDefinition="datetime DEFAULT CURRENT_TIMESTAMP",nullable = false)
+    @Column(columnDefinition="datetime DEFAULT CURRENT_TIMESTAMP")
     protected LocalDateTime createTime;
 
     @Column(nullable = false)

@@ -29,9 +29,7 @@ public class ChangeBranchController extends BaseController {
     public Result create(@Valid @ModelAttribute ChangeBranchModel changeBranchModel) {
         return Result.of(() -> {
             ProjectsModel projectsModel = projectsService.findById(changeBranchModel.getProjectId());
-            if (!MemberCache.currentUser().getId().equals(
-                    projectsModel.getServicesModel().getMemberId())
-            ) {
+            if (!projectsModel.getServicesModels().stream().allMatch(servicesModel -> servicesModel.getMemberId().equals(MemberCache.currentUser().getId()))) {
                 return Result.fail("1401", "no project permission " + projectsModel.getName());
             }
             try {

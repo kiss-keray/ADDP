@@ -40,8 +40,10 @@ public class ShellExe {
     private ChannelShell channelShell;
     private OutputStream writer;
     private InputStream read;
+    private String ip;
 
     private ShellExe(String ip, String username, String password, long time) throws IOException, JSchException {
+        this.ip = ip;
         //创建session并且打开连接，因为创建session之后要主动打开连接
         session = jsch.getSession(username, ip, DEFAULT_SSH_PORT);
         session.setPassword(password);
@@ -57,7 +59,7 @@ public class ShellExe {
             try {
                 String resultStr = read();
                 read();
-                return resultStr.contains("Welcome") || resultStr.contains("welcome");
+                return resultStr.contains("Welcome") || resultStr.contains("welcome") || resultStr.contains("login");
             } catch (Exception e) {
                 return false;
             }
@@ -94,34 +96,85 @@ public class ShellExe {
         return execute(command, true, func);
     }
 
-    public final String oneway(String command) {
+    @SafeVarargs
+    public final ShellExe AsyncExecute(byte[] command, ShellFunc<Object>... func) {
+        return execute(command, false, func);
+    }
+
+    @SafeVarargs
+    public final ShellExe syncExecute(byte[] command, ShellFunc<Object>... func) {
+        return execute(command, true, func);
+    }
+
+    public final String oneCmd(String command) {
         StringBuilder builder = new StringBuilder();
         syncExecute(command, builder::append, e -> {
             throw new RuntimeException((Throwable) e);
         });
         return builder.toString();
     }
+
+    public final String oneCmd(byte[] command) {
+        StringBuilder builder = new StringBuilder();
+        syncExecute(command, builder::append, e -> {
+            throw new RuntimeException((Throwable) e);
+        });
+        return builder.toString();
+    }
+
+    public final void oneway(String cmd) {
+        oneway((cmd + "\r").getBytes(StandardCharsets.UTF_8));
+    }
+    public final void oneway(byte[] cmd) {
+       try {
+           writer.write(cmd);
+           writer.flush();
+       }catch (Exception e) {
+           e.printStackTrace();
+       }
+    }
+
     @SafeVarargs
     public final ShellExe AsyncExecute(String command, Consumer<Object>... func) {
         return execute(command, false, func);
     }
+
     @SafeVarargs
     public final ShellExe syncExecute(String command, Consumer<Object>... func) {
         return execute(command, true, func);
     }
 
+    @SafeVarargs
+    public final ShellExe AsyncExecute(byte[] command, Consumer<Object>... func) {
+        return execute(command, false, func);
+    }
+
+    @SafeVarargs
+    public final ShellExe syncExecute(byte[] command, Consumer<Object>... func) {
+        return execute(command, true, func);
+    }
+
     public final Fetch<String> fetch(String command) {
-        return new Fetch<>( oneway(command));
+        return new Fetch<>(oneCmd(command));
+    }
+
+    public final Fetch<String> fetch(byte[] command) {
+        return new Fetch<>(oneCmd(command));
     }
 
     @SafeVarargs
     private final ShellExe execute(String command, Boolean sync, Consumer<Object>... func) {
+        return execute((command + "\r").getBytes(StandardCharsets.UTF_8), sync, func);
+    }
+
+    @SafeVarargs
+    private final ShellExe execute(byte[] command, Boolean sync, Consumer<Object>... func) {
         ShellFunc<Object>[] shellFunc = null;
         if (func != null) {
             shellFunc = new ShellFunc[func.length];
-            for (int i = 0;i < shellFunc.length;i ++) {
+            for (int i = 0; i < shellFunc.length; i++) {
                 final int j = i;
-                shellFunc[i] = (r,c) -> func[j].accept(r);
+                shellFunc[i] = (r, c) -> func[j].accept(r);
             }
         }
         return execute(command, sync, shellFunc);
@@ -129,19 +182,24 @@ public class ShellExe {
 
     @SafeVarargs
     private final ShellExe execute(String command, Boolean sync, ShellFunc<Object>... func) {
+        return execute((command + "\r").getBytes(StandardCharsets.UTF_8), sync, func);
+    }
+
+    @SafeVarargs
+    private final ShellExe execute(byte[] command, Boolean sync, ShellFunc<Object>... func) {
         Future<String> task = THREAD_POOL_EXECUTOR.submit(() -> {
             try {
-                writer.write((command + "\r").getBytes(StandardCharsets.UTF_8));
+                writer.write(command);
                 writer.flush();
                 StringBuilder result = new StringBuilder();
-                System.out.println("+++++++++++++++++++++++++++++++++：" + command);
+                System.out.println("+++++++++++++++++++++++++++++++++：" + new String(command));
                 while (true) {
                     String line = read();
-                    System.out.println(line);
+//                    System.out.println(line);
                     result.append(line);
                     if (!sync) {
                         if (func != null && func.length > 0) {
-                            func[0].accept(line,command);
+                            func[0].accept(line, new String(command));
                         }
                     }
                     if (shellEnd(line)) {
@@ -154,14 +212,14 @@ public class ShellExe {
                 if (!sync) {
                     e.printStackTrace();
                     if (func != null && func.length > 1) {
-                        func[1].accept(e,command);
+                        func[1].accept(e, new String(command));
                     }
                 }
                 throw new RuntimeException(e);
             } finally {
                 if (!sync) {
                     if (func != null && func.length > 2) {
-                        func[2].accept(null,command);
+                        func[2].accept(null, new String(command));
                     }
                 }
             }
@@ -172,27 +230,36 @@ public class ShellExe {
         try {
             String result = task.get();
             if (func != null && func.length > 0) {
-                func[0].accept(result,command);
+                func[0].accept(result, new String(command));
             }
         } catch (Exception e) {
             e.printStackTrace();
             if (func != null && func.length > 1) {
-                func[1].accept(e,command);
+                func[1].accept(e, new String(command));
             }
         } finally {
             if (func != null && func.length > 2) {
-                func[2].accept(null,command);
+                func[2].accept(null, new String(command));
             }
         }
         return this;
     }
 
+    public void ctrlC() {
+        try {
+            writer.write(new byte[]{3});
+            writer.flush();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private String read() throws IOException {
         byte[] bytes = new byte[2048];
         int len = read.read(bytes);
         return new String(bytes, 0, len);
     }
+
     public void close() {
         try {
             writer.close();
@@ -202,5 +269,9 @@ public class ShellExe {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public String getIp() {
+        return ip;
     }
 }

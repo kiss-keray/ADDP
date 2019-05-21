@@ -3,27 +3,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>addp-ssh</artifactId>
+        <artifactId>addp-rpc</artifactId>
         <groupId>com.nix.jingxun</groupId>
         <version>1.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>addp-ssh-web</artifactId>
+    <artifactId>addp-rpc-start</artifactId>
     <packaging>jar</packaging>
-    <name>addp-ssh-web</name>
+    <name>addp-rpc-start</name>
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot-version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>de.codecentric</groupId>
-                <artifactId>spring-boot-admin-dependencies</artifactId>
                 <version>${spring-boot-version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -82,7 +75,7 @@
         </dependency>
         <dependency>
             <groupId>com.nix.jingxun</groupId>
-            <artifactId>addp-ssh-common</artifactId>
+            <artifactId>addp-rpc-common</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -90,8 +83,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.1.0.BUILD-SNAPSHOT</version>
                 <configuration>
-                    <mainClass>com.nix.jingxun.addp.ssh.SSHStart</mainClass>
+                    <mainClass>com.nix.jingxun.addp.rpc.server.RPCServerStart</mainClass>
                 </configuration>
                 <executions>
                     <execution>

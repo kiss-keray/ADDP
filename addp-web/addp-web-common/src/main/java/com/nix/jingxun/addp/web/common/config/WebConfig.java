@@ -16,11 +16,27 @@ public  class WebConfig {
 
     public static String aesKey;
 
+    public static Integer ioThreadPoolMin;
+    public static Integer ioThreadPoolMax;
+    public static Integer ioFutureMax;
+
     public void setAddpBaseFile(String addpBaseFile) {
         WebConfig.addpBaseFile = addpBaseFile;
     }
 
     public void setAesKey(String aesKey) {
         WebConfig.aesKey = aesKey;
+    }
+
+    public void setIoThreadPoolMin(Integer ioThreadPoolMin) {
+        WebConfig.ioThreadPoolMin = ioThreadPoolMin;
+    }
+
+    public void setIoThreadPoolMax(Integer ioThreadPoolMax) {
+        WebConfig.ioThreadPoolMax = ioThreadPoolMax;
+    }
+
+    public void setIoFutureMax(Integer ioFutureMax) {
+        WebConfig.ioFutureMax = ioFutureMax;
     }
 }

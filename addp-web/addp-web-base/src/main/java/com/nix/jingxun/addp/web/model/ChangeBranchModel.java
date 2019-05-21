@@ -24,15 +24,19 @@ import javax.validation.constraints.NotNull;
 @Proxy(lazy = false)
 public class ChangeBranchModel  extends BaseModel {
 
+    // 变更名
     @Column(nullable = false)
     private String name;
 
+    // 变更对应分支
     @Column(nullable = false)
     private String branchName;
+
 
     @Column(nullable = false)
     @NotNull
     private Long projectId;
+
 
     @Transient
     private ProjectsModel projectsModel;

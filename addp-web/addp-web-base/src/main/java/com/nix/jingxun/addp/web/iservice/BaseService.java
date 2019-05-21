@@ -43,11 +43,4 @@ public interface BaseService<M extends Object,ID extends Serializable>{
      * */
     List<M> findAll();
 
-    /**
-     * 获取实体one-one映射的实体
-     * */
-    <T> T oneToOneModel(Class<T> clazz,Long id);
-
-    <T> List<T> oneToMany(Class<T> clazz, Long foreignKey,String foreignKeyName);
-
 }

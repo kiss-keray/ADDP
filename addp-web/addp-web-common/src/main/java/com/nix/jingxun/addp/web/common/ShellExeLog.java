@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.web.common;
 
 import cn.hutool.core.util.StrUtil;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
+import com.nix.jingxun.addp.ssh.common.exception.ShellNoSuccessException;
 import com.nix.jingxun.addp.ssh.common.util.ShellFunc;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ShellExeLog {
     public static final ShellFunc<Object> fail = (error, msg) -> {
-        Exception e = (Exception) error;
+        Exception e;
+        if (error instanceof Exception) {
+            e = (Exception) error;
+        } else {
+            e = new ShellNoSuccessException(error.toString());
+        }
         log.error(msg, error);
         throw new ShellExeException(msg, e);
     };

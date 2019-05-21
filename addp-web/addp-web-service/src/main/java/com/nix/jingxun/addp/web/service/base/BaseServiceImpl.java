@@ -16,13 +16,11 @@ import java.util.Map;
  * @author 11723
  */
 public abstract class BaseServiceImpl<M extends Object,ID extends Serializable> implements BaseService<M,ID> {
-    public final static Map<String,JpaRepository> JPA_MAPPING = new HashMap<>();
     protected abstract JpaRepository<M,ID> jpa();
-    protected abstract Class<M> modelType();
 
     @PostConstruct
     private void init() {
-        JPA_MAPPING.put(modelType().getName(),jpa());
+
     }
     @Override
     public M update(M o)  throws Exception{
@@ -54,23 +52,5 @@ public abstract class BaseServiceImpl<M extends Object,ID extends Serializable> 
         for (ID id:ids) {
             delete(id);
         }
-    }
-
-    @Override
-    public <T> T oneToOneModel(Class<T> clazz, Long id) {
-        return (T) JPA_MAPPING.get(clazz.getName()).findById(id);
-    }
-
-    @Override
-    public <T> List<T> oneToMany(Class<T> clazz, Long foreignKey,String foreignKeyName) {
-        try {
-            T model = clazz.newInstance();
-            Method method = clazz.getMethod("set" + foreignKeyName.toUpperCase().substring(0,1) + foreignKeyName.substring(1),Long.class);
-            method.invoke(model,foreignKey);
-            return JPA_MAPPING.get(clazz.getName()).findAll(Example.of(model));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return Collections.emptyList();
     }
 }
