@@ -41,7 +41,7 @@ public class ProjectsServiceRe  implements Serializable {
     @Transient
     private ProjectsModel projectsModel;
 
-    public ServicesModel getServicesModel() {
+    public ServicesModel _getServicesModel() {
         if (servicesModel == null) {
             IServicesService servicesService = SpringContextHolder.getBean(IServicesService.class);
             servicesModel = servicesService.findById(servicesId);
@@ -49,7 +49,7 @@ public class ProjectsServiceRe  implements Serializable {
         return servicesModel;
     }
 
-    public ProjectsModel getProjectsModel() {
+    public ProjectsModel _getProjectsModel() {
         if (projectsModel == null) {
             IProjectsService projectsService = SpringContextHolder.getBean(IProjectsService.class);
             projectsModel = projectsService.findById(projectsId);

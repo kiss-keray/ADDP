@@ -42,7 +42,7 @@ public class ServicesModel  extends BaseModel {
     @Transient
     private MemberModel memberModel;
 
-    public MemberModel getMember() {
+    public MemberModel _getMember() {
         if (memberModel == null) {
             IMemberService memberService = SpringContextHolder.getBean(IMemberService.class);
             memberModel = memberService.findById(memberId);

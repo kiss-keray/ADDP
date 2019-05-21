@@ -5,9 +5,6 @@ import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
-import com.nix.jingxun.addp.web.common.config.WebConfig;
-import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
-import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
@@ -16,7 +13,6 @@ import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ChangeBranchJpa;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
-import com.nix.jingxun.addp.web.model.ServicesModel;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -50,8 +46,8 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
      */
     @Override
     public ChangeBranchModel save(ChangeBranchModel changeBranchModel) throws Exception {
-        ProjectsModel projectsModel = changeBranchModel.getProjectsModel();
-        boolean result = servicesService.moreServiceExec(projectsModel.getServicesModels(),servicesModel -> {
+        ProjectsModel projectsModel = changeBranchModel._getProjectsModel();
+        boolean result = servicesService.moreServiceExec(projectsModel.getServicesModels(), servicesModel -> {
             try {
                 gitCreateBranch(changeBranchModel, servicesService.shellExeByUsername(servicesModel));
             } catch (Exception e) {
@@ -59,15 +55,15 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
             }
         });
         if (!result) {
-            throw new WebRunException(Code.exeError,"创建分支失败");
+            throw new WebRunException(Code.exeError, "创建分支失败");
         }
         return super.save(changeBranchModel);
     }
 
     public void gitCreateBranch(ChangeBranchModel changeBranchModel, ShellExe shellExe) throws ShellExeException {
-        if (!projectsService.cdRoot(changeBranchModel.getProjectsModel(),shellExe)) {
-            log.error("服务器{} 不存在项目{}的文件夹",shellExe.getIp(),changeBranchModel.getProjectsModel().getName());
-            throw new WebRunException(Code.dataError,"服务器不存在项目文件夹");
+        if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
+            log.error("服务器{} 不存在项目{}的文件夹", shellExe.getIp(), changeBranchModel._getProjectsModel().getName());
+            throw new WebRunException(Code.dataError, "服务器不存在项目文件夹");
         }
         // 先判断分支是否存在 存在直接切换
         boolean isHave = !shellExe.oneCmd("git checkout " + changeBranchModel.getBranchName()).matches("[\\S|\\s]*error:[\\S|\\s]*");
@@ -93,7 +89,16 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
                         servicesService.gitAuth(shellExe, changeBranchModel.getProjectsModel());
                     }
                 }, ShellExeLog.fail)
-        .close();
+                // 关联分支
+                .syncExecute(StrUtil.format("git branch --set-upstream {} origin/{}", changeBranchModel.getBranchName(), changeBranchModel.getBranchName()),
+                        (r, c) -> {
+                            if (r.toString().matches("[\\S|\\s]*error:[\\S|\\s]*")) {
+                                ShellExeLog.fail.accept(r, c);
+                                return;
+                            }
+                            ShellExeLog.success.accept(r, c);
+                        })
+                .close();
     }
 
 }

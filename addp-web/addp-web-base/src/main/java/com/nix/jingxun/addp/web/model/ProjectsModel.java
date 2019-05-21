@@ -68,13 +68,17 @@ public class ProjectsModel extends BaseModel {
     @Transient
     private List<ProjectsServiceRe> projectsServiceRes;
 
-    @Transient
-    public List<ServicesModel> getServicesModels () {
+    public List<ProjectsServiceRe> _getProjectsServiceRes() {
         if (projectsServiceRes == null) {
             ProjectsServiceReJpa jpa = SpringContextHolder.getBean(ProjectsServiceReJpa.class);
             ProjectsServiceRe example = ProjectsServiceRe.builder().projectsId(getId()).build();
             projectsServiceRes = jpa.findAll(Example.of(example));
         }
-        return projectsServiceRes.stream().map(ProjectsServiceRe::getServicesModel).collect(Collectors.toList());
+        return projectsServiceRes;
+    }
+
+    @Transient
+    public List<ServicesModel> getServicesModels () {
+        return _getProjectsServiceRes().stream().map(ProjectsServiceRe::_getServicesModel).collect(Collectors.toList());
     }
 }

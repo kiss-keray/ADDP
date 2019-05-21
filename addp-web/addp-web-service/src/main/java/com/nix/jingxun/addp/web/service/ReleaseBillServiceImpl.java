@@ -1,6 +1,8 @@
 package com.nix.jingxun.addp.web.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
+import com.nix.jingxun.addp.ssh.common.exception.ShellNoSuccessException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
@@ -13,17 +15,24 @@ import com.nix.jingxun.addp.web.jpa.ReleaseBillJpa;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
+import com.nix.jingxun.addp.web.model.ServicesModel;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author keray
  * @date 2019/05/20 18:17
  */
 @Slf4j
+@Service
 public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Long> implements IReleaseBillService {
 
     @Resource
@@ -35,16 +44,71 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
 
 
     @Override
-    public ReleaseBillModel deployBranch(ChangeBranchModel branchModel) throws Exception {
-        return null;
+    public ReleaseBillModel deployBranch(ReleaseBillModel releaseBillModel) throws Exception {
+        releaseBillModel.setReleasePhase(ReleasePhase.init);
+        return update(releaseBillModel);
     }
 
-    public boolean pullCode(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
-        if (releaseBillModel.getReleasePhase() != ReleasePhase.init) {
-            return listener(releaseBillModel, shellExe);
+    @Override
+    public boolean pullCode(ReleaseBillModel releaseBillModel) throws Exception {
+        // 根据当前环境得到项目的服务器组
+        List<ServicesModel> servicesModels = servicesService.selectEnvServices(releaseBillModel._getChangeBranchModel()._getProjectsModel(), releaseBillModel.getEnvironment());
+        boolean result = servicesService.moreServiceExec(
+                servicesModels,
+                (service) -> {
+                    try {
+                        if (!pullCode(releaseBillModel, servicesService.shellExeByUsername(service))) {
+                            throw new ShellNoSuccessException("第一阶段执行不成功");
+                        }
+                    } catch (Exception e) {
+                        throw new ShellExeException(e);
+                    }
+                });
+        if (!result) {
+            log.error("部署第一阶段失败 : {}", releaseBillModel);
         }
-        ChangeBranchModel changeBranchModel = releaseBillModel.getChangeBranchModel();
-        if (!projectsService.cdRoot(changeBranchModel.getProjectsModel(),shellExe)) {
+        return result;
+    }
+
+    @Override
+    public boolean build(ReleaseBillModel releaseBillModel) throws Exception {
+        boolean result = servicesService.moreServiceExec(
+                servicesService.selectEnvServices(releaseBillModel._getChangeBranchModel()._getProjectsModel(), releaseBillModel.getEnvironment()), (service) -> {
+                    try {
+                        if (!build(releaseBillModel, servicesService.shellExeByUsername(service))) {
+                            throw new ShellNoSuccessException("第二阶段执行不成功");
+                        }
+                    } catch (Exception e) {
+                        throw new ShellExeException(e);
+                    }
+                });
+        if (!result) {
+            log.error("部署第二阶段失败 : {}", releaseBillModel);
+        }
+        return result;
+    }
+
+    @Override
+    public boolean listener(ReleaseBillModel releaseBillModel) throws Exception {
+        boolean result = servicesService.moreServiceExec(
+                servicesService.selectEnvServices(releaseBillModel._getChangeBranchModel()._getProjectsModel(), releaseBillModel.getEnvironment()), (service) -> {
+                    try {
+                        if (!listener(releaseBillModel, servicesService.shellExeByUsername(service))) {
+                            throw new ShellNoSuccessException("第三阶段执行不成功");
+                        }
+                    } catch (Exception e) {
+                        throw new ShellExeException(e);
+                    }
+                });
+        if (!result) {
+            log.error("部署第三阶段失败 : {}", releaseBillModel);
+        }
+        return result;
+    }
+
+    private boolean pullCode(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
+        ChangeBranchModel changeBranchModel = releaseBillModel._getChangeBranchModel();
+        if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
             return false;
         }
         releaseBillModel.setReleasePhase(ReleasePhase.pullCode);
@@ -57,9 +121,10 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                     .syncExecute("git pull", (r, c) -> {
                         ShellExeLog.success.accept(r, c);
                         if (ShellUtil.shellNeedKeydown(r.toString())) {
-                            servicesService.gitAuth(shellExe, changeBranchModel.getProjectsModel());
+                            servicesService.gitAuth(shellExe, changeBranchModel._getProjectsModel());
                         }
-                    }, ShellExeLog.fail);
+                    }, ShellExeLog.fail)
+                    .close();
             releaseBillModel.setReleaseType(ReleaseType.releaseSuccess);
             update(releaseBillModel);
             return true;
@@ -72,15 +137,12 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     }
 
 
-    public boolean build(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
-        if (releaseBillModel.getReleasePhase() != ReleasePhase.pullCode) {
-            return listener(releaseBillModel, shellExe);
-        }
-        ChangeBranchModel changeBranchModel = releaseBillModel.getChangeBranchModel();
-        if (!projectsService.cdRoot(changeBranchModel.getProjectsModel(),shellExe)) {
+    private boolean build(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
+        ChangeBranchModel changeBranchModel = releaseBillModel._getChangeBranchModel();
+        if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
             return false;
         }
-        ProjectsModel projectsModel = changeBranchModel.getProjectsModel();
+        ProjectsModel projectsModel = changeBranchModel._getProjectsModel();
         releaseBillModel.setReleasePhase(ReleasePhase.build);
         releaseBillModel.setReleaseType(ReleaseType.run);
         update(releaseBillModel);
@@ -96,12 +158,13 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                     .syncExecute(StrUtil.format("bash ./ADDP-INF/build.sh {} {} {}",
                             projectsModel.getName(), releaseBillModel.getEnvironment().name(), releaseBillModel.getEnvironment().getPort()),
                             (r, c) -> {
-                                if (r.toString().matches("")) {
+                                if (r.toString().contains("Successfully") && r.toString().matches("[\\S\\s]+[\\w]{64}[\\S\\s]*")) {
                                     ShellExeLog.success.accept(r, c);
                                 } else {
                                     ShellExeLog.fail.accept(r, c);
                                 }
-                            }, ShellExeLog.fail);
+                            }, ShellExeLog.fail)
+                    .close();
             releaseBillModel.setReleaseType(ReleaseType.releaseSuccess);
             update(releaseBillModel);
             return true;
@@ -114,28 +177,29 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     }
 
 
-    public boolean listener(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
-        if (releaseBillModel.getReleasePhase() != ReleasePhase.build) {
-            return true;
-        }
-        ChangeBranchModel changeBranchModel = releaseBillModel.getChangeBranchModel();
-        if (!projectsService.cdRoot(changeBranchModel.getProjectsModel(),shellExe)) {
+    private boolean listener(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
+        ChangeBranchModel changeBranchModel = releaseBillModel._getChangeBranchModel();
+        if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
             return false;
         }
         releaseBillModel.setReleasePhase(ReleasePhase.start);
         releaseBillModel.setReleaseType(ReleaseType.run);
         update(releaseBillModel);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicBoolean result = new AtomicBoolean(true);
         try {
-            shellExe.AsyncExecute(StrUtil.format("docker logs -f --tail \"10\" {}-{}",
-                    changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()), (r, c) -> {
+            shellExe.AsyncExecute(StrUtil.format("docker logs -f --tail \"100\" {}-{}",
+                    changeBranchModel._getProjectsModel().getName(), releaseBillModel.getEnvironment().name()), (r, c) -> {
                 if (r.toString().contains("Tomcat started on port(s)")) {
                     ShellExeLog.success.accept(r, c);
+                    result.set(true);
                     // 启动成功后ctrl+c停止
                     shellExe.ctrlC();
-                } else {
-                    ShellExeLog.fail.accept(r, c);
                 }
-            }, ShellExeLog.fail);
+            }, (e, c) -> {
+                result.set(false);
+                ShellExeLog.fail.accept(e, c);
+            }, (r, c) -> latch.countDown());
             releaseBillModel.setReleaseType(ReleaseType.releaseSuccess);
             update(releaseBillModel);
         } catch (Exception e) {
@@ -144,7 +208,9 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
             update(releaseBillModel);
             return false;
         }
-        return false;
+        latch.await(5, TimeUnit.MINUTES);
+        shellExe.close();
+        return result.get();
     }
 
     @Override

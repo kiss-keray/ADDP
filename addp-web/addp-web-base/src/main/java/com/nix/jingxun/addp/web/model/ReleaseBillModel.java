@@ -38,7 +38,6 @@ public class ReleaseBillModel extends BaseModel{
     @Column(nullable = false)
     private Long changeBranchId;
     // 发布状态
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ReleaseType releaseType;
     // 当前发布阶段
@@ -52,7 +51,7 @@ public class ReleaseBillModel extends BaseModel{
     @Transient
     private ChangeBranchModel changeBranchModel;
 
-    public ChangeBranchModel getChangeBranchModel() {
+    public ChangeBranchModel _getChangeBranchModel() {
         if (changeBranchModel == null) {
             IChangeBranchService changeBranchService = SpringContextHolder.getBean(IChangeBranchService.class);
             changeBranchModel = changeBranchService.findById(changeBranchId);

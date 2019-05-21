@@ -1,19 +1,18 @@
 package com.nix.jingxun.addp.web.service;
 
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.symmetric.AES;
 import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
-import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
-import com.nix.jingxun.addp.web.common.Exec;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
 import com.nix.jingxun.addp.web.common.util.AESUtil;
+import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ServicesJpa;
 import com.nix.jingxun.addp.web.model.MemberModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
+import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -28,6 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author keray
@@ -47,7 +47,7 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
 
     @Override
     public List<ServicesModel> selectMemberServices(MemberModel memberModel) {
-        return servicesJpa.findAll(Example.of(ServicesModel.builder().memberId(memberModel.getId()).build()));
+        return jpa().findAll(Example.of(ServicesModel.builder().memberId(memberModel.getId()).build()));
     }
 
     public ShellExe shellExeByUsername(ServicesModel servicesModel) throws IOException, JSchException {
@@ -102,5 +102,16 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
             return false;
         }
         return true;
+    }
+
+    @Override
+    public List<ServicesModel> selectEnvServices(ProjectsModel projectsModel, ADDPEnvironment environment) {
+        return servicesJpa.selectEnvServices(
+                projectsModel._getProjectsServiceRes()
+                        .stream()
+                        .map(ProjectsServiceRe::getServicesId)
+                        .collect(Collectors.toList())
+                ,environment
+        );
     }
 }

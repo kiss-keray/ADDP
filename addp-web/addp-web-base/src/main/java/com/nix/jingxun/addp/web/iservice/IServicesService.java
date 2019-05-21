@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.web.iservice;
 
 import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
+import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
 import com.nix.jingxun.addp.web.model.MemberModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServicesModel;
@@ -30,5 +31,10 @@ public interface IServicesService extends BaseService<ServicesModel,Long> {
      * 服务器组执行
      * */
     boolean moreServiceExec(List<ServicesModel> servicesModels, Consumer<ServicesModel> exec);
+
+    /**
+     * 根据环境得到项目的服务器组
+     * */
+    List<ServicesModel> selectEnvServices(ProjectsModel projectsModel, ADDPEnvironment environment);
 
 }

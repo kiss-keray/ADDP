@@ -6,6 +6,8 @@ package com.nix.jingxun.addp.web.diamond;
  * 发布单发布阶段
  */
 public enum  ReleasePhase {
+    // 不在发布状态
+    stop,
     // 初始化等待发布阶段
     init,
     // 第一阶段 拉取代码

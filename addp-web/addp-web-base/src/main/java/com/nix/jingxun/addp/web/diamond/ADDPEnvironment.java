@@ -7,11 +7,11 @@ package com.nix.jingxun.addp.web.diamond;
  */
 public enum ADDPEnvironment {
     // 测试环境
-    TEST(44001),
+    test(44001),
     // 预发环境
-    PRE(44002),
+    pre(44002),
     // 正式环境
-    PRO(44003);
+    pro(44003);
     private int port;
     ADDPEnvironment(int port) {
         this.port = port;

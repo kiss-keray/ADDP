@@ -42,7 +42,7 @@ public class ChangeBranchModel  extends BaseModel {
     private ProjectsModel projectsModel;
 
 
-    public ProjectsModel getProjectsModel() {
+    public ProjectsModel _getProjectsModel() {
         if (projectsModel == null) {
             IProjectsService projectsService = SpringContextHolder.getBean(IProjectsService.class);
             projectsModel = projectsService.findById(projectId);

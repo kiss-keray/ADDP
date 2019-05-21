@@ -1,8 +1,5 @@
 package com.nix.jingxun.addp.web.iservice;
 
-import com.nix.jingxun.addp.ssh.common.util.ShellExe;
-import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
-import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
 
@@ -11,7 +8,6 @@ import com.nix.jingxun.addp.web.model.ReleaseBillModel;
  * @date 2019/05/20 18:16
  */
 public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>{
-
     /**
      * 部署发布单
      * 暂时支持单一变更部署
@@ -33,15 +29,17 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * </p>
      * <li>docker logs -f --tail "10" {@link ProjectsModel#getName()}-{@link ReleaseBillModel#getEnvironment()}</li>
      * </li>
+     *
+     * 次方法将发布单从任何状态修改为{@link com.nix.jingxun.addp.web.diamond.ReleasePhase#init}
      */
-    ReleaseBillModel deployBranch(ChangeBranchModel releaseBillModel) throws Exception;
+    ReleaseBillModel deployBranch(ReleaseBillModel releaseBillModel) throws Exception;
 
     /**
      * <H1>一阶段</H1>
      * <li>git分支切换</li>
      * <li>pull代码</li>
      * */
-    boolean pullCode(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception;
+    boolean pullCode(ReleaseBillModel releaseBillModel) throws Exception;
 
     /**
      * <h1>二阶段</h1>
@@ -51,7 +49,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * <p>在build执行中的docker run启动了应用</p>
      * </li>
      * */
-    boolean build(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception;
+    boolean build(ReleaseBillModel releaseBillModel) throws Exception;
 
     /**
      * <h1>三阶段</h1>
@@ -63,5 +61,5 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * <li>docker logs -f --tail "10" {@link ProjectsModel#getName()}-{@link ReleaseBillModel#getEnvironment()}</li>
      * </li>
      */
-    boolean listener(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception;
+    boolean listener(ReleaseBillModel releaseBillModel) throws Exception;
 }

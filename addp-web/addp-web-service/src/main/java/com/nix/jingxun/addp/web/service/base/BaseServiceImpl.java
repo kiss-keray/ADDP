@@ -16,7 +16,7 @@ import java.util.Map;
  * @author 11723
  */
 public abstract class BaseServiceImpl<M extends Object,ID extends Serializable> implements BaseService<M,ID> {
-    protected abstract JpaRepository<M,ID> jpa();
+    protected abstract <J extends JpaRepository<M,ID>> J jpa();
 
     @PostConstruct
     private void init() {

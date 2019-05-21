@@ -1,20 +1,17 @@
 package com.nix.jingxun.addp.web.service;
 
 import cn.hutool.core.util.StrUtil;
-import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.common.config.WebConfig;
-import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ProjectsJpa;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
-import com.nix.jingxun.addp.web.model.ServicesModel;
 import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServiceReJpa;
 import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
@@ -24,10 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author keray
@@ -69,7 +62,7 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
             throw new WebRunException(Code.exeError,"git clone 服务器组失败");
         }
         super.save(projectsModel);
-        for (ProjectsServiceRe re:projectsModel.getProjectsServiceRes()) {
+        for (ProjectsServiceRe re:projectsModel._getProjectsServiceRes()) {
             re.setProjectsId(projectsModel.getId());
             projectsServiceReJpa.save(re);
         }
