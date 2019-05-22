@@ -7,6 +7,8 @@ import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
 import com.nix.jingxun.addp.web.common.util.AESUtil;
 import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
+import com.nix.jingxun.addp.web.exception.Code;
+import com.nix.jingxun.addp.web.exception.WebRunException;
 import com.nix.jingxun.addp.web.iservice.IServicesService;
 import com.nix.jingxun.addp.web.jpa.ServicesJpa;
 import com.nix.jingxun.addp.web.model.MemberModel;
@@ -16,9 +18,9 @@ import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.security.auth.message.AuthException;
@@ -50,7 +52,6 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
     public List<ServicesModel> selectMemberServices(MemberModel memberModel) {
         return jpa().findAll(Example.of(ServicesModel.builder().memberId(memberModel.getId()).build()));
     }
-
     /**
      * 获取服务器的shell通道
      * 如果主机是备份环境主机，需要拿真实ip
@@ -127,6 +128,15 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
                     , ADDPEnvironment.bak
             ));
         }
-        return servicesModels;
+        // 生产环境只返回允许发布的机器  无缝接入分批发布
+        return servicesModels.stream().filter(service -> environment != ADDPEnvironment.pro || service.getAllowRestart()).collect(Collectors.toList());
+    }
+
+    @Transactional
+    @Override
+    public void updateProAllow(List<Long> ids) throws Exception{
+        if (servicesJpa.updateProAllow(ids) != ids.size()) {
+            throw new WebRunException(Code.dataError,"机器状态更新失败");
+        }
     }
 }

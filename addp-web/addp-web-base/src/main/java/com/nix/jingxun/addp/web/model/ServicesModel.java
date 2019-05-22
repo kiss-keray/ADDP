@@ -7,8 +7,6 @@ import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
-import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * @author keray
@@ -38,6 +36,8 @@ public class ServicesModel  extends BaseModel {
     // 服务器所属环境
     @Enumerated(EnumType.STRING)
     private ADDPEnvironment environment;
+    // 生产环境时 服务器是否进入可发布状态
+    private Boolean allowRestart;
 
     @Transient
     private MemberModel memberModel;

@@ -38,4 +38,9 @@ public interface IServicesService extends BaseService<ServicesModel,Long> {
      * */
     List<ServicesModel> selectEnvServices(ProjectsModel projectsModel, ADDPEnvironment environment);
 
+    /**
+     * 将生产服务器更改问允许发布状态
+     * */
+    void updateProAllow(List<Long> ids) throws Exception;
+
 }
