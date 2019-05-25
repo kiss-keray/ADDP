@@ -31,7 +31,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * <li>docker logs -f --tail "10" {@link ProjectsModel#getName()}-{@link ReleaseBillModel#getEnvironment()}</li>
      * </li>
      *
-     * 次方法将发布单从任何状态修改为{@link com.nix.jingxun.addp.web.diamond.ReleasePhase#init}
+     * 次方法将发布单从任何状态修改为{@link com.nix.jingxun.addp.web.IEnum.ReleasePhase#init}
      */
     ReleaseBillModel deployBranch(ReleaseBillModel releaseBillModel) throws Exception;
 

@@ -101,6 +101,9 @@ public class Result<T> {
     }
     public Result<T> logFail() {
         if (this instanceof FailResult) {
+            if (((FailResult) this).getException() != null) {
+                ((FailResult) this).getException().printStackTrace();
+            }
             log.error("logFail:{}",this.toString());
         }
         return this;

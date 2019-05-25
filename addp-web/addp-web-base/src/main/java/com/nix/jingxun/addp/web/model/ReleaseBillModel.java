@@ -1,9 +1,9 @@
 package com.nix.jingxun.addp.web.model;
 
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
-import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
-import com.nix.jingxun.addp.web.diamond.ReleasePhase;
-import com.nix.jingxun.addp.web.diamond.ReleaseType;
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
+import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
+import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import lombok.*;
 import org.hibernate.annotations.Proxy;

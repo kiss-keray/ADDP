@@ -1,8 +1,8 @@
 package com.nix.jingxun.addp.web.model;
 
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
-import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServiceReJpa;
-import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
+import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServerReJpa;
+import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServerRe;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 import org.springframework.data.domain.Example;
@@ -66,19 +66,19 @@ public class ProjectsModel extends BaseModel {
     private String proDomain;
 
     @Transient
-    private List<ProjectsServiceRe> projectsServiceRes;
+    private List<ProjectsServerRe> projectsServiceRes;
 
-    public List<ProjectsServiceRe> _getProjectsServiceRes() {
+    public List<ProjectsServerRe> _getProjectsServiceRes() {
         if (projectsServiceRes == null) {
-            ProjectsServiceReJpa jpa = SpringContextHolder.getBean(ProjectsServiceReJpa.class);
-            ProjectsServiceRe example = ProjectsServiceRe.builder().projectsId(getId()).build();
+            ProjectsServerReJpa jpa = SpringContextHolder.getBean(ProjectsServerReJpa.class);
+            ProjectsServerRe example = ProjectsServerRe.builder().projectsId(getId()).build();
             projectsServiceRes = jpa.findAll(Example.of(example));
         }
         return projectsServiceRes;
     }
 
     @Transient
-    public List<ServicesModel> getServicesModels () {
-        return _getProjectsServiceRes().stream().map(ProjectsServiceRe::_getServicesModel).collect(Collectors.toList());
+    public List<ServerModel> getServicesModels () {
+        return _getProjectsServiceRes().stream().map(ProjectsServerRe::_getServerModel).collect(Collectors.toList());
     }
 }

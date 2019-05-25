@@ -2,10 +2,9 @@ package com.nix.jingxun.addp.web.model.relationship.model;
 
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
-import com.nix.jingxun.addp.web.iservice.IServicesService;
-import com.nix.jingxun.addp.web.model.BaseModel;
+import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
-import com.nix.jingxun.addp.web.model.ServicesModel;
+import com.nix.jingxun.addp.web.model.ServerModel;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 
@@ -22,9 +21,9 @@ import java.io.Serializable;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "nix_projects_services_re")
+@Table(name = "nix_projects_server_re")
 @Proxy(lazy = false)
-public class ProjectsServiceRe  implements Serializable {
+public class ProjectsServerRe implements Serializable {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -33,20 +32,20 @@ public class ProjectsServiceRe  implements Serializable {
     @NotNull
     private Long projectsId;
     @NotNull
-    private Long servicesId;
+    private Long serverId;
 
 
     @Transient
-    private ServicesModel servicesModel;
+    private ServerModel serverModel;
     @Transient
     private ProjectsModel projectsModel;
 
-    public ServicesModel _getServicesModel() {
-        if (servicesModel == null) {
-            IServicesService servicesService = SpringContextHolder.getBean(IServicesService.class);
-            servicesModel = servicesService.findById(servicesId);
+    public ServerModel _getServerModel() {
+        if (serverModel == null) {
+            IServerService servicesService = SpringContextHolder.getBean(IServerService.class);
+            serverModel = servicesService.findById(serverId);
         }
-        return servicesModel;
+        return serverModel;
     }
 
     public ProjectsModel _getProjectsModel() {

@@ -6,16 +6,16 @@ import com.nix.jingxun.addp.ssh.common.exception.ShellNoSuccessException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
-import com.nix.jingxun.addp.web.diamond.ReleasePhase;
-import com.nix.jingxun.addp.web.diamond.ReleaseType;
+import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
+import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
-import com.nix.jingxun.addp.web.iservice.IServicesService;
+import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.jpa.ReleaseBillJpa;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
-import com.nix.jingxun.addp.web.model.ServicesModel;
+import com.nix.jingxun.addp.web.model.ServerModel;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,7 +38,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     @Resource
     private ReleaseBillJpa releaseBillJpa;
     @Resource
-    private IServicesService servicesService;
+    private IServerService servicesService;
     @Resource
     private IProjectsService projectsService;
 
@@ -52,9 +52,9 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     @Override
     public boolean pullCode(ReleaseBillModel releaseBillModel) throws Exception {
         // 根据当前环境得到项目的服务器组
-        List<ServicesModel> servicesModels = servicesService.selectEnvServices(releaseBillModel._getChangeBranchModel()._getProjectsModel(), releaseBillModel.getEnvironment());
+        List<ServerModel> serverModels = servicesService.selectEnvServices(releaseBillModel._getChangeBranchModel()._getProjectsModel(), releaseBillModel.getEnvironment());
         boolean result = servicesService.moreServiceExec(
-                servicesModels,
+                serverModels,
                 (service) -> {
                     try {
                         if (!pullCode(releaseBillModel, servicesService.shellExeByUsername(service))) {

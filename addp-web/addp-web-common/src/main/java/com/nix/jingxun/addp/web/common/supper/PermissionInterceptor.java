@@ -2,10 +2,13 @@ package com.nix.jingxun.addp.web.common.supper;
 
 import com.nix.jingxun.addp.web.common.PermissionHandler;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
+import com.nix.jingxun.addp.web.iservice.IMemberService;
+import com.nix.jingxun.addp.web.model.MemberModel;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
@@ -25,12 +28,13 @@ public class PermissionInterceptor implements HandlerInterceptor, PermissionHand
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
 
     }
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //将session缓存
         MemberCache.setSession(request.getSession());
-
+        MemberModel memberModel = MemberModel.builder().build();
+        memberModel.setId(1L);
+        MemberCache.setCurrentUser(memberModel);
 //        //获取session缓存用户
 //        MemberBaseModel user = (MemberBaseModel) request.getSession().getAttribute(MemberCache.USER_SESSION_KEY);
 //        //将session缓存

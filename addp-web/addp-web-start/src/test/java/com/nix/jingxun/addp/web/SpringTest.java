@@ -1,8 +1,8 @@
 package com.nix.jingxun.addp.web;
 
-import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
-import com.nix.jingxun.addp.web.iservice.IServicesService;
-import com.nix.jingxun.addp.web.jpa.ServicesJpa;
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
+import com.nix.jingxun.addp.web.iservice.IServerService;
+import com.nix.jingxun.addp.web.jpa.ServerJpa;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,9 +21,9 @@ import javax.annotation.Resource;
 @ComponentScan("com.nix.jingxun.addp.*")
 public class SpringTest {
     @Resource
-    private ServicesJpa servicesJpa;
+    private ServerJpa serverJpa;
     @Resource
-    private IServicesService servicesService;
+    private IServerService servicesService;
 
     @Test
     public void jpaInTest() {

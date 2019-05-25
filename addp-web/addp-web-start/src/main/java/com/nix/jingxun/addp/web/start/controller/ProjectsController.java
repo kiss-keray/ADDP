@@ -4,12 +4,12 @@ import cn.hutool.core.bean.BeanUtil;
 import com.nix.jingxun.addp.common.Result;
 import com.nix.jingxun.addp.ssh.common.exception.ShellConnectException;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
-import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
-import com.nix.jingxun.addp.web.iservice.IServicesService;
+import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
-import com.nix.jingxun.addp.web.model.ServicesModel;
-import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
+import com.nix.jingxun.addp.web.model.ServerModel;
+import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServerRe;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +32,7 @@ public class ProjectsController  extends BaseController{
     private IProjectsService projectsService;
 
     @Resource
-    private IServicesService servicesService;
+    private IServerService servicesService;
 
     @PostMapping("/create")
     public Result create(@Valid @ModelAttribute ProjectsModel projectsModel) {
@@ -42,17 +42,17 @@ public class ProjectsController  extends BaseController{
                     return Result.fail("1401", "no project permission " + projectsModel.getName());
                 }
                 // 检查项目正式环境主机数 如果为1创建备份主机
-                List<ServicesModel> proServices = projectsModel.getServicesModels()
+                List<ServerModel> proServices = projectsModel.getServicesModels()
                         .stream()
                         .filter(service -> service.getEnvironment() == ADDPEnvironment.pro)
                         .collect(Collectors.toList());
                 if (proServices.size() == 1) {
-                    ServicesModel bakService = new ServicesModel();
+                    ServerModel bakService = new ServerModel();
                     BeanUtil.copyProperties(proServices.get(0),bakService);
                     bakService.setId(null);
                     bakService.setEnvironment(ADDPEnvironment.bak);
                     servicesService.save(bakService);
-                    projectsModel.getProjectsServiceRes().add(ProjectsServiceRe.builder().servicesId(bakService.getId()).build());
+                    projectsModel.getProjectsServiceRes().add(ProjectsServerRe.builder().serverId(bakService.getId()).build());
                 }
                 projectsModel.setMemberId(MemberCache.currentUser().getId());
                 return projectsService.save(projectsModel);

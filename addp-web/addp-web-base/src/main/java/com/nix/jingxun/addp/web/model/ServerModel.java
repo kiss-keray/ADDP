@@ -1,6 +1,6 @@
 package com.nix.jingxun.addp.web.model;
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
-import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
@@ -19,9 +19,9 @@ import javax.validation.constraints.Pattern;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "nix_services")
+@Table(name = "nix_servers")
 @Proxy(lazy = false)
-public class ServicesModel  extends BaseModel {
+public class ServerModel extends BaseModel {
 
     @Pattern(regexp = "[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}")
     @Column(nullable = false)

@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.diamond;
+package com.nix.jingxun.addp.web.IEnum;
 
 /**
  * @author keray

@@ -6,7 +6,6 @@ import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
-import com.nix.jingxun.addp.web.model.ServicesModel;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

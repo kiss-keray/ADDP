@@ -2,9 +2,7 @@ package com.nix.jingxun.addp.web.iservice;
 
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
-import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
-import com.nix.jingxun.addp.web.model.ProjectsModel;
 
 /**
  * @author keray

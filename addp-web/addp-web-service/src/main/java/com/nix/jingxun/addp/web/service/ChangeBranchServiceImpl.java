@@ -9,7 +9,7 @@ import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
-import com.nix.jingxun.addp.web.iservice.IServicesService;
+import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.jpa.ChangeBranchJpa;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
@@ -34,7 +34,7 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
     private IProjectsService projectsService;
 
     @Resource
-    private IServicesService servicesService;
+    private IServerService servicesService;
 
     @Override
     protected JpaRepository<ChangeBranchModel, Long> jpa() {

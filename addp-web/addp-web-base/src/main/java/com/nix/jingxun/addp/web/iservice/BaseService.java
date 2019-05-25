@@ -1,5 +1,8 @@
 package com.nix.jingxun.addp.web.iservice;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -42,5 +45,10 @@ public interface BaseService<M extends Object,ID extends Serializable>{
      * @return 全部对象
      * */
     List<M> findAll();
+
+    /**
+     * 基础分页查找
+     * */
+    Page<M> page(Pageable pageable);
 
 }

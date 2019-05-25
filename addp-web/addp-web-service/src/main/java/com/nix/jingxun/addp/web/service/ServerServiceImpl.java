@@ -4,20 +4,23 @@ import cn.hutool.core.util.StrUtil;
 import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
+import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
 import com.nix.jingxun.addp.web.common.util.AESUtil;
-import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
+import com.nix.jingxun.addp.web.domain.WebPage;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
-import com.nix.jingxun.addp.web.iservice.IServicesService;
-import com.nix.jingxun.addp.web.jpa.ServicesJpa;
+import com.nix.jingxun.addp.web.iservice.IServerService;
+import com.nix.jingxun.addp.web.jpa.ServerJpa;
 import com.nix.jingxun.addp.web.model.MemberModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
-import com.nix.jingxun.addp.web.model.ServicesModel;
-import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
+import com.nix.jingxun.addp.web.model.ServerModel;
+import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServerRe;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,27 +41,27 @@ import java.util.stream.Collectors;
  */
 @Service
 @Slf4j
-public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> implements IServicesService {
+public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implements IServerService {
 
     @Resource
-    private ServicesJpa servicesJpa;
+    private ServerJpa serverJpa;
 
     @Override
-    protected JpaRepository<ServicesModel, Long> jpa() {
-        return servicesJpa;
+    protected JpaRepository<ServerModel, Long> jpa() {
+        return serverJpa;
     }
 
     @Override
-    public List<ServicesModel> selectMemberServices(MemberModel memberModel) {
-        return jpa().findAll(Example.of(ServicesModel.builder().memberId(memberModel.getId()).build()));
+    public List<ServerModel> selectMemberServices(MemberModel memberModel) {
+        return jpa().findAll(Example.of(ServerModel.builder().memberId(memberModel.getId()).build()));
     }
     /**
      * 获取服务器的shell通道
      * 如果主机是备份环境主机，需要拿真实ip
      */
-    public ShellExe shellExeByUsername(ServicesModel servicesModel) throws IOException, JSchException {
+    public ShellExe shellExeByUsername(ServerModel serverModel) throws IOException, JSchException {
         // 拿到服务器执行shell
-        return ShellExe.connect(servicesModel.getIp(), servicesModel.getUsername(), AESUtil.decrypt(servicesModel.getPassword()));
+        return ShellExe.connect(serverModel.getIp(), serverModel.getUsername(), AESUtil.decrypt(serverModel.getPassword()));
     }
 
     public ShellExe gitAuth(ShellExe shellExe, ProjectsModel projectsModel) {
@@ -78,10 +81,10 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
                         error -> ShellExeLog.fail.accept(error, "密码输入执行异常"));
     }
 
-    public boolean moreServiceExec(List<ServicesModel> servicesModels, Consumer<ServicesModel> exec) {
-        final CountDownLatch latch = new CountDownLatch(servicesModels.size());
+    public boolean moreServiceExec(List<ServerModel> serverModels, Consumer<ServerModel> exec) {
+        final CountDownLatch latch = new CountDownLatch(serverModels.size());
         final AtomicInteger success = new AtomicInteger(0);
-        for (ServicesModel model : servicesModels) {
+        for (ServerModel model : serverModels) {
             WebThreadPool.IO_THREAD.execute(() -> {
                 try {
                     exec.accept(model);
@@ -100,43 +103,54 @@ public class ServicesServiceImpl extends BaseServiceImpl<ServicesModel, Long> im
             return false;
         }
         if (latch.getCount() > 0) {
-            log.error("服务器组执行超时,size={} other={}", servicesModels.size(), latch.getCount());
+            log.error("服务器组执行超时,size={} other={}", serverModels.size(), latch.getCount());
             return false;
         }
-        if (success.get() < servicesModels.size()) {
-            log.error("服务器组执行部分失败,size={} fail={}", servicesModels.size(), servicesModels.size() - success.get());
+        if (success.get() < serverModels.size()) {
+            log.error("服务器组执行部分失败,size={} fail={}", serverModels.size(), serverModels.size() - success.get());
             return false;
         }
         return true;
     }
 
     @Override
-    public List<ServicesModel> selectEnvServices(ProjectsModel projectsModel, ADDPEnvironment environment) {
-        List<ServicesModel> servicesModels = servicesJpa.selectEnvServices(
+    public List<ServerModel> selectEnvServices(ProjectsModel projectsModel, ADDPEnvironment environment) {
+        List<ServerModel> serverModels = serverJpa.selectEnvServices(
                 projectsModel._getProjectsServiceRes()
                         .stream()
-                        .map(ProjectsServiceRe::getServicesId)
+                        .map(ProjectsServerRe::getServerId)
                         .collect(Collectors.toList())
                 , environment
         );
         if (environment == ADDPEnvironment.pro) {
-            servicesModels.addAll(servicesJpa.selectEnvServices(
+            serverModels.addAll(serverJpa.selectEnvServices(
                     projectsModel._getProjectsServiceRes()
                             .stream()
-                            .map(ProjectsServiceRe::getServicesId)
+                            .map(ProjectsServerRe::getServerId)
                             .collect(Collectors.toList())
                     , ADDPEnvironment.bak
             ));
         }
         // 生产环境只返回允许发布的机器  无缝接入分批发布
-        return servicesModels.stream().filter(service -> environment != ADDPEnvironment.pro || service.getAllowRestart()).collect(Collectors.toList());
+        return serverModels.stream().filter(service -> environment != ADDPEnvironment.pro || service.getAllowRestart()).collect(Collectors.toList());
     }
 
     @Transactional
     @Override
     public void updateProAllow(List<Long> ids) throws Exception{
-        if (servicesJpa.updateProAllow(ids) != ids.size()) {
+        if (serverJpa.updateProAllow(ids) != ids.size()) {
             throw new WebRunException(Code.dataError,"机器状态更新失败");
         }
+    }
+
+    @Override
+    public Page<ServerModel> memberServices(WebPage webPage, ADDPEnvironment environment) {
+        MemberModel member = MemberCache.currentUser();
+        return  serverJpa.findAll(Example.of(
+                ServerModel.builder()
+                        .memberId(member.getId())
+                        .environment(environment)
+                        .build()
+        ), webPage);
     }
 }

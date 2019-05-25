@@ -2,6 +2,8 @@ package com.nix.jingxun.addp.web.service.base;
 
 import com.nix.jingxun.addp.web.iservice.BaseService;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.annotation.PostConstruct;
@@ -45,6 +47,11 @@ public abstract class BaseServiceImpl<M extends Object,ID extends Serializable> 
     @Override
     public void delete(ID id) {
         jpa().deleteById(id);
+    }
+
+    @Override
+    public Page<M> page(Pageable pageable) {
+        return jpa().findAll(pageable);
     }
 
     @Override

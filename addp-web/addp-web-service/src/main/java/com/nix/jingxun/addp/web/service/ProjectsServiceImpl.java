@@ -6,16 +6,14 @@ import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.common.config.WebConfig;
-import com.nix.jingxun.addp.web.diamond.ADDPEnvironment;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
-import com.nix.jingxun.addp.web.iservice.IServicesService;
+import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.jpa.ProjectsJpa;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
-import com.nix.jingxun.addp.web.model.ServicesModel;
-import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServiceReJpa;
-import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServiceRe;
+import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServerReJpa;
+import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServerRe;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,8 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author keray
@@ -37,10 +33,10 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
     @Resource
     private ProjectsJpa projectsJpa;
     @Resource
-    private ProjectsServiceReJpa projectsServiceReJpa;
+    private ProjectsServerReJpa projectsServerReJpa;
 
     @Resource
-    private IServicesService servicesService;
+    private IServerService servicesService;
 
     @Override
     protected JpaRepository<ProjectsModel, Long> jpa() {
@@ -66,9 +62,9 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
             throw new WebRunException(Code.exeError,"git clone 服务器组失败");
         }
         super.save(projectsModel);
-        for (ProjectsServiceRe re:projectsModel._getProjectsServiceRes()) {
+        for (ProjectsServerRe re:projectsModel._getProjectsServiceRes()) {
             re.setProjectsId(projectsModel.getId());
-            projectsServiceReJpa.save(re);
+            projectsServerReJpa.save(re);
         }
         return projectsModel;
     }
