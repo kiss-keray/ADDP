@@ -195,7 +195,7 @@ public class ShellExe {
                 System.out.println("+++++++++++++++++++++++++++++++++：" + new String(command));
                 while (true) {
                     String line = read();
-//                    System.out.println(line);
+                    System.out.println(line);
                     result.append(line);
                     if (!sync) {
                         if (func != null && func.length > 0) {

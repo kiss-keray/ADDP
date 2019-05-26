@@ -1,5 +1,7 @@
 package com.nix.jingxun.addp.web.iservice;
 
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
+import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
 
@@ -63,4 +65,15 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * </li>
      */
     boolean startApp(ReleaseBillModel releaseBillModel) throws Exception;
+
+
+    /**
+     * 根据变更发布单
+     * */
+    ReleaseBillModel changeBill(Long changeId, ADDPEnvironment environment);
+
+    /**
+     * 给变更创建发布单
+     * */
+    ReleaseBillModel createBill(ChangeBranchModel model,ADDPEnvironment environment) throws Exception;
 }

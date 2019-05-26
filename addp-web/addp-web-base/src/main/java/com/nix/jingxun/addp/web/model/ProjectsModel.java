@@ -78,7 +78,7 @@ public class ProjectsModel extends BaseModel {
     }
 
     @Transient
-    public List<ServerModel> getServicesModels () {
+    public List<ServerModel> _getServicesModels() {
         return _getProjectsServiceRes().stream().map(ProjectsServerRe::_getServerModel).collect(Collectors.toList());
     }
 }

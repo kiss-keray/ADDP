@@ -5,23 +5,24 @@ import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.exception.ShellNoSuccessException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
 import com.nix.jingxun.addp.web.IEnum.ReleaseType;
+import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.jpa.ReleaseBillJpa;
-import com.nix.jingxun.addp.web.model.ChangeBranchModel;
-import com.nix.jingxun.addp.web.model.ProjectsModel;
-import com.nix.jingxun.addp.web.model.ReleaseBillModel;
-import com.nix.jingxun.addp.web.model.ServerModel;
+import com.nix.jingxun.addp.web.model.*;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -104,6 +105,30 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
             log.error("部署第三阶段失败 : {}", releaseBillModel);
         }
         return result;
+    }
+
+    @Override
+    public ReleaseBillModel changeBill(Long changeId, ADDPEnvironment environment) {
+
+        return releaseBillJpa.findOne(Example.of(
+                ReleaseBillModel.builder()
+                        .changeBranchId(changeId)
+                        .environment(environment)
+                        .build()))
+                .orElse(null);
+    }
+
+
+    @Override
+    public ReleaseBillModel createBill(ChangeBranchModel model, ADDPEnvironment environment) throws Exception {
+        MemberModel member = MemberCache.currentUser();
+        return save(ReleaseBillModel.builder()
+                .changeBranchId(model.getId())
+                .environment(environment)
+                .memberId(member.getId())
+                .releasePhase(ReleasePhase.init)
+                .releaseTime(LocalDateTime.now())
+        .build());
     }
 
     private boolean pullCode(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {

@@ -38,11 +38,11 @@ public class ProjectsController  extends BaseController{
     public Result create(@Valid @ModelAttribute ProjectsModel projectsModel) {
         return Result.of(() -> {
             try {
-                if (!projectsModel.getServicesModels().stream().allMatch(servicesModel -> servicesModel.getMemberId().equals(MemberCache.currentUser().getId()))) {
+                if (!projectsModel._getServicesModels().stream().allMatch(servicesModel -> servicesModel.getMemberId().equals(MemberCache.currentUser().getId()))) {
                     return Result.fail("1401", "no project permission " + projectsModel.getName());
                 }
                 // 检查项目正式环境主机数 如果为1创建备份主机
-                List<ServerModel> proServices = projectsModel.getServicesModels()
+                List<ServerModel> proServices = projectsModel._getServicesModels()
                         .stream()
                         .filter(service -> service.getEnvironment() == ADDPEnvironment.pro)
                         .collect(Collectors.toList());

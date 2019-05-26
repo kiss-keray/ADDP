@@ -6,6 +6,8 @@ package com.nix.jingxun.addp.web.IEnum;
  * 发布单发阶段发布布状态
  */
 public enum ReleaseType {
+    //wait
+    wait,
     // 发布中
     run,
     // 发布失败

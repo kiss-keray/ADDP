@@ -5,6 +5,7 @@ import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
 import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
+import com.nix.jingxun.addp.web.iservice.IMemberService;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 
@@ -50,6 +51,8 @@ public class ReleaseBillModel extends BaseModel{
     private ADDPEnvironment environment;
     @Transient
     private ChangeBranchModel changeBranchModel;
+    @Transient
+    private MemberModel member;
 
     public ChangeBranchModel _getChangeBranchModel() {
         if (changeBranchModel == null) {
@@ -57,5 +60,12 @@ public class ReleaseBillModel extends BaseModel{
             changeBranchModel = changeBranchService.findById(changeBranchId);
         }
         return changeBranchModel;
+    }
+    public MemberModel _getMember() {
+        if (member == null) {
+            IMemberService memberService = SpringContextHolder.getBean(IMemberService.class);
+            member = memberService.findById(memberId);
+        }
+        return member;
     }
 }

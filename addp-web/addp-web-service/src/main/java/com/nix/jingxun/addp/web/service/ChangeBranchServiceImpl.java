@@ -47,7 +47,7 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
     @Override
     public ChangeBranchModel save(ChangeBranchModel changeBranchModel) throws Exception {
         ProjectsModel projectsModel = changeBranchModel._getProjectsModel();
-        boolean result = servicesService.moreServiceExec(projectsModel.getServicesModels(), servicesModel -> {
+        boolean result = servicesService.moreServiceExec(projectsModel._getServicesModels(), servicesModel -> {
             try {
                 gitCreateBranch(changeBranchModel, servicesService.shellExeByUsername(servicesModel));
             } catch (Exception e) {

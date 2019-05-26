@@ -51,7 +51,7 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ProjectsModel save(ProjectsModel projectsModel) throws Exception {
-        boolean result = servicesService.moreServiceExec(projectsModel.getServicesModels(),servicesModel -> {
+        boolean result = servicesService.moreServiceExec(projectsModel._getServicesModels(), servicesModel -> {
             try {
                 createGitClone(projectsModel, servicesService.shellExeByUsername(servicesModel));
             } catch (Exception e) {

@@ -31,7 +31,7 @@ public abstract class BaseServiceImpl<M extends Object,ID extends Serializable> 
 
     @Override
     public M findById(ID id) {
-        return jpa().getOne(id);
+        return jpa().findById(id).orElse(null);
     }
 
     @Override

@@ -31,4 +31,9 @@ public class SpringTest {
         projectsModel.setId(1L);
         System.out.println(servicesService.selectEnvServices(projectsModel,ADDPEnvironment.test));
     }
+
+    @Test
+    public void findById() {
+        System.out.println(serverJpa.getOne(100L));
+    }
 }
