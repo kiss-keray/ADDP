@@ -43,8 +43,10 @@ public class ReleaseBillController extends BaseController {
     public Result selectChangeRB(@RequestParam("changeId") Long changeId, @RequestParam("env") ADDPEnvironment environment) {
         return Result.of(() -> {
             ReleaseBillModel model = releaseBillService.changeBill(changeId, environment);
-            model.setMember(model._getMember());
-            model.setChangeBranchModel(model._getChangeBranchModel());
+            if (model != null) {
+                model.setMember(model._getMember());
+                model.setChangeBranchModel(model._getChangeBranchModel());
+            }
             return model;
         }).failFlat(this::failFlat).logFail();
     }

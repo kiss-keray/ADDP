@@ -42,6 +42,8 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     private IServerService servicesService;
     @Resource
     private IProjectsService projectsService;
+    @Resource
+    private ReleaseBillServiceImpl releaseBillService;
 
 
     @Override
@@ -122,7 +124,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     @Override
     public ReleaseBillModel createBill(ChangeBranchModel model, ADDPEnvironment environment) throws Exception {
         MemberModel member = MemberCache.currentUser();
-        return save(ReleaseBillModel.builder()
+        return releaseBillService.save(ReleaseBillModel.builder()
                 .changeBranchId(model.getId())
                 .environment(environment)
                 .memberId(member.getId())
