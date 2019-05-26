@@ -19,7 +19,7 @@ spring:
 jingxun:
   web:
     addpBaseFile: /opt/addp/
-    ioThreadPoolMin: 0
+    ioThreadPoolMin: 10
     ioThreadPoolMax: 512
     ioFutureMax: 1024
 ---
