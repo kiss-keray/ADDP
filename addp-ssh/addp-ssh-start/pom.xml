@@ -83,7 +83,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.1.0.BUILD-SNAPSHOT</version>
+                <version>2.1.5.RELEASE</version>
                 <configuration>
                     <mainClass>com.nix.jingxun.addp.ssh.SSHStart</mainClass>
                 </configuration>

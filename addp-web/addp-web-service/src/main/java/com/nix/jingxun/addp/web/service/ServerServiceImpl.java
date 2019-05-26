@@ -85,7 +85,7 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
         final CountDownLatch latch = new CountDownLatch(serverModels.size());
         final AtomicInteger success = new AtomicInteger(0);
         for (ServerModel model : serverModels) {
-            WebThreadPool.IO_THREAD.execute(() -> {
+            WebThreadPool.IO_THREAD.submit(() -> {
                 try {
                     exec.accept(model);
                     success.getAndIncrement();
