@@ -38,6 +38,10 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: net.sf.log4jdbc.DriverSpy
     url: jdbc:log4jdbc:mysql://47.102.214.252:3306/addp-web?useSSL=false&characterEncoding=utf8
+  mvc:
+    view:
+      prefix: /
+      suffix: .html
 logging:
   file: ./log/log.log
   level:
