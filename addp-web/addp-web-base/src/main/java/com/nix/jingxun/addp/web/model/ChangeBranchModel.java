@@ -37,6 +37,9 @@ public class ChangeBranchModel  extends BaseModel {
     @NotNull
     private Long projectId;
 
+    @Column(columnDefinition="int(11) default 80")
+    private Integer port;
+
 
     @Transient
     private ProjectsModel projectsModel;

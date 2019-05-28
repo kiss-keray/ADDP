@@ -190,7 +190,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
         ProjectsModel projectsModel = releaseBillModel._getChangeBranchModel()._getProjectsModel();
         try {
             // mvn 打包 项目路径下
-            shellExe.syncExecute(StrUtil.format("mvn clean package -P {}", releaseBillModel.getEnvironment().name()), (r, c) -> {
+            shellExe.syncExecute(StrUtil.format("mvn clean package -P {} -DskipTests", releaseBillModel.getEnvironment().name()), (r, c) -> {
                 if (!r.toString().contains("BUILD SUCCESS")) {
                     ShellExeLog.fail.accept(r, c);
                 }
@@ -225,8 +225,9 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
         try {
             shellExe.oneCmd(StrUtil.format("docker stop {}-{}", changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()));
             shellExe.oneCmd(StrUtil.format("docker rm {}-{}", changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()));
-            shellExe.syncExecute(StrUtil.format("bash ./ADDP-INF/start.sh {} {} {}",
-                    changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name(), releaseBillModel.getEnvironment().getPort()),
+            shellExe.syncExecute(StrUtil.format("bash ./ADDP-INF/start.sh {} {} {} {}",
+                    changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()
+                    , releaseBillModel.getEnvironment().getPort(),changeBranchModel.getPort()),
                     (r, c) -> {
                         if (r.toString().matches("[\\S\\s]+[\\w]{64}[\\S\\s]*")) {
                             ShellExeLog.success.accept(r, c);

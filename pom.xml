@@ -14,14 +14,14 @@
     </modules>
     <packaging>pom</packaging>
     <name>addp-all</name>
-    <description>addp all</description>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <spring-boot-version>2.1.5.RELEASE</spring-boot-version>
-    </properties>
+        <description>addp all</description>
+        <properties>
+            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+            <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+            <maven.compiler.source>1.8</maven.compiler.source>
+            <maven.compiler.target>1.8</maven.compiler.target>
+            <spring-boot-version>2.1.5.RELEASE</spring-boot-version>
+        </properties>
     <repositories>
         <repository>
             <id>aliyun</id>
