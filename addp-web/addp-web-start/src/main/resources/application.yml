@@ -62,8 +62,8 @@ spring:
         format_sql=true:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    driver-class-name: net.sf.log4jdbc.DriverSpy
-    url: jdbc:log4jdbc:mysql://47.102.214.252:3306/addp-web?useSSL=false&characterEncoding=utf8
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://47.102.214.252:3306/addp-web?useSSL=false&characterEncoding=utf8
 logging:
   file: ./log/log.log
   level:
