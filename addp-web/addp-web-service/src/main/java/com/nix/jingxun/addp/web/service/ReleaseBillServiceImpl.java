@@ -187,7 +187,6 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
         if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
             return false;
         }
-        ProjectsModel projectsModel = releaseBillModel._getChangeBranchModel()._getProjectsModel();
         try {
             // mvn 打包 项目路径下
             shellExe.syncExecute(StrUtil.format("mvn clean package -P {} -DskipTests", releaseBillModel.getEnvironment().name()), (r, c) -> {
@@ -196,16 +195,6 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                 }
                 ShellExeLog.success.accept(r, c);
             }, ShellExeLog.fail)
-                    //执行build.sh脚本
-                    .syncExecute(StrUtil.format("bash ./ADDP-INF/build.sh {} {} {}",
-                            projectsModel.getName(), releaseBillModel.getEnvironment().name(), releaseBillModel.getEnvironment().getPort()),
-                            (r, c) -> {
-                                if (r.toString().contains("Successfully")) {
-                                    ShellExeLog.success.accept(r, c);
-                                } else {
-                                    ShellExeLog.fail.accept(r, c);
-                                }
-                            }, ShellExeLog.fail)
                     .close();
             return true;
         } catch (Exception e) {
@@ -217,6 +206,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
 
     private boolean startApp(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
         ChangeBranchModel changeBranchModel = releaseBillModel._getChangeBranchModel();
+        ProjectsModel projectsModel = releaseBillModel._getChangeBranchModel()._getProjectsModel();
         if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
             return false;
         }
@@ -225,9 +215,19 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
         try {
             shellExe.oneCmd(StrUtil.format("docker stop {}-{}", changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()));
             shellExe.oneCmd(StrUtil.format("docker rm {}-{}", changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()));
-            shellExe.syncExecute(StrUtil.format("bash ./ADDP-INF/start.sh {} {} {} {}",
+            shellExe
+                    //执行build.sh脚本
+                    .syncExecute(StrUtil.format("bash ./ADDP-INF/build.sh {} {} {}",
+                            projectsModel.getName(), releaseBillModel.getEnvironment().name(), releaseBillModel.getEnvironment().getPort()),
+                            (r, c) -> {
+                                if (r.toString().contains("Successfully")) {
+                                    ShellExeLog.success.accept(r, c);
+                                } else {
+                                    ShellExeLog.fail.accept(r, c);
+                                }
+                            }, ShellExeLog.fail).syncExecute(StrUtil.format("bash ./ADDP-INF/start.sh {} {} {} {}",
                     changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()
-                    , releaseBillModel.getEnvironment().getPort(),changeBranchModel.getPort()),
+                    , releaseBillModel.getEnvironment().getPort(), changeBranchModel.getPort()),
                     (r, c) -> {
                         if (r.toString().matches("[\\S\\s]+[\\w]{64}[\\S\\s]*")) {
                             ShellExeLog.success.accept(r, c);
