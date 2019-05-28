@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.web.start.controller;
+package com.nix.jingxun.addp.web.start.controller.router;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
