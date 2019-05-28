@@ -211,7 +211,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
             return false;
         }
         final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicBoolean result = new AtomicBoolean(true);
+        final AtomicBoolean result = new AtomicBoolean(false);
         try {
             shellExe.oneCmd(StrUtil.format("docker stop {}-{}", changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()));
             shellExe.oneCmd(StrUtil.format("docker rm {}-{}", changeBranchModel.getProjectsModel().getName(), releaseBillModel.getEnvironment().name()));
@@ -237,16 +237,13 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                     }, ShellExeLog.fail)
                     .AsyncExecute(StrUtil.format("docker logs -f --tail \"100\" {}-{}",
                             changeBranchModel._getProjectsModel().getName(), releaseBillModel.getEnvironment().name()), (r, c) -> {
-                        if (r.toString().contains("Tomcat started on port(s)")) {
+                        if (r.toString().contains("Tomcat started on port(s)") || r.toString().contains("Welcome To")) {
                             ShellExeLog.success.accept(r, c);
                             result.set(true);
                             // 启动成功后ctrl+c停止
                             shellExe.ctrlC();
                         }
-                    }, (e, c) -> {
-                        result.set(false);
-                        ShellExeLog.fail.accept(e, c);
-                    }, (r, c) -> latch.countDown());
+                    }, (e, c) -> ShellExeLog.fail.accept(e, c), (r, c) -> latch.countDown());
         } catch (Exception e) {
             log.error("发布单发布第三阶段失败", e);
             return false;

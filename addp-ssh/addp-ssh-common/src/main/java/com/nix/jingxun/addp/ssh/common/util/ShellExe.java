@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -195,7 +196,7 @@ public class ShellExe {
                 System.out.println("+++++++++++++++++++++++++++++++++：" + new String(command));
                 while (true) {
                     String line = read();
-                    System.out.println(line);
+//                    System.out.println(line);
                     result.append(line);
                     if (!sync) {
                         if (func != null && func.length > 0) {

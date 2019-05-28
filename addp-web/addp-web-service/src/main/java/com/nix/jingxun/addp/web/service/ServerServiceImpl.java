@@ -91,6 +91,7 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
                     success.getAndIncrement();
                 } catch (Exception e) {
                     e.printStackTrace();
+                    log.error("server {} 执行失败",model.getId());
                 } finally {
                     latch.countDown();
                 }
