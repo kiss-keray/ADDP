@@ -3,7 +3,7 @@ package com.nix.jingxun.addp.web.iservice;
 import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
-import com.nix.jingxun.addp.web.domain.WebPage;
+import com.nix.jingxun.addp.web.domain.WebPageable;
 import com.nix.jingxun.addp.web.model.MemberModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServerModel;
@@ -48,6 +48,6 @@ public interface IServerService extends BaseService<ServerModel,Long> {
     /**
      * 获取当前用户的服务器
      * */
-    Page<ServerModel> memberServices(WebPage webPage, ADDPEnvironment environment);
+    Page<ServerModel> memberServices(WebPageable webPageable, ADDPEnvironment environment);
 
 }

@@ -16,7 +16,7 @@ import org.springframework.data.domain.Sort;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class WebPage implements Pageable {
+public class WebPageable implements Pageable {
     private int pageNumber;
     private int pageSize;
     private Sort sort;
@@ -40,10 +40,10 @@ public class WebPage implements Pageable {
 
     @Override
     public Pageable next() {
-        WebPage webPage = new WebPage();
-        BeanUtil.copyProperties(this, webPage);
-        webPage.setPageNumber(this.pageNumber + 1);
-        return webPage;
+        WebPageable webPageable = new WebPageable();
+        BeanUtil.copyProperties(this, webPageable);
+        webPageable.setPageNumber(this.pageNumber + 1);
+        return webPageable;
     }
 
     @Override
@@ -53,10 +53,10 @@ public class WebPage implements Pageable {
 
     @Override
     public Pageable first() {
-        WebPage webPage = new WebPage();
-        BeanUtil.copyProperties(this, webPage);
-        webPage.setPageNumber(0);
-        return webPage;
+        WebPageable webPageable = new WebPageable();
+        BeanUtil.copyProperties(this, webPageable);
+        webPageable.setPageNumber(0);
+        return webPageable;
     }
 
     @Override

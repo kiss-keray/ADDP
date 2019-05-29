@@ -2,7 +2,7 @@ package com.nix.jingxun.addp.web.start.controller;
 
 import com.nix.jingxun.addp.common.Result;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
-import com.nix.jingxun.addp.web.domain.WebPage;
+import com.nix.jingxun.addp.web.domain.WebPageable;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
@@ -50,9 +50,9 @@ public class ChangeBranchController extends BaseController {
     }
 
     @PostMapping("/list")
-    public Result list(@ModelAttribute WebPage webPage) {
+    public Result list(@ModelAttribute WebPageable webPageable) {
         return Result.of(() -> {
-            Page<ChangeBranchModel> page = changeBranchService.page(webPage);
+            Page<ChangeBranchModel> page = changeBranchService.page(webPageable);
             page.getContent().forEach(model -> model.setProjectsModel(model._getProjectsModel()));
             return page;
         }).failFlat(this::failFlat).logFail();

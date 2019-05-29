@@ -8,7 +8,7 @@ import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
 import com.nix.jingxun.addp.web.common.util.AESUtil;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
-import com.nix.jingxun.addp.web.domain.WebPage;
+import com.nix.jingxun.addp.web.domain.WebPageable;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
 import com.nix.jingxun.addp.web.iservice.IServerService;
@@ -145,13 +145,13 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
     }
 
     @Override
-    public Page<ServerModel> memberServices(WebPage webPage, ADDPEnvironment environment) {
+    public Page<ServerModel> memberServices(WebPageable webPageable, ADDPEnvironment environment) {
         MemberModel member = MemberCache.currentUser();
         return  serverJpa.findAll(Example.of(
                 ServerModel.builder()
                         .memberId(member.getId())
                         .environment(environment)
                         .build()
-        ), webPage);
+        ), webPageable);
     }
 }
