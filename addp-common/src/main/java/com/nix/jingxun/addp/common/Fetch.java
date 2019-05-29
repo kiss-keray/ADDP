@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.ssh.common.util;
+package com.nix.jingxun.addp.common;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

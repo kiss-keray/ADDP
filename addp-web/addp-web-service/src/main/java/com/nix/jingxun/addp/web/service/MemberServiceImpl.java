@@ -1,5 +1,7 @@
 package com.nix.jingxun.addp.web.service;
 
+import cn.hutool.crypto.digest.MD5;
+import com.nix.jingxun.addp.web.common.util.MD5Util;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
 import com.nix.jingxun.addp.web.jpa.MemberJpa;
 import com.nix.jingxun.addp.web.model.MemberModel;
@@ -43,6 +45,9 @@ public class MemberServiceImpl extends BaseServiceImpl<MemberModel,Long> impleme
                         .username(username)
                         .password(password)
                         .build()
-        )).orElse(null);
+        )).map(m -> {
+            m.setPassword(null);
+            return m;
+        }).orElse(null);
     }
 }

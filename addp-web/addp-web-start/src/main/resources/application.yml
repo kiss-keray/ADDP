@@ -22,6 +22,26 @@ jingxun:
     ioThreadPoolMin: 10
     ioThreadPoolMax: 512
     ioFutureMax: 1024
+jetcache:
+  statIntervalMinutes: 15
+  areaInCacheName: false
+  local:
+    default:
+      type: linkedhashmap
+      keyConvertor: fastjson
+  remote:
+    default:
+      type: redis
+      keyConvertor: fastjson
+      valueEncoder: java
+      valueDecoder: java
+      poolConfig:
+        minIdle: 5
+        maxIdle: 20
+        maxTotal: 50
+
+
+#开发
 ---
 spring:
   profiles: dev
@@ -46,8 +66,14 @@ logging:
   file: ./log/log.log
   level:
     root: info
+jetcache:
+  remote:
+    default:
+      host: 59.110.234.213
+      port: 6379
 ---
 
+#测试
 ---
 spring:
   profiles: test
@@ -68,8 +94,14 @@ logging:
   file: ./log/log.log
   level:
     root: info
+jetcache:
+  remote:
+    default:
+      host: 59.110.234.213
+      port: 6379
 ---
 
+#线上
 ---
 spring:
   profiles: pro

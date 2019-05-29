@@ -75,15 +75,29 @@ public class Result<T> {
         }
     }
     public <S2> Result<S2> map(Function<T,S2> function) {
-        return of(() -> function.apply(this.getData()));
+        if (this instanceof SuccessResult) {
+            return of(() -> function.apply(this.getData()));
+        }
+        return (Result<S2>) this;
     }
 
-    public Result<T> fetch(Consumer<T> consumer) {
-        consumer.accept(getData());
+    public Result<T> peek(Consumer<T> consumer) {
+        try {
+            if (this instanceof SuccessResult) {
+                consumer.accept(getData());
+            }
+        }catch (Exception e) {
+            return fail(e);
+        }
         return this;
     }
+
     public <S2> Result<S2> flatMap(Function<T,Result<S2>> function) {
-        return function.apply(this.getData());
+        try {
+            return function.apply(this.getData());
+        }catch (Exception e) {
+            return fail(e);
+        }
     }
 
     public <S2> Result<S2> flat(Function<Result<T>,Result<S2>> function) {
@@ -95,7 +109,11 @@ public class Result<T> {
     }
     public  Result<T> failFlat(Function<FailResult<? extends Exception,T>,Result<T>> function) {
         if (this instanceof FailResult) {
-            return function.apply((FailResult<? extends Exception, T>) this);
+            try {
+                return function.apply((FailResult<? extends Exception, T>) this);
+            }catch (Exception e) {
+                return fail(e);
+            }
         }
         return  this;
     }
@@ -105,12 +123,6 @@ public class Result<T> {
                 ((FailResult) this).getException().printStackTrace();
             }
             log.error("logFail:{}",this.toString());
-        }
-        return this;
-    }
-    public Result<T> throwException() {
-        if (this instanceof FailResult && ((FailResult) this).getException() != null) {
-            throw new ResultException(((FailResult) this).getException());
         }
         return this;
     }
