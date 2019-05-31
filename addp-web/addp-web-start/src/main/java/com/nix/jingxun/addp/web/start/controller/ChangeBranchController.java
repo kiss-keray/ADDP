@@ -2,11 +2,13 @@ package com.nix.jingxun.addp.web.start.controller;
 
 import com.nix.jingxun.addp.common.Result;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
+import com.nix.jingxun.addp.web.common.util.AESUtil;
 import com.nix.jingxun.addp.web.domain.WebPageable;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
+import com.nix.jingxun.addp.web.model.ServerModel;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +57,16 @@ public class ChangeBranchController extends BaseController {
             Page<ChangeBranchModel> page = changeBranchService.page(webPageable);
             page.getContent().forEach(model -> model.setProjectsModel(model._getProjectsModel()));
             return page;
+        }).failFlat(this::failFlat).logFail();
+    }
+    @PutMapping("/update")
+    public Result update(@Valid @ModelAttribute ChangeBranchModel model) {
+        return Result.of(() -> {
+            try {
+                return changeBranchService.update(model);
+            } catch (Exception e) {
+                return e;
+            }
         }).failFlat(this::failFlat).logFail();
     }
 }

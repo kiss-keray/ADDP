@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.web.start.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.nix.jingxun.addp.common.Result;
+import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
 
 /**
@@ -14,6 +15,9 @@ public class BaseController {
             WebRunException e = (WebRunException) fail.getException();
             fail.setErrorCode(StrUtil.isBlank(fail.getErrorCode()) ? e.getCode().name() : fail.getErrorCode());
             fail.setErrorMsg(StrUtil.isBlank(fail.getErrorMsg()) ? e.getMessage() : fail.getErrorMsg());
+        } else if (fail.getException() instanceof IllegalArgumentException) {
+            fail.setErrorMsg(Code.dataError.name());
+            fail.setErrorMsg(fail.getException().getMessage());
         }
         return fail;
     }

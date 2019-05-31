@@ -6,16 +6,14 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.nix.jingxun.addp.common.Fetch;
 import com.nix.jingxun.addp.ssh.common.exception.ShellConnectException;
+import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 import static com.nix.jingxun.addp.ssh.common.util.ShellUtil.shellEnd;
@@ -79,14 +77,6 @@ public class ShellExe {
         return new ShellExe(ip, username, password, 3000);
     }
 
-    /**
-     * 执行命令 一次性命令
-     *
-     * @param command 命令
-     *                func 0 执行成功后执行
-     *                1 执行失败后执行
-     *                2 不管执行成功还是失败都执行
-     */
     @SafeVarargs
     public final ShellExe AsyncExecute(String command, ShellFunc<Object>... func) {
         return execute(command, false, func);
@@ -107,6 +97,29 @@ public class ShellExe {
         return execute(command, true, func);
     }
 
+    public final ShellExe ASsyncExecute(String command,ShellFunc<Object> ... func) {
+        return ASsyncExecute(command.getBytes(StandardCharsets.UTF_8),func);
+    }
+    public final ShellExe ASsyncExecute(byte[] command,ShellFunc<Object> ... func) {
+        if (func == null || func[0] == null) {
+            throw new ShellExeException("no success function");
+        }
+        CountDownLatch latch = new CountDownLatch(1);
+        func[0] = (r,c) -> {
+            func[0].accept(r,c);
+            if (shellEnd(r.toString())) {
+                latch.countDown();
+            }
+        };
+        AsyncExecute(command,func);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return this;
+
+    }
     public final String oneCmd(String command) {
         StringBuilder builder = new StringBuilder();
         syncExecute(command, builder::append, e -> {
@@ -136,8 +149,8 @@ public class ShellExe {
     }
 
     @SafeVarargs
-    public final ShellExe AsyncExecute(String command, Consumer<Object>... func) {
-        return execute(command, false, func);
+    public final void AsyncExecute(String command, Consumer<Object>... func) {
+        execute(command, false, func);
     }
 
     @SafeVarargs
@@ -154,6 +167,28 @@ public class ShellExe {
     public final ShellExe syncExecute(byte[] command, Consumer<Object>... func) {
         return execute(command, true, func);
     }
+    public final ShellExe ASsyncExecute(String command,Consumer<Object> ... func) {
+        return ASsyncExecute(command.getBytes(StandardCharsets.UTF_8),func);
+    }
+
+    public final ShellExe ASsyncExecute(byte[] command,Consumer<Object> ... func) {
+        if (func == null || func[0] == null) {
+            throw new ShellExeException("no success function");
+        }
+        CountDownLatch latch = new CountDownLatch(1);
+        func[0] = (r) -> {
+            func[0].accept(r);
+            if (shellEnd(r.toString())) {
+                latch.countDown();
+            }
+        };
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
 
     public final Fetch<String> fetch(String command) {
         return new Fetch<>(oneCmd(command));
@@ -167,6 +202,7 @@ public class ShellExe {
     private final ShellExe execute(String command, Boolean sync, Consumer<Object>... func) {
         return execute((command + "\r").getBytes(StandardCharsets.UTF_8), sync, func);
     }
+
 
     @SafeVarargs
     private final ShellExe execute(byte[] command, Boolean sync, Consumer<Object>... func) {
@@ -234,9 +270,10 @@ public class ShellExe {
                 func[0].accept(result, new String(command));
             }
         } catch (Exception e) {
-            e.printStackTrace();
             if (func != null && func.length > 1) {
                 func[1].accept(e, new String(command));
+            } else {
+                e.printStackTrace();
             }
         } finally {
             if (func != null && func.length > 2) {

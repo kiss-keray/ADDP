@@ -30,9 +30,10 @@ public interface BaseService<M extends Object,ID extends Serializable>{
 
     /**
      * 更新对象M
-     * @param m
+     * @param o
      * */
-    M update(M m)  throws Exception;
+    M update(M o)  throws Exception;
+
     /**
      * 查找唯一对象M
      * @param id id值

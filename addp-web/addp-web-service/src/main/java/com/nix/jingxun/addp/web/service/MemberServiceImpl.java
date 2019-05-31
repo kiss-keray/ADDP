@@ -20,6 +20,8 @@ import javax.annotation.Resource;
 public class MemberServiceImpl extends BaseServiceImpl<MemberModel,Long> implements IMemberService {
     @Resource
     private MemberJpa memberJpa;
+    @Resource
+    private IMemberService memberService;
     @Override
     protected JpaRepository<MemberModel, Long> jpa() {
         return memberJpa;
@@ -31,7 +33,7 @@ public class MemberServiceImpl extends BaseServiceImpl<MemberModel,Long> impleme
             return member;
         }
         try {
-            return save(member);
+            return memberService.save(member);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

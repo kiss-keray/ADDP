@@ -5,10 +5,12 @@ import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.common.util.AESUtil;
 import com.nix.jingxun.addp.web.domain.WebPageable;
+import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.model.MemberModel;
 import com.nix.jingxun.addp.web.model.ServerModel;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +28,8 @@ public class ServerController extends BaseController{
 
     @Resource
     private IServerService servicesService;
+    @Resource
+    private IProjectsService projectsService;
 
     @PostMapping("/create")
     public Result create(@Valid @ModelAttribute ServerModel serverModel) {
@@ -48,7 +52,9 @@ public class ServerController extends BaseController{
         return Result.of(() -> {
             serverModel.setPassword(AESUtil.encryption(serverModel.getPassword()));
             try {
-                return servicesService.update(serverModel);
+                ServerModel newM = servicesService.update(serverModel);
+                newM.setPassword(AESUtil.decrypt(newM.getPassword()));
+                return newM;
             } catch (Exception e) {
                 return e;
             }
@@ -65,6 +71,11 @@ public class ServerController extends BaseController{
             }
             return Collections.emptyList();
         }).failFlat(this::failFlat).logFail();
+    }
+    @ApiOperation("获取项目全部的服务器")
+    @GetMapping("/psList/{pId}")
+    public Result psList(@PathVariable Long pId) {
+        return Result.of(() -> projectsService.findById(pId)._getServicesModels()).failFlat(this::failFlat).logFail();
     }
 
 }

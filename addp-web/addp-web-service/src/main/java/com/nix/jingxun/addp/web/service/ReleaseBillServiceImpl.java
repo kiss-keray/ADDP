@@ -243,7 +243,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                             // 启动成功后ctrl+c停止
                             shellExe.ctrlC();
                         }
-                    }, (e, c) -> ShellExeLog.fail.accept(e, c), (r, c) -> latch.countDown());
+                    }, ShellExeLog.fail, (r, c) -> latch.countDown());
         } catch (Exception e) {
             log.error("发布单发布第三阶段失败", e);
             return false;

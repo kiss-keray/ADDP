@@ -1,7 +1,7 @@
 package com.nix.jingxun.addp.web.service.base;
 
 import com.nix.jingxun.addp.web.iservice.BaseService;
-import org.springframework.data.domain.Example;
+import com.nix.jingxun.addp.web.model.BaseModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,15 +9,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author 11723
  */
-public abstract class BaseServiceImpl<M extends Object,ID extends Serializable> implements BaseService<M,ID> {
+public abstract class BaseServiceImpl<M extends BaseModel,ID extends Serializable> implements BaseService<M,ID> {
     protected abstract <J extends JpaRepository<M,ID>> J jpa();
 
     @PostConstruct
@@ -26,7 +23,9 @@ public abstract class BaseServiceImpl<M extends Object,ID extends Serializable> 
     }
     @Override
     public M update(M o)  throws Exception{
-        return jpa().saveAndFlush(o);
+        M m = jpa().findById((ID) o.getId()).orElse(null);
+        ignoreNull(m,o);
+        return jpa().saveAndFlush(m);
     }
 
     @Override
@@ -58,6 +57,20 @@ public abstract class BaseServiceImpl<M extends Object,ID extends Serializable> 
     public void delete(ID[] ids) {
         for (ID id:ids) {
             delete(id);
+        }
+    }
+
+    private void ignoreNull(M source,M target) throws Exception{
+        Class<M> clazz = (Class<M>) source.getClass();
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method get:methods) {
+            if (!get.getName().equals("getClass") && get.getName().startsWith("get") && get.getParameterCount() == 0) {
+                Object value = get.invoke(target);
+                if (value != null) {
+                    Method set = clazz.getMethod("set" + get.getName().substring(3),get.getReturnType());
+                    set.invoke(source,value);
+                }
+            }
         }
     }
 }
