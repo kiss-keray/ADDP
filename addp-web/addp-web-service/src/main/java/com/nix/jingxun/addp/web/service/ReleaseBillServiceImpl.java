@@ -208,7 +208,8 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
         }
         try {
             // 切换分支
-            shellExe.syncExecute(StrUtil.format("git checkout {}", changeBranchModel.getBranchName()), ShellExeLog.success, ShellExeLog.fail)
+            shellExe.syncExecute("git checkout .", ShellExeLog.success, ShellExeLog.fail)
+            .syncExecute(StrUtil.format("git checkout {}", changeBranchModel.getBranchName()), ShellExeLog.success, ShellExeLog.fail)
                     // pull 代码
                     .syncExecute("git pull", (r, c) -> {
                         ShellExeLog.success.accept(r, c);
