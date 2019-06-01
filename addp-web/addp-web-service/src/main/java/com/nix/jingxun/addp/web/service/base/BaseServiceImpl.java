@@ -1,5 +1,7 @@
 package com.nix.jingxun.addp.web.service.base;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Assert;
 import com.nix.jingxun.addp.web.iservice.BaseService;
 import com.nix.jingxun.addp.web.model.BaseModel;
 import org.springframework.data.domain.Page;
@@ -24,7 +26,9 @@ public abstract class BaseServiceImpl<M extends BaseModel,ID extends Serializabl
     @Override
     public M update(M o)  throws Exception{
         M m = jpa().findById((ID) o.getId()).orElse(null);
+        Assert.notNull(m);
         ignoreNull(m,o);
+        BeanUtil.copyProperties(m,o);
         return jpa().saveAndFlush(m);
     }
 

@@ -1,9 +1,6 @@
 package com.nix.jingxun.addp.web.common.cache;
 
 import com.alibaba.fastjson.JSON;
-import com.alicp.jetcache.Cache;
-import com.alicp.jetcache.anno.CacheType;
-import com.alicp.jetcache.anno.CreateCache;
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
 import com.nix.jingxun.addp.web.common.util.AESUtil;
 import com.nix.jingxun.addp.web.model.MemberModel;

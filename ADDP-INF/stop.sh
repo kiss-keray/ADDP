@@ -4,4 +4,4 @@ APP=$1
 # 环境
 ENV=$2
 
-docker stop ${APP}-${ENV}
+echo $(docker stop ${APP}-${ENV})

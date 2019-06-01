@@ -1,6 +1,7 @@
 package com.nix.jingxun.addp.web.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.exception.ShellNoSuccessException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
@@ -10,6 +11,8 @@ import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
 import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
+import com.nix.jingxun.addp.web.common.config.WebConfig;
+import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.iservice.IServerService;
@@ -18,10 +21,12 @@ import com.nix.jingxun.addp.web.model.*;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -48,8 +53,16 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
 
     @Override
     public ReleaseBillModel deployBranch(ReleaseBillModel releaseBillModel) throws Exception {
-        releaseBillModel.setReleasePhase(ReleasePhase.init);
-        return update(releaseBillModel);
+        WebThreadPool.IO_THREAD.execute(() -> {
+            try {
+                if (pullCode(releaseBillModel) && build(releaseBillModel) && startApp(releaseBillModel)) {
+                    log.info("全自动部署完成");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        return releaseBillModel;
     }
 
     @Override
@@ -148,6 +161,10 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
 
     @Override
     public ReleaseBillModel createBill(ChangeBranchModel model, ADDPEnvironment environment) throws Exception {
+        ReleaseBillModel bill = releaseBillJpa.selectChangeBill(model.getId(),environment);
+        if (bill != null) {
+            return bill;
+        }
         MemberModel member = MemberCache.currentUser();
         return releaseBillService.save(ReleaseBillModel.builder()
                 .changeBranchId(model.getId())
@@ -156,6 +173,32 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                 .releasePhase(ReleasePhase.init)
                 .releaseTime(LocalDateTime.now())
                 .build());
+    }
+
+    @Override
+    public ReleaseBillModel selectProjectBill(Long projectId, ADDPEnvironment environment) {
+        return releaseBillJpa.selectProjectBill(projectId, environment.name());
+    }
+
+    @Override
+    public ReleaseBillModel billDown(Long billId) throws Exception {
+        ReleaseBillModel bill = findById(billId);
+        if (bill.getReleaseType() != ReleaseType.releaseSuccess) {
+            return bill;
+        }
+        if (servicesService.moreServiceExec(bill._getChangeBranchModel()._getProjectsModel()._getServicesModels(),
+                (serverModel) -> {
+                    try {
+                        if (!billDown(bill,servicesService.shellExeByUsername(serverModel))) {
+                            throw new ShellNoSuccessException("应用停止失败");
+                        }
+                    } catch (Exception e) {
+                        throw new ShellExeException(e);
+                    }
+                })) {
+            bill.setReleasePhase(ReleasePhase.init);
+        }
+        return super.update(bill);
     }
 
     private boolean pullCode(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception {
@@ -251,6 +294,21 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
         latch.await(5, TimeUnit.MINUTES);
         shellExe.close();
         return result.get();
+    }
+
+    private boolean billDown(ReleaseBillModel bill,ShellExe shellExe) {
+        ChangeBranchModel changeBranchModel = bill._getChangeBranchModel();
+        if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
+            return false;
+        }
+        shellExe.syncExecute(StrUtil.format("bash ./ADDP-INF/stop.sh {} {}",
+                changeBranchModel._getProjectsModel().getName(),bill.getEnvironment()),(r,c) -> {
+            if (r.toString().contains("Error")) {
+                ShellExeLog.fail.accept(r,c);
+            }
+            ShellExeLog.success.accept(r,c);
+        },ShellExeLog.fail);
+        return true;
     }
 
     @Override

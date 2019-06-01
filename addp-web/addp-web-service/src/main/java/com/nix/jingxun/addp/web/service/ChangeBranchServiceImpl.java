@@ -18,6 +18,7 @@ import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServerModel;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -129,4 +130,8 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
 
     }
 
+    @Override
+    public List<ChangeBranchModel> projectChanges(Long projectId) {
+        return jpa().findAll(Example.of(ChangeBranchModel.builder().projectId(projectId).build()));
+    }
 }

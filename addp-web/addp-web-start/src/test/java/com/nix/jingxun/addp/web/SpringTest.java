@@ -1,6 +1,7 @@
 package com.nix.jingxun.addp.web;
 
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
+import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.jpa.ServerJpa;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
@@ -24,6 +25,8 @@ public class SpringTest {
     private ServerJpa serverJpa;
     @Resource
     private IServerService servicesService;
+    @Resource
+    private IReleaseBillService releaseBillService;
 
     @Test
     public void jpaInTest() {
@@ -35,5 +38,10 @@ public class SpringTest {
     @Test
     public void findById() {
         System.out.println(serverJpa.getOne(100L));
+    }
+
+    @Test
+    public void selectProjectBill() {
+        System.out.println(releaseBillService.selectProjectBill(4L,ADDPEnvironment.test));
     }
 }

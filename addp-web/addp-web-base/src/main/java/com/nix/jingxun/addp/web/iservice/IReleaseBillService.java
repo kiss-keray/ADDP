@@ -11,6 +11,12 @@ import com.nix.jingxun.addp.web.model.ReleaseBillModel;
  */
 public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>{
     /**
+     * <h1>自动部署1,2,3阶段,不适用与正式环境</h1>
+     * <h4>
+     *     正式环境1,2阶段同时进行，3阶段需要分批，暂停
+     * </h4>
+     *
+     *
      * 部署发布单
      * 暂时支持单一变更部署
      * 部署变更流程
@@ -68,7 +74,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
 
 
     /**
-     * 根据变更发布单
+     * 根据变更获取发布单
      * */
     ReleaseBillModel changeBill(Long changeId, ADDPEnvironment environment);
 
@@ -76,4 +82,19 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * 给变更创建发布单
      * */
     ReleaseBillModel createBill(ChangeBranchModel model,ADDPEnvironment environment) throws Exception;
+
+    /**
+     * 获取项目当前在流程的发布单
+     * */
+    ReleaseBillModel selectProjectBill(Long projectId,ADDPEnvironment environment);
+
+
+    /**
+     * 发布单下线
+     * */
+    ReleaseBillModel billDown(Long billId) throws Exception;
+
+
+
+
 }

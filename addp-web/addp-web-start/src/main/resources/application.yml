@@ -16,30 +16,18 @@ spring:
     static-locations: classpath:/static/
   redis:
     host: 59.110.234.213
+  datasource:
+    druid:
+      max-wait: 3000
+      min-idle: 1
+      time-between-eviction-runs-millis: 1000
+
 jingxun:
   web:
     addpBaseFile: /opt/addp/
     ioThreadPoolMin: 10
     ioThreadPoolMax: 512
     ioFutureMax: 1024
-jetcache:
-  statIntervalMinutes: 15
-  areaInCacheName: false
-  local:
-    default:
-      type: linkedhashmap
-      keyConvertor: fastjson
-  remote:
-    default:
-      type: redis
-      keyConvertor: fastjson
-      valueEncoder: java
-      valueDecoder: java
-      poolConfig:
-        minIdle: 5
-        maxIdle: 20
-        maxTotal: 50
-
 
 #开发
 ---
@@ -66,11 +54,6 @@ logging:
   file: ./log/log.log
   level:
     root: info
-jetcache:
-  remote:
-    default:
-      host: 59.110.234.213
-      port: 6379
 ---
 
 #测试
@@ -94,11 +77,6 @@ logging:
   file: ./log/log.log
   level:
     root: info
-jetcache:
-  remote:
-    default:
-      host: 59.110.234.213
-      port: 6379
 ---
 
 #线上
