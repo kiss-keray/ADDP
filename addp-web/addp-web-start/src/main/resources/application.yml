@@ -45,7 +45,7 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: net.sf.log4jdbc.DriverSpy
-    url: jdbc:log4jdbc:mysql://47.102.214.252:3306/addp-web?useSSL=false&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
+    url: jdbc:log4jdbc:mysql://59.110.234.213:3306/addp-web?useSSL=false&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
   mvc:
     view:
       prefix: /
@@ -72,7 +72,7 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://47.102.214.252:3306/addp-web?useSSL=false&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
+    url: jdbc:mysql://59.110.234.213:3306/addp-web?useSSL=false&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
 logging:
   file: ./log/log.log
   level:
@@ -88,6 +88,6 @@ spring:
       enabled: false
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://47.102.214.252:3306/addp-web?useSSL=false&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
+    url: jdbc:mysql://59.110.234.213:3306/addp-web?useSSL=false&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
     driver-class-name: com.mysql.jdbc.Driver
 ---
