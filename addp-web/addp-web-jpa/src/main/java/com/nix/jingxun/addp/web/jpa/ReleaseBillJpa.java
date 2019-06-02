@@ -3,8 +3,12 @@ package com.nix.jingxun.addp.web.jpa;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author keray
@@ -17,4 +21,18 @@ public interface ReleaseBillJpa extends JpaRepository<ReleaseBillModel,Long> {
 
     @Query(value = "from ReleaseBillModel where changeBranchId = :changeId and environment = :env and releasePhase <> 'stop'")
     ReleaseBillModel selectChangeBill(@Param("changeId") Long changeId,@Param("env") ADDPEnvironment env);
+
+    /**
+     * 查询时间段内所有定时暂停的发布单
+     * */
+    @Query(value = "from ReleaseBillModel where releaseType = 'releaseSuccess' and releasePhase = 'build' and releaseTime between :startTime and :endTime")
+    List<ReleaseBillModel> selectAllScStopBill(@Param("startTime") LocalDateTime start,@Param("endTime") LocalDateTime end);
+
+    /**
+     * 定时器将发布单的暂停状态改为等待状态
+     *
+     * */
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update nix_release_bill set release_type = 'wait' , release_phase = 'start' where release_type = 'releaseSuccess' and release_phase = 'build' and id = :id",nativeQuery = true)
+    Integer updateBillType(@Param("id")Long  id);
 }

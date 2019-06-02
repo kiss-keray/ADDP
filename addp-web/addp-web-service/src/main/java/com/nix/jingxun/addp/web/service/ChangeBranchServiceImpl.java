@@ -3,7 +3,6 @@ package com.nix.jingxun.addp.web.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
-import com.nix.jingxun.addp.ssh.common.exception.ShellNoSuccessException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
@@ -54,7 +53,7 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
     @Override
     public ChangeBranchModel save(ChangeBranchModel changeBranchModel) throws Exception {
         ProjectsModel projectsModel = changeBranchModel._getProjectsModel();
-        List<ServerModel> serverModels = projectsModel._getServicesModels();
+        List<ServerModel> serverModels = projectsModel._getServerModels();
         if (CollectionUtil.isNotEmpty(serverModels)) {
             ServerModel serverModel = serverModels.remove(0);
             gitCreateBranch(changeBranchModel, servicesService.shellExeByUsername(serverModel));

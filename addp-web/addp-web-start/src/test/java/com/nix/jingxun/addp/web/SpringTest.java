@@ -32,7 +32,7 @@ public class SpringTest {
     public void jpaInTest() {
         ProjectsModel projectsModel = new ProjectsModel();
         projectsModel.setId(1L);
-        System.out.println(servicesService.selectEnvServices(projectsModel,ADDPEnvironment.test));
+        System.out.println(servicesService.selectEnvAllowServer(projectsModel,ADDPEnvironment.test));
     }
 
     @Test

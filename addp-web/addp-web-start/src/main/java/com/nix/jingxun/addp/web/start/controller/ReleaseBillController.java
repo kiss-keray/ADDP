@@ -12,6 +12,7 @@ import com.nix.jingxun.addp.web.model.ReleaseBillModel;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -129,7 +130,7 @@ public class ReleaseBillController extends BaseController {
     public Result autoRelease(@RequestParam("id") Long id) {
         return Result.of(() -> {
             try {
-                ReleaseBillModel bill = releaseBillService.deployBranch(releaseBillService.findById(id));
+                ReleaseBillModel bill = releaseBillService.deployBranch(releaseBillService.findById(id),(r) -> {},(r) -> {});
                 bill.setChangeBranchModel(bill._getChangeBranchModel());
                 return bill;
             } catch (Exception e) {
@@ -138,4 +139,22 @@ public class ReleaseBillController extends BaseController {
         }).failFlat(this::failFlat).logFail();
     }
 
+    @GetMapping("/proStart")
+    public Result proStart(@RequestParam("id") Long id,
+                           @RequestParam(value = "startTime",required = false)LocalDateTime localDateTime
+    ) {
+        return Result.of(() -> {
+            try {
+                ReleaseBillModel billModel = releaseBillService.findById(id);
+                if (localDateTime != null) {
+                    billModel.setReleaseTime(localDateTime);
+                    releaseBillService.update(billModel);
+                }
+                billModel.setChangeBranchModel(billModel._getChangeBranchModel());
+                return releaseBillService.proStart(billModel,false);
+            } catch (Exception e) {
+                return e;
+            }
+        }).failFlat(this::failFlat).logFail();
+    }
 }

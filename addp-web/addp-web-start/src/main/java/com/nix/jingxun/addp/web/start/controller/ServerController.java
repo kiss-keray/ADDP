@@ -75,7 +75,7 @@ public class ServerController extends BaseController{
     @ApiOperation("获取项目全部的服务器")
     @GetMapping("/psList/{pId}")
     public Result psList(@PathVariable Long pId) {
-        return Result.of(() -> projectsService.findById(pId)._getServicesModels()).failFlat(this::failFlat).logFail();
+        return Result.of(() -> projectsService.findById(pId)._getServerModels()).failFlat(this::failFlat).logFail();
     }
 
 }

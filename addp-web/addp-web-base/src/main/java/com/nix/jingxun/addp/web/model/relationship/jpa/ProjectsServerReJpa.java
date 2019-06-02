@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 /**
  * @author keray
@@ -19,6 +20,6 @@ public interface ProjectsServerReJpa extends JpaRepository<ProjectsServerRe,Long
     @Query("delete from ProjectsServerRe where projectsId = :projectId")
     Integer deleteByProjectsId(@Param("projectId") Long projectId);
 
-
-
+    @Query(value = "from ProjectsServerRe where serverId = :serverId")
+    List<ProjectsServerRe> selectByServerId(@Param("serverId") Long serverId);
 }

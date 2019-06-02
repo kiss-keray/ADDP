@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.web.model;
 
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.base.SpringContextHolder;
 import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServerReJpa;
 import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServerRe;
@@ -78,7 +79,12 @@ public class ProjectsModel extends BaseModel {
     }
 
     @Transient
-    public List<ServerModel> _getServicesModels() {
+    public List<ServerModel> _getServerModels() {
         return _getProjectsServiceRes().stream().map(ProjectsServerRe::_getServerModel).collect(Collectors.toList());
+    }
+
+    public List<ServerModel> _getProServer() {
+        return _getServerModels().stream()
+                .filter(s -> s.getEnvironment() == ADDPEnvironment.pro || s.getEnvironment() == ADDPEnvironment.bak).collect(Collectors.toList());
     }
 }

@@ -11,11 +11,13 @@ import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.domain.WebPageable;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
+import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.jpa.ServerJpa;
 import com.nix.jingxun.addp.web.model.MemberModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServerModel;
+import com.nix.jingxun.addp.web.model.relationship.jpa.ProjectsServerReJpa;
 import com.nix.jingxun.addp.web.model.relationship.model.ProjectsServerRe;
 import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -46,10 +48,37 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
 
     @Resource
     private ServerJpa serverJpa;
+    @Resource
+    private ProjectsServerReJpa projectsServerReJpa;
+    @Resource
+    private IProjectsService projectsService;
 
     @Override
     protected JpaRepository<ServerModel, Long> jpa() {
         return serverJpa;
+    }
+
+    @Override
+    public ServerModel save(ServerModel serverModel) throws Exception {
+        serverModel.setAllowRestart(true);
+        return super.save(serverModel);
+    }
+
+    @Transactional
+    @Override
+    public ServerModel update(ServerModel o) throws Exception {
+        ServerModel old = findById(o.getId());
+        // 如果是修改环境，将当前环境的应用全部清除
+        if (old.getEnvironment() != o.getEnvironment()) {
+            // 停止当前环境的所有项目，不管有没有
+            projectsServerReJpa.selectByServerId(o.getId())
+                    .stream().parallel().forEach(re -> {
+                        ProjectsModel project = re._getProjectsModel();
+                        // 不管移除失败与否
+                        projectsService.deleteProjectAtServer(o,project);
+            });
+        }
+        return super.update(o);
     }
 
     @Override
@@ -117,7 +146,14 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
     }
 
     @Override
-    public List<ServerModel> selectEnvServices(ProjectsModel projectsModel, ADDPEnvironment environment) {
+    public List<ServerModel> selectEnvAllowServer(ProjectsModel projectsModel, ADDPEnvironment environment) {
+        List<ServerModel> serverModels = selectAllServes(projectsModel,environment);
+        // 生产环境只返回允许发布的机器  无缝接入分批发布
+        return serverModels.stream().filter(ServerModel::getAllowRestart).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ServerModel> selectAllServes(ProjectsModel projectsModel, ADDPEnvironment environment) {
         List<ServerModel> serverModels = serverJpa.selectEnvServices(
                 projectsModel._getProjectsServiceRes()
                         .stream()
@@ -134,9 +170,10 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
                     , ADDPEnvironment.bak
             ));
         }
-        // 生产环境只返回允许发布的机器  无缝接入分批发布
-        return serverModels.stream().filter(service -> environment != ADDPEnvironment.pro || service.getAllowRestart()).collect(Collectors.toList());
+        return serverModels;
     }
+
+
 
     @Transactional
     @Override

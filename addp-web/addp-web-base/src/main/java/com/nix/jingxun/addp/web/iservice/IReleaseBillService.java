@@ -5,6 +5,8 @@ import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
 
+import java.util.function.Consumer;
+
 /**
  * @author keray
  * @date 2019/05/20 18:16
@@ -13,7 +15,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
     /**
      * <h1>自动部署1,2,3阶段,不适用与正式环境</h1>
      * <h4>
-     *     正式环境1,2阶段同时进行，3阶段需要分批，暂停
+     *     正式环境发布步骤1,2阶段同时进行，3阶段需要分批，暂停
      * </h4>
      *
      *
@@ -41,7 +43,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      *
      * 次方法将发布单从任何状态修改为{@link com.nix.jingxun.addp.web.IEnum.ReleasePhase#init}
      */
-    ReleaseBillModel deployBranch(ReleaseBillModel releaseBillModel) throws Exception;
+    ReleaseBillModel deployBranch(ReleaseBillModel releaseBillModel, Consumer<ReleaseBillModel> successCallback,Consumer<ReleaseBillModel> failCallback) throws Exception;
 
     /**
      * <H1>一阶段</H1>
@@ -95,6 +97,24 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
     ReleaseBillModel billDown(Long billId) throws Exception;
 
 
+    /**
+     * 正式环境一阶段二阶段执行
+     * */
+    ReleaseBillModel proBuild(Long id ,Consumer<ReleaseBillModel> successCallback,Consumer<ReleaseBillModel> failCallback);
 
+    /**
+     * 获取发布单的总发布次数
+     * */
+    int getAllBatch(ReleaseBillModel releaseBillModel);
+
+    /**
+     * 自动进行正式环境第三阶段
+     * */
+    ReleaseBillModel proStart(ReleaseBillModel releaseBillModel,boolean skip);
+
+    /**
+     * 分批发布
+     * */
+    ReleaseBillModel proBatchRelease(ReleaseBillModel releaseBillModel,Integer batchNum);
 
 }

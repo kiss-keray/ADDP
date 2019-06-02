@@ -38,7 +38,9 @@ public interface IServerService extends BaseService<ServerModel,Long> {
      * 根据环境得到项目的服务器组
      * 如果是正式环境机器，在获取备份环境机器
      * */
-    List<ServerModel> selectEnvServices(ProjectsModel projectsModel, ADDPEnvironment environment);
+    List<ServerModel> selectEnvAllowServer(ProjectsModel projectsModel, ADDPEnvironment environment);
+
+    List<ServerModel> selectAllServes(ProjectsModel projectsModel, ADDPEnvironment environment);
 
     /**
      * 将生产服务器更改问允许发布状态
