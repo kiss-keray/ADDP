@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.web.service;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
@@ -23,7 +24,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author keray
@@ -132,5 +135,36 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
     @Override
     public List<ChangeBranchModel> projectChanges(Long projectId) {
         return jpa().findAll(Example.of(ChangeBranchModel.builder().projectId(projectId).build()));
+    }
+
+    @Override
+    public boolean branchIsNew(ChangeBranchModel model) {
+        List<ServerModel> serverModels = model._getProjectsModel()._getServerModels();
+        if (CollectionUtil.isEmpty(serverModels)) {
+            return false;
+        }
+        AtomicBoolean result = new AtomicBoolean(false);
+        try {
+            ShellExe shellExe = servicesService.shellExeByUsername(serverModels.get(0));
+            projectsService.cdRoot(model._getProjectsModel(), shellExe);
+            shellExe.syncExecute("git checkout .", ShellExeLog.success, ShellExeLog.fail)
+                    .syncExecute(StrUtil.format("git checkout {}", model.getBranchName()), ShellExeLog.success, ShellExeLog.fail)
+                    .syncExecute("git fetch", (r, c) -> {
+                        ShellExeLog.success.accept(r, c);
+                        if (ShellUtil.shellNeedKeydown(r.toString())) {
+                            servicesService.gitAuth(shellExe, model._getProjectsModel());
+                        }
+                    }, ShellExeLog.fail)
+                    .syncExecute(StrUtil.format("git diff {} origin/{}", model.getBranchName(), model.getBranchName()), (r, c) -> {
+                        ShellExeLog.success.accept(r, c);
+                        if (r.toString().contains("diff --git")) {
+                            result.set(true);
+                        }
+                    }, ShellExeLog.fail)
+                    .close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result.get();
     }
 }

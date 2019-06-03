@@ -4,6 +4,7 @@ import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.jpa.ReleaseBillJpa;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  * @author keray
  * @date 2019/06/02 19:36
  */
+@Slf4j
 @Configuration
 public class ReleaseBillJob {
     private final static ScheduledExecutorService SCHEDULED_EXECUTOR_SERVICE = new ScheduledThreadPoolExecutor(10, r -> {
@@ -37,6 +39,7 @@ public class ReleaseBillJob {
     public void autoProStart() {
         LocalDateTime now = LocalDateTime.now();
         List<ReleaseBillModel> billModels = releaseBillJpa.selectAllScStopBill(now, now.minusMinutes(-20));
+        log.info("检测到发布任务{}个",billModels.size());
         billModels.forEach(bill -> {
             int result = releaseBillJpa.updateBillType(bill.getId());
             if (result == 0) {

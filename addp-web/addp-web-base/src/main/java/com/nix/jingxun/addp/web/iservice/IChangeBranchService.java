@@ -26,4 +26,9 @@ public interface IChangeBranchService extends BaseService<ChangeBranchModel, Lon
      * */
     List<ChangeBranchModel> projectChanges(Long projectId);
 
+    /**
+     * 检测分支是否有新提交
+     * */
+    boolean branchIsNew(ChangeBranchModel model);
+
 }

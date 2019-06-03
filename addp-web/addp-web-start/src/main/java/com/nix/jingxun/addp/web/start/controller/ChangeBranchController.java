@@ -1,20 +1,24 @@
 package com.nix.jingxun.addp.web.start.controller;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.nix.jingxun.addp.common.Result;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.domain.WebPageable;
+import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
+import com.nix.jingxun.addp.web.model.ServerModel;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author keray
@@ -88,10 +92,24 @@ public class ChangeBranchController extends BaseController {
     public Result changeRelease(@RequestParam("id")Long id ,@RequestParam("env") ADDPEnvironment environment) {
         return Result.of(() -> {
             try {
-                return releaseBillService.createBill(changeBranchService.findById(id),environment);
+                ChangeBranchModel model = changeBranchService.findById(id);
+                List<ServerModel> servers = model._getProjectsModel()._getServerModels();
+                if (CollectionUtil.isEmpty(servers) || CollectionUtil.isEmpty(servers.stream()
+                .filter(s -> s.getEnvironment() == environment).collect(Collectors.toList()))) {
+                    return Result.fail(Code.dataError.name(),"当前环境未设置服务器，无法部署");
+                }
+                return releaseBillService.createBill(model,environment);
             } catch (Exception e) {
                 return e;
             }
         }).failFlat(this::failFlat).logFail();
+    }
+
+    /**
+     * 检测代码是否有新提交
+     * */
+    @GetMapping("/checkBranch")
+    public Result branchIsNew(@RequestParam("id")Long id) {
+        return Result.of(() -> changeBranchService.branchIsNew(changeBranchService.findById(id))).failFlat(this::failFlat).logFail();
     }
 }

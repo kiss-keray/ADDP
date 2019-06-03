@@ -23,7 +23,7 @@ public interface IServerService extends BaseService<ServerModel,Long> {
     /**
      * 服务器shell链接
      * */
-    ShellExe shellExeByUsername(ServerModel serverModel) throws IOException, JSchException;
+    ShellExe shellExeByUsername(ServerModel serverModel) throws JSchException,IOException;
     /**
      * git认证
      * */

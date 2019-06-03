@@ -89,7 +89,7 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
      * 获取服务器的shell通道
      * 如果主机是备份环境主机，需要拿真实ip
      */
-    public ShellExe shellExeByUsername(ServerModel serverModel) throws IOException, JSchException {
+    public ShellExe shellExeByUsername(ServerModel serverModel) throws JSchException,IOException {
         // 拿到服务器执行shell
         return ShellExe.connect(serverModel.getIp(), serverModel.getUsername(), AESUtil.decrypt(serverModel.getPassword()));
     }

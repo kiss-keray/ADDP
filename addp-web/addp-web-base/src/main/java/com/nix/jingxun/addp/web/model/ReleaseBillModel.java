@@ -6,11 +6,13 @@ import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
 import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
+import com.nix.jingxun.addp.web.iservice.IReleaseServerStatusService;
 import lombok.*;
 import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author keray
@@ -67,5 +69,15 @@ public class ReleaseBillModel extends BaseModel{
             member = memberService.findById(memberId);
         }
         return member;
+    }
+    @Transient
+    private List<ReleaseServerStatusModel> releaseServerStatusModels;
+
+    public List<ReleaseServerStatusModel> _getReleaseServerStatusModel() {
+        if (releaseServerStatusModels == null) {
+            IReleaseServerStatusService service = SpringContextHolder.getBean(IReleaseServerStatusService.class);
+            releaseServerStatusModels = service.selectBillAllStatus(this);
+        }
+        return releaseServerStatusModels;
     }
 }

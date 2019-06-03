@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Assert;
 import com.nix.jingxun.addp.web.iservice.BaseService;
 import com.nix.jingxun.addp.web.model.BaseModel;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,7 +18,7 @@ import java.util.List;
  * @author 11723
  */
 public abstract class BaseServiceImpl<M extends BaseModel,ID extends Serializable> implements BaseService<M,ID> {
-    protected abstract <J extends JpaRepository<M,ID>> J jpa();
+    protected abstract JpaRepository<M,ID> jpa();
 
     @PostConstruct
     private void init() {
@@ -58,6 +59,11 @@ public abstract class BaseServiceImpl<M extends BaseModel,ID extends Serializabl
     }
 
     @Override
+    public Page<M> page(Pageable pageable, Example<M> example) {
+        return jpa().findAll(example,pageable);
+    }
+
+    @Override
     public void delete(ID[] ids) {
         for (ID id:ids) {
             delete(id);
@@ -68,12 +74,15 @@ public abstract class BaseServiceImpl<M extends BaseModel,ID extends Serializabl
         Class<M> clazz = (Class<M>) source.getClass();
         Method[] methods = clazz.getDeclaredMethods();
         for (Method get:methods) {
-            if (!get.getName().equals("getClass") && get.getName().startsWith("get") && get.getParameterCount() == 0) {
-                Object value = get.invoke(target);
-                if (value != null) {
-                    Method set = clazz.getMethod("set" + get.getName().substring(3),get.getReturnType());
-                    set.invoke(source,value);
+            try {
+                if (!get.getName().equals("getClass") && get.getName().startsWith("get") && get.getParameterCount() == 0) {
+                    Object value = get.invoke(target);
+                    if (value != null) {
+                        Method set = clazz.getMethod("set" + get.getName().substring(3),get.getReturnType());
+                        set.invoke(source,value);
+                    }
                 }
+            }catch (Exception ignore) {
             }
         }
     }

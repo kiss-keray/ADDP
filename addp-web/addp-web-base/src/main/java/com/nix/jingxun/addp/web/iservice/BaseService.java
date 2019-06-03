@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.web.iservice;
 
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -51,5 +52,11 @@ public interface BaseService<M extends Object,ID extends Serializable>{
      * 基础分页查找
      * */
     Page<M> page(Pageable pageable);
+
+
+    /**
+     * 基础分页查找
+     * */
+    Page<M> page(Pageable pageable, Example<M> example);
 
 }

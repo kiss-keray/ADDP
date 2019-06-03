@@ -8,6 +8,7 @@ import com.nix.jingxun.addp.web.domain.WebPageable;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +52,10 @@ public class ProjectsController  extends BaseController{
     public Result list(@ModelAttribute WebPageable webPageable) {
         return Result.of(() -> {
             if (webPageable != null) {
-                Page<ProjectsModel> page = projectsService.page(webPageable);
+                Page<ProjectsModel> page = projectsService.page(webPageable,
+                        Example.of(ProjectsModel.builder()
+                                .memberId(MemberCache.currentUser().getId())
+                                .build()));
                 page.getContent().forEach(p -> p.setGitPassword(AESUtil.decrypt(p.getGitPassword())));
                 return page;
             }

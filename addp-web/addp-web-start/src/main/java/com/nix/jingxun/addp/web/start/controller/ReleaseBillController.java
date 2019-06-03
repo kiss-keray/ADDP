@@ -9,6 +9,7 @@ import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
+import com.nix.jingxun.addp.web.model.ReleaseServerStatusModel;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -58,6 +59,7 @@ public class ReleaseBillController extends BaseController {
                 .peek(bill -> {
                     if (bill != null) {
                         bill.setChangeBranchModel(bill._getChangeBranchModel());
+                        bill._getReleaseServerStatusModel().forEach(status -> status.setServerModel(status._getServerModel()));
                     }
                 })
                 .failFlat(this::failFlat).logFail();
@@ -123,7 +125,10 @@ public class ReleaseBillController extends BaseController {
 
     @GetMapping("/status")
     public Result gitBillStatus(@RequestParam("id") Long id) {
-        return Result.of(() -> releaseBillService.findById(id)).failFlat(this::failFlat).logFail();
+        return Result.of(() -> releaseBillService.findById(id))
+                .peek(bill -> bill._getReleaseServerStatusModel()
+                        .forEach(ReleaseServerStatusModel::_getServerModel))
+                .failFlat(this::failFlat).logFail();
     }
 
     @GetMapping("/autoRelease")
@@ -132,6 +137,7 @@ public class ReleaseBillController extends BaseController {
             try {
                 ReleaseBillModel bill = releaseBillService.deployBranch(releaseBillService.findById(id),(r) -> {},(r) -> {});
                 bill.setChangeBranchModel(bill._getChangeBranchModel());
+                bill._getReleaseServerStatusModel().forEach(s -> s.setServerModel(s._getServerModel()));
                 return bill;
             } catch (Exception e) {
                 return e;
@@ -151,6 +157,7 @@ public class ReleaseBillController extends BaseController {
                     releaseBillService.update(billModel);
                 }
                 billModel.setChangeBranchModel(billModel._getChangeBranchModel());
+                billModel._getReleaseServerStatusModel().forEach(s -> s.setServerModel(s._getServerModel()));
                 return releaseBillService.proStart(billModel,false);
             } catch (Exception e) {
                 return e;
