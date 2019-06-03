@@ -15,3 +15,4 @@ if [ "$env" = "bak" ]
 else
     java -jar /home/admin/${APP}/${APP}.jar --spring.profiles.active=${env}
 fi
+
