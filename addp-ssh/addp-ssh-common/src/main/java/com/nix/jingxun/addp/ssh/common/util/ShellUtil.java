@@ -32,14 +32,15 @@ public final class ShellUtil {
 
 
     public static boolean shellEnd(String shell) {
-        return shell.matches("[\\S|\\s]*\\$[\\s]{1}") ||
-                shell.matches("[\\S|\\s]*#[\\s]{1}") ||
-                shell.matches("[\\S|\\s]*:[\\s]{1}") ||
-                shell.matches("[\\s|\\S]*\\)\\?[\\s]{1}");
+        return shell.matches("[\\S|\\s]*\\$[\\s]") ||
+                shell.matches("[\\S|\\s]*#[\\s]") ||
+                shell.matches("[\\S|\\s]*:[\\s]") ||
+                shell.endsWith(new String(new byte[]{ 58, 27, 91, 75})) ||
+                shell.matches("[\\s|\\S]*\\)\\?[\\s]");
     }
 
     public static boolean shellNeedKeydown(String shell) {
-        return shell.endsWith(": ");
+        return shell.endsWith(": ") || shell.endsWith(":");
     }
 
     public static boolean shellYN(String shell) {
