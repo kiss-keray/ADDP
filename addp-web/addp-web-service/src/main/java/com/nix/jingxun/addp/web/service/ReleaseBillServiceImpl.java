@@ -58,6 +58,8 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     @Override
     public ReleaseBillModel deployBranch(ReleaseBillModel releaseBillModel, Consumer<ReleaseBillModel> successCallback, Consumer<ReleaseBillModel> failCallback) throws Exception {
         if (releaseBillModel.getEnvironment() == ADDPEnvironment.pro) {
+            releaseBillModel.setReleaseTime(null);
+            releaseBillJpa.saveAndFlush(releaseBillModel);
             return proBuild(releaseBillModel.getId(), successCallback, failCallback);
         }
         // 非线上发布自动将发布时时间改为现在

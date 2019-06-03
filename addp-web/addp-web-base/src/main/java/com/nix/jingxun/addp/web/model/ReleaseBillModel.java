@@ -32,7 +32,6 @@ import java.util.List;
 @Proxy(lazy = false)
 public class ReleaseBillModel extends BaseModel{
     // 发布时间 根据时间自动实现定时发布
-    @Column(nullable = false)
     private LocalDateTime releaseTime;
     // 发布人
     @Column(nullable = false)
