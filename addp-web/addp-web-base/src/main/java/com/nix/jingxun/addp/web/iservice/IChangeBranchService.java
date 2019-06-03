@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.web.iservice;
 
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 
 import java.util.List;
@@ -29,6 +30,6 @@ public interface IChangeBranchService extends BaseService<ChangeBranchModel, Lon
     /**
      * 检测分支是否有新提交
      * */
-    boolean branchIsNew(ChangeBranchModel model);
+    boolean branchIsNew(ChangeBranchModel model, ADDPEnvironment environment);
 
 }

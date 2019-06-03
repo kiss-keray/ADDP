@@ -109,7 +109,7 @@ public class ChangeBranchController extends BaseController {
      * 检测代码是否有新提交
      * */
     @GetMapping("/checkBranch")
-    public Result branchIsNew(@RequestParam("id")Long id) {
-        return Result.of(() -> changeBranchService.branchIsNew(changeBranchService.findById(id))).failFlat(this::failFlat).logFail();
+    public Result branchIsNew(@RequestParam("id")Long id,@RequestParam("env") ADDPEnvironment environment) {
+        return Result.of(() -> changeBranchService.branchIsNew(changeBranchService.findById(id),environment)).failFlat(this::failFlat).logFail();
     }
 }

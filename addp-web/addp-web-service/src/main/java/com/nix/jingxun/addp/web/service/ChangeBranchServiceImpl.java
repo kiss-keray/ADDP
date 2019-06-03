@@ -6,6 +6,7 @@ import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
+import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
@@ -138,8 +139,8 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
     }
 
     @Override
-    public boolean branchIsNew(ChangeBranchModel model) {
-        List<ServerModel> serverModels = model._getProjectsModel()._getServerModels();
+    public boolean branchIsNew(ChangeBranchModel model, ADDPEnvironment environment) {
+        List<ServerModel> serverModels = servicesService.selectAllServes(model._getProjectsModel(),environment);
         if (CollectionUtil.isEmpty(serverModels)) {
             return false;
         }

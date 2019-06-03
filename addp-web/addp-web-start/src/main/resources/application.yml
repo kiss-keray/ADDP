@@ -3,7 +3,7 @@ server:
 spring:
   profiles:
     include: conf
-    active: dev
+    active: test
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
