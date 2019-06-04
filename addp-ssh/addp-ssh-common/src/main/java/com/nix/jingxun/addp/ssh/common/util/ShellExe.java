@@ -111,24 +111,26 @@ public class ShellExe {
                 func1[i] = func[i];
             }
         }
-        ShellFunc<Object> complete = func1[2] != null ? (r, c) -> {
-            try {
-                func[2].accept(r, c);
-            } catch (Exception e) {
-                if (func[1] != null) {
-                    func[1].accept(e, c);
-                } else {
-                    throw e;
-                }
-            } finally {
-                latch.countDown();
-            }
-        } : (r, c) -> latch.countDown();
-        AsyncExecute(command, func1[0], func1[1], complete);
+        StringBuilder result = new StringBuilder();
+        AsyncExecute(command, func1[0], func1[1], (r, c) -> {
+            result.append(r.toString());
+            latch.countDown();
+        });
         try {
             latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+        if (func1[2] != null) {
+            try {
+                func[2].accept(result.toString(), new String(command));
+            } catch (Exception e) {
+                if (func[1] != null) {
+                    func[1].accept(e, new String(command));
+                } else {
+                    throw e;
+                }
+            }
         }
         return this;
 
@@ -197,24 +199,26 @@ public class ShellExe {
                 func1[i] = func[i];
             }
         }
-        Consumer<Object> complete = func1[2] != null ? (r) -> {
+            StringBuilder result = new StringBuilder();
+        AsyncExecute(command, func1[0], func1[1], (r) -> {
+            result.append(r.toString());
+            latch.countDown();
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (func1[2] != null) {
             try {
-                func[2].accept(r);
+                func[2].accept(result.toString());
             } catch (Exception e) {
                 if (func[1] != null) {
                     func[1].accept(e);
                 } else {
                     throw e;
                 }
-            } finally {
-                latch.countDown();
             }
-        } : (r) -> latch.countDown();
-        AsyncExecute(command, func1[0], func1[1], complete);
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
         return this;
     }
