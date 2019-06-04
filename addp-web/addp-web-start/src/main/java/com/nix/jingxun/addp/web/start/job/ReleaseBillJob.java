@@ -1,6 +1,5 @@
 package com.nix.jingxun.addp.web.start.job;
 
-import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.jpa.ReleaseBillJpa;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
@@ -47,7 +46,7 @@ public class ReleaseBillJob {
             }
             long timeout = bill.getReleaseTime().toEpochSecond(ZoneOffset.UTC) - now.toEpochSecond(ZoneOffset.UTC);
             SCHEDULED_EXECUTOR_SERVICE.schedule(() -> {
-                releaseBillService.proStart(bill,true);
+                releaseBillService.proStart(bill,false);
             },timeout, TimeUnit.SECONDS);
         });
     }

@@ -90,4 +90,6 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     url: jdbc:mysql://59.110.234.213:3306/addp-web?useSSL=false&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
     driver-class-name: com.mysql.jdbc.Driver
+logging:
+  file: /opt/addp/logs/log.log
 ---
