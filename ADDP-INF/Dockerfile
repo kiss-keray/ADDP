@@ -1,5 +1,5 @@
 # 拉取基础镜像
-FROM registry.cn-beijing.aliyuncs.com/jingxun/addp:1.0.0
+FROM registry.cn-beijing.aliyuncs.com/jingxun/addp:1.0.1
 
 # 指定运行时的系统环境变量,如下请替换appName为自己应用名称
 ARG APP_NAME
