@@ -121,6 +121,12 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
             // 先切换到master分支
             shellExe.syncExecute(StrUtil.format("git checkout {}", projectsModel.getMaster()),
                     ShellExeLog.success, ShellExeLog.fail)
+                    .syncExecute("git pull", (r, c) -> {
+                        ShellExeLog.success.accept(r, c);
+                        if (ShellUtil.shellNeedKeydown(r.toString())) {
+                            servicesService.gitAuth(shellExe, projectsModel);
+                        }
+                    }, ShellExeLog.fail)
                     // 创建本地分支 git branch xxx
                     .syncExecute(StrUtil.format("git checkout -b {}", branch), ShellExeLog.success, ShellExeLog.fail)
                     //push 到远程分支
