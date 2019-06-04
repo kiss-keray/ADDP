@@ -74,7 +74,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://59.110.234.213:3306/addp-web?useSSL=false&characterEncoding=utf8&autoReconnect=true&failOverReadOnly=false
 logging:
-  file: ./log/log.log
+  file: /opt/addp/logs/log.log
   level:
     root: info
 ---

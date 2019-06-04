@@ -7,7 +7,8 @@ ENV=$2
 port=$3
 # 应用端口设置端口
 inPort=$4
-
+logPath=$4
+echo "logPath=${logPath}"
 # 启动应用镜像
 #container="$(docker ps -a |grep ${APP}-${ENV})"
 #if [ -z ${container} ]
@@ -20,4 +21,4 @@ inPort=$4
 
 docker stop ${APP}-${ENV}
 docker rm ${APP}-${ENV}
-docker run  --name ${APP}-${ENV}  -p ${port}:${inPort} -v /tmp:/tmp -dit ${APP}:${ENV}
+docker run  --name ${APP}-${ENV}  -p ${port}:${inPort} -v /tmp:/tmp -v ${logPath}:${logPath}  -dit ${APP}:${ENV}

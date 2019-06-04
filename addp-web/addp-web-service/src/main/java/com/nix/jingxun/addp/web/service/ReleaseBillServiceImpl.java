@@ -460,9 +460,9 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                                     ShellExeLog.fail.accept(r, c);
                                 }
                             })
-                    .ASsyncExecute(StrUtil.format("bash ./ADDP-INF/start.sh {} {} {} {}",
+                    .ASsyncExecute(StrUtil.format("bash ./ADDP-INF/start.sh {} {} {} {} {}",
                             changeBranchModel.getProjectsModel().getName(), nowEnv.name()
-                            , nowEnv.getPort(), changeBranchModel.getPort()),
+                            , nowEnv.getPort(), changeBranchModel.getPort(),projectsModel.getLogPath()),
                             ShellExeLog.webSocketLog, ShellExeLog.fail,
                             (r, c) -> {
                                 if (r.toString().matches("[\\S\\s]+[\\w]{64}[\\S\\s]*")) {

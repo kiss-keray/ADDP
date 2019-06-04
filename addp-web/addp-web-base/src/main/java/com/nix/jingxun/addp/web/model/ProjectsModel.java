@@ -66,6 +66,11 @@ public class ProjectsModel extends BaseModel {
     // 项目正式环境域名
     private String proDomain;
 
+    //项目日志文件
+
+    @Column(columnDefinition="varchar(128) default '/opt/addp/logs/'")
+    private String logPath;
+
     @Transient
     private List<ProjectsServerRe> projectsServiceRes;
 
