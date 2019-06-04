@@ -115,7 +115,7 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
     }
 
     public boolean moreServiceExec(List<ServerModel> serverModels, Consumer<ServerModel> exec) {
-        log.info("服务器批量执行{}", Arrays.toString(serverModels.stream().map(s -> s.getIp()).toArray()));
+        log.info("服务器批量执行{}", Arrays.toString(serverModels.stream().map(ServerModel::getIp).toArray()));
         final CountDownLatch latch = new CountDownLatch(serverModels.size());
         final AtomicInteger success = new AtomicInteger(0);
         for (ServerModel model : serverModels) {
