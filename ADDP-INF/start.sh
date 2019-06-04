@@ -7,7 +7,7 @@ ENV=$2
 port=$3
 # 应用端口设置端口
 inPort=$4
-logPath=$4
+logPath=$5
 echo "logPath=${logPath}"
 # 启动应用镜像
 #container="$(docker ps -a |grep ${APP}-${ENV})"
