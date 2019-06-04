@@ -232,9 +232,11 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
         if (servicesService.moreServiceExec(servicesService.selectEnvAllowServer(bill._getChangeBranchModel()._getProjectsModel(),bill.getEnvironment()),
                 (serverModel) -> {
                     try {
-                        if (!billDown(bill, servicesService.shellExeByUsername(serverModel))) {
+                        ShellExe shellExe = servicesService.shellExeByUsername(serverModel);
+                        if (!billDown(bill, shellExe)) {
                             throw new ShellNoSuccessException("应用停止失败");
                         }
+                        shellExe.close();
                     } catch (Exception e) {
                         throw new ShellExeException(e);
                     }
@@ -392,8 +394,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                                 servicesService.gitAuth(shellExe, changeBranchModel._getProjectsModel());
                             }
                         });
-            }
-            shellExe.close();
+            };
             return true;
         } catch (Exception e) {
             log.error("发布单发布第一阶段失败", e);
@@ -417,8 +418,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                             ShellExeLog.fail.accept(r, c);
                         }
                         ShellExeLog.success.accept(r, c);
-                    })
-                    .close();
+                    });
             return true;
         } catch (Exception e) {
             log.error("发布单发布第二阶段失败", e);
@@ -488,7 +488,6 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
             return false;
         }
         latch.await(5, TimeUnit.MINUTES);
-        shellExe.close();
         return result.get();
     }
 

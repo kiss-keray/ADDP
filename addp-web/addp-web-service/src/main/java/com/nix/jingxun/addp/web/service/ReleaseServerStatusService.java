@@ -1,6 +1,7 @@
 package com.nix.jingxun.addp.web.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
 import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
@@ -120,9 +121,11 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
         statusModel.setReleaseType(ReleaseType.run);
         statusModel.setOneStartTime(LocalDateTime.now());
         boolean result = false;
+        ShellExe shellExe = null;
         try {
             releaseServerStatusService.update(statusModel);
-            if (releaseBillService.pullCode(billModel,serverService.shellExeByUsername(serverModel))) {
+            shellExe = serverService.shellExeByUsername(serverModel);
+            if (releaseBillService.pullCode(billModel,shellExe)) {
                 statusModel.setReleaseType(ReleaseType.releaseSuccess);
                 statusModel.setOneFinishTime(LocalDateTime.now());
                 result = true;
@@ -138,6 +141,8 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
                 releaseServerStatusService.update(statusModel);
             } catch (Exception ignore) {
             }
+        }finally {
+            shellExe.close();
         }
         return result;
     }
@@ -149,9 +154,11 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
         statusModel.setReleaseType(ReleaseType.run);
         statusModel.setTwoStartTime(LocalDateTime.now());
         boolean result = false;
+        ShellExe shellExe = null;
         try {
+            shellExe = serverService.shellExeByUsername(serverModel);
             releaseServerStatusService.update(statusModel);
-            if (releaseBillService.build(billModel,serverService.shellExeByUsername(serverModel))) {
+            if (releaseBillService.build(billModel,shellExe)) {
                 statusModel.setReleaseType(ReleaseType.releaseSuccess);
                 statusModel.setTwoFinishTime(LocalDateTime.now());
                 result = true;
@@ -167,6 +174,8 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
                 releaseServerStatusService.update(statusModel);
             } catch (Exception ignore) {
             }
+        } finally {
+            shellExe.close();
         }
         return result;
     }
@@ -178,9 +187,11 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
         statusModel.setReleaseType(ReleaseType.run);
         statusModel.setThreeStartTime(LocalDateTime.now());
         boolean result = false;
+        ShellExe shellExe = null;
         try {
             releaseServerStatusService.update(statusModel);
-            if (releaseBillService.startApp(billModel,serverService.shellExeByUsername(serverModel))) {
+            shellExe = serverService.shellExeByUsername(serverModel);
+            if (releaseBillService.startApp(billModel,shellExe)) {
                 statusModel.setReleaseType(ReleaseType.releaseSuccess);
                 statusModel.setThreeFinishTime(LocalDateTime.now());
                 result = true;
@@ -196,6 +207,8 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
                 releaseServerStatusService.update(statusModel);
             } catch (Exception ignore) {
             }
+        } finally {
+            shellExe.close();
         }
         return result;
     }

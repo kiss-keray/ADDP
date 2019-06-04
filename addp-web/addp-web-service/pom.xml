@@ -21,5 +21,10 @@
             <groupId>com.nix.jingxun</groupId>
             <artifactId>addp-web-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.nix.jingxun</groupId>
+            <artifactId>addp-rpc-start</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 </project>

@@ -61,13 +61,17 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
         if (CollectionUtil.isNotEmpty(serverModels)) {
             ServerModel serverModel = serverModels.remove(0);
             try {
-                gitCreateBranch(changeBranchModel, servicesService.shellExeByUsername(serverModel));
+                ShellExe shellExe = servicesService.shellExeByUsername(serverModel);
+                gitCreateBranch(changeBranchModel, shellExe);
+                shellExe.close();
             } catch (JSchException | IOException e) {
                 e.printStackTrace();
             }
             boolean result = servicesService.moreServiceExec(serverModels, servicesModel -> {
                 try {
-                    initBranch(changeBranchModel, servicesService.shellExeByUsername(servicesModel));
+                    ShellExe shellExe = servicesService.shellExeByUsername(servicesModel);
+                    initBranch(changeBranchModel, shellExe);
+                    shellExe.close();
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new ShellExeException(e);
@@ -98,8 +102,7 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
                         if (r.toString().contains("error")) {
                             ShellExeLog.fail.accept(r, c);
                         }
-                    }, ShellExeLog.fail)
-                    .close();
+                    }, ShellExeLog.fail);
         }
     }
 
@@ -168,8 +171,7 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
                         if (r.toString().contains("diff --git")) {
                             result.set(true);
                         }
-                    }, ShellExeLog.fail)
-                    .close();
+                    }, ShellExeLog.fail);
         } catch (Exception e) {
             e.printStackTrace();
         }

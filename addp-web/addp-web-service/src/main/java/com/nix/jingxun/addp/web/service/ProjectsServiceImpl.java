@@ -78,13 +78,16 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
                 });
         Assert.isTrue(result, "添加新服务器失败");
         result = servicesService.moreServiceExec(old.stream().parallel()
-                .filter(s -> o._getServerModels().stream().noneMatch(s1 -> s1.getId().equals(s.getId()))).collect(Collectors.toList()), (serverModel) -> {
-            try {
-                Assert.isTrue(deleteProjectAtServer(serverModel, o), StrUtil.format("移除服务器失败{}", serverModel.getIp()));
-            } catch (Exception e) {
-                throw new ShellExeException(e);
-            }
-        });
+                        .filter(s -> s.getEnvironment() != ADDPEnvironment.bak &&
+                                o._getServerModels().stream().noneMatch(s1 -> s1.getId().equals(s.getId())))
+                        .collect(Collectors.toList()),
+                (serverModel) -> {
+                    try {
+                        Assert.isTrue(deleteProjectAtServer(serverModel, o), StrUtil.format("移除服务器失败{}", serverModel.getIp()));
+                    } catch (Exception e) {
+                        throw new ShellExeException(e);
+                    }
+                });
         Assert.isTrue(result, "移除旧服务器文件失败");
         return o;
     }
@@ -145,6 +148,7 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
                         ShellExeLog.success, ShellExeLog.fail);
 
             }
+            shellExe.close();
             if (serverModel.getEnvironment() == ADDPEnvironment.pro) {
                 List<ServerModel> bakServer = servicesService.selectAllServes(projectsModel, ADDPEnvironment.bak);
                 if (CollectionUtil.isNotEmpty(bakServer)) {
@@ -176,6 +180,7 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
                 RedisLock.lock("create_project_master",
                         key -> changeBranchService.gitCreateBranch(projectsModel, projectsModel.getMaster(), shellExe));
             }
+            shellExe.close();
             // 给新加的服务器部署项目
             ReleaseBillModel bill = releaseBillService.selectProjectBill(projectsModel.getId(), serverModel.getEnvironment());
             // 如果当前项目当前环境有部署 对新加的服务器进行部署

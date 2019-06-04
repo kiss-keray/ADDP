@@ -98,30 +98,33 @@ public class ShellExe {
     }
 
     @SafeVarargs
-    public final ShellExe ASsyncExecute(String command, ShellFunc<Object> ... func) {
-        return ASsyncExecute((command + "\r").getBytes(StandardCharsets.UTF_8),func);
+    public final ShellExe ASsyncExecute(String command, ShellFunc<Object>... func) {
+        return ASsyncExecute((command + "\r").getBytes(StandardCharsets.UTF_8), func);
     }
+
     @SafeVarargs
-    public final ShellExe ASsyncExecute(byte[] command, ShellFunc<Object> ... func) {
+    public final ShellExe ASsyncExecute(byte[] command, ShellFunc<Object>... func) {
         final CountDownLatch latch = new CountDownLatch(1);
         ShellFunc<Object>[] func1 = new ShellFunc[3];
-        for (int i = 0;i < 3;i ++) {
+        for (int i = 0; i < 3; i++) {
             if (func.length > i) {
                 func1[i] = func[i];
             }
         }
-        ShellFunc<Object> complete = func1[2] != null ? (r,c) -> {
+        ShellFunc<Object> complete = func1[2] != null ? (r, c) -> {
             try {
-                func[2].accept(r,c);
-            }catch (Exception e) {
+                func[2].accept(r, c);
+            } catch (Exception e) {
                 if (func[1] != null) {
-                    func[1].accept(e,c);
+                    func[1].accept(e, c);
+                } else {
+                    throw e;
                 }
-            }finally {
+            } finally {
                 latch.countDown();
             }
-        } : (r,c) -> latch.countDown();
-        AsyncExecute(command,func1[0],func1[1],complete);
+        } : (r, c) -> latch.countDown();
+        AsyncExecute(command, func1[0], func1[1], complete);
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -130,6 +133,7 @@ public class ShellExe {
         return this;
 
     }
+
     public final String oneCmd(String command) {
         StringBuilder builder = new StringBuilder();
         syncExecute(command, builder::append, e -> {
@@ -149,13 +153,14 @@ public class ShellExe {
     public final void oneway(String cmd) {
         oneway((cmd + "\r").getBytes(StandardCharsets.UTF_8));
     }
+
     public final void oneway(byte[] cmd) {
-       try {
-           writer.write(cmd);
-           writer.flush();
-       }catch (Exception e) {
-           e.printStackTrace();
-       }
+        try {
+            writer.write(cmd);
+            writer.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SafeVarargs
@@ -177,24 +182,35 @@ public class ShellExe {
     public final ShellExe syncExecute(byte[] command, Consumer<Object>... func) {
         return execute(command, true, func);
     }
+
     @SafeVarargs
-    public final ShellExe ASsyncExecute(String command, Consumer<Object> ... func) {
-        return ASsyncExecute((command + "\r").getBytes(StandardCharsets.UTF_8),func);
+    public final ShellExe ASsyncExecute(String command, Consumer<Object>... func) {
+        return ASsyncExecute((command + "\r").getBytes(StandardCharsets.UTF_8), func);
     }
+
     @SafeVarargs
-    public final ShellExe ASsyncExecute(byte[] command, Consumer<Object> ... func) {
+    public final ShellExe ASsyncExecute(byte[] command, Consumer<Object>... func) {
         final CountDownLatch latch = new CountDownLatch(1);
         Consumer<Object>[] func1 = new Consumer[3];
-        for (int i = 0;i < 3;i ++) {
+        for (int i = 0; i < 3; i++) {
             if (func.length > i) {
                 func1[i] = func[i];
             }
         }
         Consumer<Object> complete = func1[2] != null ? (r) -> {
-            func[2].accept(r);
-            latch.countDown();
+            try {
+                func[2].accept(r);
+            } catch (Exception e) {
+                if (func[1] != null) {
+                    func[1].accept(e);
+                } else {
+                    throw e;
+                }
+            } finally {
+                latch.countDown();
+            }
         } : (r) -> latch.countDown();
-        AsyncExecute(command,func1[0],func1[1],complete);
+        AsyncExecute(command, func1[0], func1[1], complete);
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -243,7 +259,7 @@ public class ShellExe {
                 writer.write(command);
                 writer.flush();
                 System.out.println("+++++++++++++++++++++++++++++++++：" + new String(command));
-                while (true ) {
+                while (true) {
                     String line = read();
 //                    System.out.println(line);
                     result.append(line);
@@ -279,7 +295,7 @@ public class ShellExe {
         }
         String result = null;
         try {
-             result = task.get();
+            result = task.get();
             if (func != null && func.length > 0) {
                 func[0].accept(result, new String(command));
             }
@@ -317,7 +333,7 @@ public class ShellExe {
                 return null;
             }
         });
-        return inputTask.get(5,TimeUnit.MINUTES);
+        return inputTask.get(5, TimeUnit.MINUTES);
     }
 
     public void close() {
