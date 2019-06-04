@@ -11,8 +11,10 @@ import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.common.config.WebConfig;
+import com.nix.jingxun.addp.web.common.supper.RedisLock;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
+import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.iservice.IServerService;
@@ -51,14 +53,17 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
     private IServerService servicesService;
     @Resource
     private IReleaseBillService releaseBillService;
+    @Resource
+    private IChangeBranchService changeBranchService;
 
     @Override
     protected JpaRepository<ProjectsModel, Long> jpa() {
         return projectsJpa;
     }
+
     @Transactional
     @Override
-    public ProjectsModel update(ProjectsModel o) throws Exception {
+    public ProjectsModel update(ProjectsModel o) {
         List<ServerModel> old = findById(o.getId())._getServerModels();
         super.update(o);
         boolean result = servicesService.moreServiceExec(
@@ -66,7 +71,7 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
                         .filter(s -> old.stream().noneMatch(s1 -> s1.getId().equals(s.getId())))
                         .collect(Collectors.toList()), servicesModel -> {
                     try {
-                       Assert.isTrue(addProjectAtServer(servicesModel,o),StrUtil.format("添加服务器失败{}",servicesModel.getIp()));
+                        Assert.isTrue(addProjectAtServer(servicesModel, o), StrUtil.format("添加服务器失败{}", servicesModel.getIp()));
                     } catch (Exception e) {
                         throw new ShellExeException(e);
                     }
@@ -75,7 +80,7 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
         result = servicesService.moreServiceExec(old.stream().parallel()
                 .filter(s -> o._getServerModels().stream().noneMatch(s1 -> s1.getId().equals(s.getId()))).collect(Collectors.toList()), (serverModel) -> {
             try {
-                Assert.isTrue(deleteProjectAtServer(serverModel,o),StrUtil.format("移除服务器失败{}",serverModel.getIp()));
+                Assert.isTrue(deleteProjectAtServer(serverModel, o), StrUtil.format("移除服务器失败{}", serverModel.getIp()));
             } catch (Exception e) {
                 throw new ShellExeException(e);
             }
@@ -91,9 +96,9 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ProjectsModel save(ProjectsModel projectsModel) throws Exception {
+    public ProjectsModel save(ProjectsModel projectsModel) {
         super.save(projectsModel);
-        projectsModel._getServerModels().forEach(s -> addProjectAtServer(s,projectsModel));
+        projectsModel._getServerModels().forEach(s -> addProjectAtServer(s, projectsModel));
         return projectsModel;
     }
 
@@ -114,7 +119,8 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
                             }
                         },
                         error -> ShellExeLog.fail.accept(error, StrUtil.format("git clone {} \"{}{}\" fail", projectsModel.getGitUrl(), WebConfig.addpBaseFile, projectsModel.getName())))
-                .close();
+                .syncExecute("git config --global user.email \"addp@example.com\"", ShellExeLog.success, ShellExeLog.fail)
+                .syncExecute("git config --global user.name \"addp\"", ShellExeLog.success, ShellExeLog.fail);
         // git clone成功
     }
 
@@ -140,12 +146,12 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
 
             }
             if (serverModel.getEnvironment() == ADDPEnvironment.pro) {
-                List<ServerModel> bakServer = servicesService.selectAllServes(projectsModel,ADDPEnvironment.bak);
+                List<ServerModel> bakServer = servicesService.selectAllServes(projectsModel, ADDPEnvironment.bak);
                 if (CollectionUtil.isNotEmpty(bakServer)) {
                     ServerModel bak = bakServer.get(0);
                     // 移除备份服务器
                     if (bak.getIp().equals(serverModel.getIp())) {
-                        deleteProjectAtServer(bak,projectsModel);
+                        deleteProjectAtServer(bak, projectsModel);
                     }
                 }
 
@@ -161,11 +167,15 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
     }
 
     @Override
-    @Transactional
     public boolean addProjectAtServer(ServerModel serverModel, ProjectsModel projectsModel) {
         try {
             ShellExe shellExe = servicesService.shellExeByUsername(serverModel);
             createGitClone(projectsModel, shellExe);
+            // 如果主分支不为master 创建主分支
+            if (!"master".equals(projectsModel.getMaster())) {
+                RedisLock.lock("create_project_master",
+                        key -> changeBranchService.gitCreateBranch(projectsModel, projectsModel.getMaster(), shellExe));
+            }
             // 给新加的服务器部署项目
             ReleaseBillModel bill = releaseBillService.selectProjectBill(projectsModel.getId(), serverModel.getEnvironment());
             // 如果当前项目当前环境有部署 对新加的服务器进行部署
@@ -199,7 +209,7 @@ public class ProjectsServiceImpl extends BaseServiceImpl<ProjectsModel, Long> im
             // 创建备份服务器
             if (serverModel.getEnvironment() == ADDPEnvironment.pro && projectsModel._getProServer().size() == 1) {
                 ServerModel bakService = new ServerModel();
-                BeanUtil.copyProperties(serverModel,bakService);
+                BeanUtil.copyProperties(serverModel, bakService);
                 bakService.setId(null);
                 bakService.setEnvironment(ADDPEnvironment.bak);
                 servicesService.save(bakService);

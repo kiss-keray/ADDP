@@ -59,23 +59,23 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
     }
 
     @Override
-    public ServerModel save(ServerModel serverModel) throws Exception {
+    public ServerModel save(ServerModel serverModel) {
         serverModel.setAllowRestart(true);
         return super.save(serverModel);
     }
 
     @Transactional
     @Override
-    public ServerModel update(ServerModel o) throws Exception {
+    public ServerModel update(ServerModel o) {
         ServerModel old = findById(o.getId());
         // 如果是修改环境，将当前环境的应用全部清除
         if (old.getEnvironment() != o.getEnvironment()) {
             // 停止当前环境的所有项目，不管有没有
             projectsServerReJpa.selectByServerId(o.getId())
                     .stream().parallel().forEach(re -> {
-                        ProjectsModel project = re._getProjectsModel();
-                        // 不管移除失败与否
-                        projectsService.deleteProjectAtServer(o,project);
+                ProjectsModel project = re._getProjectsModel();
+                // 不管移除失败与否
+                projectsService.deleteProjectAtServer(o, project);
             });
         }
         return super.update(o);
@@ -85,11 +85,12 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
     public List<ServerModel> selectMemberServices(MemberModel memberModel) {
         return jpa().findAll(Example.of(ServerModel.builder().memberId(memberModel.getId()).build()));
     }
+
     /**
      * 获取服务器的shell通道
      * 如果主机是备份环境主机，需要拿真实ip
      */
-    public ShellExe shellExeByUsername(ServerModel serverModel) throws JSchException,IOException {
+    public ShellExe shellExeByUsername(ServerModel serverModel) throws JSchException, IOException {
         // 拿到服务器执行shell
         return ShellExe.connect(serverModel.getIp(), serverModel.getUsername(), AESUtil.decrypt(serverModel.getPassword()));
     }
@@ -100,15 +101,17 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
                 ShellExeLog.success,
                 (error, cmd) -> ShellExeLog.fail.accept(error, "输入账号异常"))
                 //输入密码
-                .syncExecute(AESUtil.decrypt(projectsModel.getGitPassword()),
+                .ASsyncExecute(AESUtil.decrypt(projectsModel.getGitPassword()),
+                        r -> ShellExeLog.webSocketLog.accept(r, "********"),
+                        error -> ShellExeLog.fail.accept(error, "密码输入执行异常"),
                         result1 -> {
                             // 判断shell返回的认证信息；
                             if (result1.toString().contains("Authentication failed")) {
                                 ShellExeLog.fail.accept(new AuthException(StrUtil.format("fatal: Authentication failed for '{}'", projectsModel.getGitUrl())),
                                         "git密码验证失败");
                             }
-                        },
-                        error -> ShellExeLog.fail.accept(error, "密码输入执行异常"));
+                            ShellExeLog.success.accept(result1, "*******");
+                        });
     }
 
     public boolean moreServiceExec(List<ServerModel> serverModels, Consumer<ServerModel> exec) {
@@ -122,7 +125,7 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
                     success.getAndIncrement();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    log.error("server {} 执行失败",model.getIp());
+                    log.error("server {} 执行失败", model.getIp());
                 } finally {
                     latch.countDown();
                 }
@@ -147,7 +150,7 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
 
     @Override
     public List<ServerModel> selectEnvAllowServer(ProjectsModel projectsModel, ADDPEnvironment environment) {
-        List<ServerModel> serverModels = selectAllServes(projectsModel,environment);
+        List<ServerModel> serverModels = selectAllServes(projectsModel, environment);
         // 生产环境只返回允许发布的机器  无缝接入分批发布
         return serverModels.stream().filter(ServerModel::getAllowRestart).collect(Collectors.toList());
     }
@@ -174,19 +177,18 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
     }
 
 
-
     @Transactional
     @Override
-    public void updateProAllow(List<Long> ids) throws Exception{
+    public void updateProAllow(List<Long> ids) throws Exception {
         if (serverJpa.updateProAllow(ids) != ids.size()) {
-            throw new WebRunException(Code.dataError,"机器状态更新失败");
+            throw new WebRunException(Code.dataError, "机器状态更新失败");
         }
     }
 
     @Override
     public Page<ServerModel> memberServices(WebPageable webPageable, ADDPEnvironment environment) {
         MemberModel member = MemberCache.currentUser();
-        return  serverJpa.findAll(Example.of(
+        return serverJpa.findAll(Example.of(
                 ServerModel.builder()
                         .memberId(member.getId())
                         .environment(environment)

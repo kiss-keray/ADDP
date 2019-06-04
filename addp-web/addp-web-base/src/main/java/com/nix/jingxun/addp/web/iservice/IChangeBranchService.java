@@ -4,6 +4,7 @@ import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
+import com.nix.jingxun.addp.web.model.ProjectsModel;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public interface IChangeBranchService extends BaseService<ChangeBranchModel, Lon
      * 创建分支，当远程分支可能不存在时使用
      */
     void gitCreateBranch(ChangeBranchModel changeBranchModel, ShellExe shellExe) throws ShellExeException;
+
+
+    void gitCreateBranch(ProjectsModel projectsModel,String branch, ShellExe shellExe) throws ShellExeException;
 
     /**
      * 拉取项目的全部变更

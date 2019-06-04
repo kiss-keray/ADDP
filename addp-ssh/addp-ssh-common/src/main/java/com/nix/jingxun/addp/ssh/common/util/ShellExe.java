@@ -97,21 +97,31 @@ public class ShellExe {
         return execute(command, true, func);
     }
 
-    public final ShellExe ASsyncExecute(String command,ShellFunc<Object> ... func) {
-        return ASsyncExecute(command.getBytes(StandardCharsets.UTF_8),func);
+    @SafeVarargs
+    public final ShellExe ASsyncExecute(String command, ShellFunc<Object> ... func) {
+        return ASsyncExecute((command + "\r").getBytes(StandardCharsets.UTF_8),func);
     }
-    public final ShellExe ASsyncExecute(byte[] command,ShellFunc<Object> ... func) {
-        if (func == null || func[0] == null) {
-            throw new ShellExeException("no success function");
+    @SafeVarargs
+    public final ShellExe ASsyncExecute(byte[] command, ShellFunc<Object> ... func) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        ShellFunc<Object>[] func1 = new ShellFunc[3];
+        for (int i = 0;i < 3;i ++) {
+            if (func.length > i) {
+                func1[i] = func[i];
+            }
         }
-        CountDownLatch latch = new CountDownLatch(1);
-        func[0] = (r,c) -> {
-            func[0].accept(r,c);
-            if (shellEnd(r.toString())) {
+        ShellFunc<Object> complete = func1[2] != null ? (r,c) -> {
+            try {
+                func[2].accept(r,c);
+            }catch (Exception e) {
+                if (func[1] != null) {
+                    func[1].accept(e,c);
+                }
+            }finally {
                 latch.countDown();
             }
-        };
-        AsyncExecute(command,func);
+        } : (r,c) -> latch.countDown();
+        AsyncExecute(command,func1[0],func1[1],complete);
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -167,21 +177,24 @@ public class ShellExe {
     public final ShellExe syncExecute(byte[] command, Consumer<Object>... func) {
         return execute(command, true, func);
     }
-    public final ShellExe ASsyncExecute(String command,Consumer<Object> ... func) {
-        return ASsyncExecute(command.getBytes(StandardCharsets.UTF_8),func);
+    @SafeVarargs
+    public final ShellExe ASsyncExecute(String command, Consumer<Object> ... func) {
+        return ASsyncExecute((command + "\r").getBytes(StandardCharsets.UTF_8),func);
     }
-
-    public final ShellExe ASsyncExecute(byte[] command,Consumer<Object> ... func) {
-        if (func == null || func[0] == null) {
-            throw new ShellExeException("no success function");
-        }
-        CountDownLatch latch = new CountDownLatch(1);
-        func[0] = (r) -> {
-            func[0].accept(r);
-            if (shellEnd(r.toString())) {
-                latch.countDown();
+    @SafeVarargs
+    public final ShellExe ASsyncExecute(byte[] command, Consumer<Object> ... func) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        Consumer<Object>[] func1 = new Consumer[3];
+        for (int i = 0;i < 3;i ++) {
+            if (func.length > i) {
+                func1[i] = func[i];
             }
-        };
+        }
+        Consumer<Object> complete = func1[2] != null ? (r) -> {
+            func[2].accept(r);
+            latch.countDown();
+        } : (r) -> latch.countDown();
+        AsyncExecute(command,func1[0],func1[1],complete);
         try {
             latch.await();
         } catch (InterruptedException e) {
@@ -225,12 +238,12 @@ public class ShellExe {
     @SafeVarargs
     private final ShellExe execute(byte[] command, Boolean sync, ShellFunc<Object>... func) {
         Future<String> task = THREAD_POOL_EXECUTOR.submit(() -> {
+            StringBuilder result = new StringBuilder();
             try {
                 writer.write(command);
                 writer.flush();
-                StringBuilder result = new StringBuilder();
                 System.out.println("+++++++++++++++++++++++++++++++++：" + new String(command));
-                while (true) {
+                while (true ) {
                     String line = read();
 //                    System.out.println(line);
                     result.append(line);
@@ -256,7 +269,7 @@ public class ShellExe {
             } finally {
                 if (!sync) {
                     if (func != null && func.length > 2) {
-                        func[2].accept(null, new String(command));
+                        func[2].accept(result.toString(), new String(command));
                     }
                 }
             }
@@ -264,8 +277,9 @@ public class ShellExe {
         if (!sync) {
             return this;
         }
+        String result = null;
         try {
-            String result = task.get();
+             result = task.get();
             if (func != null && func.length > 0) {
                 func[0].accept(result, new String(command));
             }
@@ -277,7 +291,7 @@ public class ShellExe {
             }
         } finally {
             if (func != null && func.length > 2) {
-                func[2].accept(null, new String(command));
+                func[2].accept(result, new String(command));
             }
         }
         return this;
@@ -292,10 +306,18 @@ public class ShellExe {
         }
     }
 
-    private String read() throws IOException {
-        byte[] bytes = new byte[2048];
-        int len = read.read(bytes);
-        return new String(bytes, 0, len);
+    private String read() throws InterruptedException, ExecutionException, TimeoutException {
+        Future<String> inputTask = THREAD_POOL_EXECUTOR.submit(() -> {
+            try {
+                byte[] bytes = new byte[2048];
+                int len = read.read(bytes);
+                return new String(bytes, 0, len);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
+        return inputTask.get(5,TimeUnit.MINUTES);
     }
 
     public void close() {

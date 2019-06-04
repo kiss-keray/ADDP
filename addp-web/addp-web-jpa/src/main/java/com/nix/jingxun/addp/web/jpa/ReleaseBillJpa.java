@@ -35,4 +35,7 @@ public interface ReleaseBillJpa extends JpaRepository<ReleaseBillModel,Long> {
     @Modifying(clearAutomatically = true)
     @Query(value = "update nix_release_bill set release_type = 'wait' , release_phase = 'start' where release_type = 'releaseSuccess' and release_phase = 'build' and id = :id",nativeQuery = true)
     Integer updateBillType(@Param("id")Long  id);
+
+    @Query(value = "select b.* from nix_release_bill as b,nix_change_branch as c where b.change_branch_id = c.id and b.release_phase <> 'stop' and b.release_phase <> 'init'  and c.project_id = :projectId",nativeQuery = true)
+    List<ReleaseBillModel> selectProjectsAllBill(@Param("projectId") Long projectId);
 }

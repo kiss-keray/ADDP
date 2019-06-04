@@ -55,12 +55,16 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
      */
     @Transactional
     @Override
-    public ChangeBranchModel save(ChangeBranchModel changeBranchModel) throws Exception {
+    public ChangeBranchModel save(ChangeBranchModel changeBranchModel) {
         ProjectsModel projectsModel = changeBranchModel._getProjectsModel();
         List<ServerModel> serverModels = projectsModel._getServerModels();
         if (CollectionUtil.isNotEmpty(serverModels)) {
             ServerModel serverModel = serverModels.remove(0);
-            gitCreateBranch(changeBranchModel, servicesService.shellExeByUsername(serverModel));
+            try {
+                gitCreateBranch(changeBranchModel, servicesService.shellExeByUsername(serverModel));
+            } catch (JSchException | IOException e) {
+                e.printStackTrace();
+            }
             boolean result = servicesService.moreServiceExec(serverModels, servicesModel -> {
                 try {
                     initBranch(changeBranchModel, servicesService.shellExeByUsername(servicesModel));
@@ -85,7 +89,7 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
         boolean isHave = !shellExe.oneCmd("git checkout " + changeBranchModel.getBranchName()).matches("[\\S|\\s]*error:[\\S|\\s]*");
         if (!isHave) {
             shellExe.syncExecute("git fetch", ShellExeLog.success, ShellExeLog.fail)
-                    .syncExecute(StrUtil.format("git checkout -b {}", changeBranchModel.getBranchName()), (r, c) -> {
+                    .syncExecute(StrUtil.format("git checkout -b {} {}", changeBranchModel.getBranchName(), changeBranchModel._getProjectsModel().getMaster()), (r, c) -> {
                         if (r.toString().contains("error")) {
                             ShellExeLog.fail.accept(r, c);
                         }
@@ -100,37 +104,40 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
     }
 
     public void gitCreateBranch(ChangeBranchModel changeBranchModel, ShellExe shellExe) throws ShellExeException {
-        if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
-            log.error("服务器{} 不存在项目{}的文件夹", shellExe.getIp(), changeBranchModel._getProjectsModel().getName());
+       gitCreateBranch(changeBranchModel._getProjectsModel(),changeBranchModel.getBranchName(),shellExe);
+    }
+
+    public void gitCreateBranch(ProjectsModel projectsModel,String branch, ShellExe shellExe) throws ShellExeException {
+        if (!projectsService.cdRoot(projectsModel, shellExe)) {
+            log.error("服务器{} 不存在项目{}的文件夹", shellExe.getIp(), projectsModel.getName());
             throw new WebRunException(Code.dataError, "服务器不存在项目文件夹");
         }
         // 先判断分支是否存在 存在直接切换
-        boolean isHave = !shellExe.oneCmd("git checkout " + changeBranchModel.getBranchName()).matches("[\\S|\\s]*error:[\\S|\\s]*");
+        boolean isHave = !shellExe.oneCmd("git checkout " + branch).matches("[\\S|\\s]*error:[\\S|\\s]*");
         if (!isHave) {
             // 先切换到master分支
-            shellExe.syncExecute("git checkout master", ShellExeLog.success, ShellExeLog.fail)
+            shellExe.syncExecute(StrUtil.format("git checkout {}", projectsModel.getMaster()),
+                    ShellExeLog.success, ShellExeLog.fail)
                     // 创建本地分支 git branch xxx
-                    .syncExecute(StrUtil.format("git checkout -b {}", changeBranchModel.getBranchName()), ShellExeLog.success, ShellExeLog.fail)
+                    .syncExecute(StrUtil.format("git checkout -b {}", branch), ShellExeLog.success, ShellExeLog.fail)
                     //push 到远程分支
-                    .syncExecute(StrUtil.format("git push origin {}", changeBranchModel.getBranchName()), (r, c) -> {
+                    .syncExecute(StrUtil.format("git push origin {}", branch), (r, c) -> {
                         ShellExeLog.success.accept(r, c);
                         // 如果push需要验证
                         if (ShellUtil.shellNeedKeydown(r.toString())) {
-                            servicesService.gitAuth(shellExe, changeBranchModel.getProjectsModel());
+                            servicesService.gitAuth(shellExe, projectsModel);
                         }
                     }, ShellExeLog.fail)
                     // 关联分支
-                    .syncExecute(StrUtil.format("git branch --set-upstream-to origin/{}", changeBranchModel.getBranchName()),
+                    .syncExecute(StrUtil.format("git branch --set-upstream-to origin/{}", branch),
                             (r, c) -> {
                                 if (r.toString().matches("[\\S|\\s]*error:[\\S|\\s]*")) {
                                     ShellExeLog.fail.accept(r, c);
                                     return;
                                 }
                                 ShellExeLog.success.accept(r, c);
-                            }, ShellExeLog.fail)
-                    .close();
+                            }, ShellExeLog.fail);
         }
-
     }
 
     @Override
@@ -140,7 +147,7 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
 
     @Override
     public boolean branchIsNew(ChangeBranchModel model, ADDPEnvironment environment) {
-        List<ServerModel> serverModels = servicesService.selectAllServes(model._getProjectsModel(),environment);
+        List<ServerModel> serverModels = servicesService.selectAllServes(model._getProjectsModel(), environment);
         if (CollectionUtil.isEmpty(serverModels)) {
             return false;
         }

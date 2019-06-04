@@ -30,4 +30,8 @@ public class ShellExeLog {
         }
         log.info("{}shell:{}{}{}", System.lineSeparator(), msg, System.lineSeparator(), result);
     };
+
+    public static final ShellFunc<Object> webSocketLog = (line,command) -> {
+        System.out.println(line);
+    };
 }

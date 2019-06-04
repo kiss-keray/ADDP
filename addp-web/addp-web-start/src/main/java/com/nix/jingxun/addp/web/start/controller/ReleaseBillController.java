@@ -7,9 +7,12 @@ import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
 import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
+import com.nix.jingxun.addp.web.iservice.IReleaseServerStatusService;
+import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
 import com.nix.jingxun.addp.web.model.ReleaseServerStatusModel;
+import com.nix.jingxun.addp.web.model.ServerModel;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -28,6 +31,10 @@ public class ReleaseBillController extends BaseController {
     private IReleaseBillService releaseBillService;
     @Resource
     private IChangeBranchService changeBranchService;
+    @Resource
+    private IServerService serverService;
+    @Resource
+    private IReleaseServerStatusService releaseServerStatusService;
 
     @GetMapping("/me")
     public Result me(@RequestParam("id") Long id) {
@@ -55,7 +62,7 @@ public class ReleaseBillController extends BaseController {
 
     @GetMapping("/projectBill/{env}")
     public Result getProjectBill(@RequestParam("projectId") Long projectId, @PathVariable ADDPEnvironment env) {
-        return Result.of(() -> releaseBillService.selectProjectBill(projectId,env))
+        return Result.of(() -> releaseBillService.selectProjectBill(projectId, env))
                 .peek(bill -> {
                     if (bill != null) {
                         bill.setChangeBranchModel(bill._getChangeBranchModel());
@@ -86,7 +93,7 @@ public class ReleaseBillController extends BaseController {
         return Result.of(() -> {
             try {
                 ReleaseBillModel model = releaseBillService.findById(id);
-                return MapUtil.builder("bill",releaseBillService.build(model)).put("status",releaseBillService.build(model));
+                return MapUtil.builder("bill", releaseBillService.build(model)).put("status", releaseBillService.build(model));
             } catch (Exception e) {
                 return Result.fail(e);
             }
@@ -98,12 +105,13 @@ public class ReleaseBillController extends BaseController {
         return Result.of(() -> {
             try {
                 ReleaseBillModel model = releaseBillService.findById(id);
-                return MapUtil.builder("bill",releaseBillService.build(model)).put("status",releaseBillService.startApp(model));
+                return MapUtil.builder("bill", releaseBillService.build(model)).put("status", releaseBillService.startApp(model));
             } catch (Exception e) {
                 return Result.fail(e);
             }
         }).failFlat(this::failFlat).logFail();
     }
+
     @GetMapping("/down")
     public Result billDown(@RequestParam("id") Long id) {
         return Result.of(() -> {
@@ -113,11 +121,11 @@ public class ReleaseBillController extends BaseController {
             } catch (Exception e) {
                 return e;
             }
-            Map<String,Object> result = MapUtil.<String,Object>builder("bill",bill)
-                    .put("status",false)
+            Map<String, Object> result = MapUtil.<String, Object>builder("bill", bill)
+                    .put("status", false)
                     .build();
             if (bill.getReleasePhase() == ReleasePhase.init) {
-                result.put("status",true);
+                result.put("status", true);
             }
             return result;
         }).failFlat(this::failFlat).logFail();
@@ -135,7 +143,9 @@ public class ReleaseBillController extends BaseController {
     public Result autoRelease(@RequestParam("id") Long id) {
         return Result.of(() -> {
             try {
-                ReleaseBillModel bill = releaseBillService.deployBranch(releaseBillService.findById(id),(r) -> {},(r) -> {});
+                ReleaseBillModel bill = releaseBillService.deployBranch(releaseBillService.findById(id), (r) -> {
+                }, (r) -> {
+                });
                 bill.setChangeBranchModel(bill._getChangeBranchModel());
                 bill._getReleaseServerStatusModel().forEach(s -> s.setServerModel(s._getServerModel()));
                 return bill;
@@ -147,7 +157,7 @@ public class ReleaseBillController extends BaseController {
 
     @GetMapping("/proStart")
     public Result proStart(@RequestParam("id") Long id,
-                           @RequestParam(value = "startTime",required = false)LocalDateTime localDateTime
+                           @RequestParam(value = "startTime", required = false) LocalDateTime localDateTime
     ) {
         return Result.of(() -> {
             try {
@@ -158,10 +168,58 @@ public class ReleaseBillController extends BaseController {
                 }
                 billModel.setChangeBranchModel(billModel._getChangeBranchModel());
                 billModel._getReleaseServerStatusModel().forEach(s -> s.setServerModel(s._getServerModel()));
-                return releaseBillService.proStart(billModel,false);
+                return releaseBillService.proStart(billModel, false);
             } catch (Exception e) {
                 return e;
             }
+        }).failFlat(this::failFlat).logFail();
+    }
+
+    @GetMapping("/aSeverAutoRelease")
+    public Result aSeverAutoRelease(
+            @RequestParam("id") Long id,
+            @RequestParam("serverId") Long serverId
+    ) {
+        return Result.of(() -> {
+            ServerModel serverModel = serverService.findById(serverId);
+            ReleaseBillModel billModel = releaseBillService.findById(id);
+            return releaseServerStatusService.aServerRelease(billModel, serverModel);
+        }).failFlat(this::failFlat).logFail();
+    }
+
+    @GetMapping("/aSeverPullCode")
+    public Result aSeverPullCode(
+            @RequestParam("id") Long id,
+            @RequestParam("serverId") Long serverId
+    ) {
+        return Result.of(() -> {
+            ServerModel serverModel = serverService.findById(serverId);
+            ReleaseBillModel billModel = releaseBillService.findById(id);
+            return releaseServerStatusService.aServerPullCode(billModel, serverModel);
+        }).failFlat(this::failFlat).logFail();
+
+    }
+    @GetMapping("/aServerBuild")
+    public Result aServerBuild(
+            @RequestParam("id") Long id,
+            @RequestParam("serverId") Long serverId
+    ) {
+        return Result.of(() -> {
+            ServerModel serverModel = serverService.findById(serverId);
+            ReleaseBillModel billModel = releaseBillService.findById(id);
+            return releaseServerStatusService.aServerBuild(billModel, serverModel);
+        }).failFlat(this::failFlat).logFail();
+    }
+
+    @GetMapping("/aSeverStart")
+    public Result aServerStart(
+            @RequestParam("id") Long id,
+            @RequestParam("serverId") Long serverId
+    ) {
+        return Result.of(() -> {
+            ServerModel serverModel = serverService.findById(serverId);
+            ReleaseBillModel billModel = releaseBillService.findById(id);
+            return releaseServerStatusService.aServerStart(billModel, serverModel);
         }).failFlat(this::failFlat).logFail();
     }
 }

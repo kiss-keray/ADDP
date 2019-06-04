@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.web.iservice;
 
+import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
@@ -50,7 +51,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * <li>git分支切换</li>
      * <li>pull代码</li>
      * */
-    boolean pullCode(ReleaseBillModel releaseBillModel) throws Exception;
+    boolean pullCode(ReleaseBillModel releaseBillModel);
 
     /**
      * <h1>二阶段</h1>
@@ -60,7 +61,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * <p>在build执行中的docker run启动了应用</p>
      * </li>
      * */
-    boolean build(ReleaseBillModel releaseBillModel) throws Exception;
+    boolean build(ReleaseBillModel releaseBillModel);
 
     /**
      * <h1>三阶段</h1>
@@ -72,7 +73,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * <li>docker logs -f --tail "10" {@link ProjectsModel#getName()}-{@link ReleaseBillModel#getEnvironment()}</li>
      * </li>
      */
-    boolean startApp(ReleaseBillModel releaseBillModel) throws Exception;
+    boolean startApp(ReleaseBillModel releaseBillModel);
 
 
     /**
@@ -116,5 +117,13 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
      * 分批发布
      * */
     ReleaseBillModel proBatchRelease(ReleaseBillModel releaseBillModel,Integer batchNum);
+
+    boolean pullCode(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception;
+
+    boolean build(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception;
+
+    boolean startApp(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception;
+
+    boolean billDown(ReleaseBillModel bill, ShellExe shellExe);
 
 }

@@ -38,7 +38,7 @@ public class ReleaseBillJob {
     @Transactional(rollbackFor = Exception.class)
     public void autoProStart() {
         LocalDateTime now = LocalDateTime.now();
-        List<ReleaseBillModel> billModels = releaseBillJpa.selectAllScStopBill(now, now.minusMinutes(-20));
+        List<ReleaseBillModel> billModels = releaseBillJpa.selectAllScStopBill(now.minusMinutes(10), now.minusMinutes(-10));
         log.info("检测到发布任务{}个",billModels.size());
         billModels.forEach(bill -> {
             int result = releaseBillJpa.updateBillType(bill.getId());

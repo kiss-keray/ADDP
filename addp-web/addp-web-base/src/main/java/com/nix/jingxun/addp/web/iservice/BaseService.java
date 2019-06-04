@@ -16,7 +16,7 @@ public interface BaseService<M extends Object,ID extends Serializable>{
      * 保存对象M
      * @param m
      * */
-    M save(M m)  throws Exception;
+    M save(M m);
     /**
      * 删除对象M
      * @param id
@@ -33,7 +33,7 @@ public interface BaseService<M extends Object,ID extends Serializable>{
      * 更新对象M
      * @param o
      * */
-    M update(M o)  throws Exception;
+    M update(M o);
 
     /**
      * 查找唯一对象M

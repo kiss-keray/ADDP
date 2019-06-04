@@ -22,7 +22,7 @@ import java.util.Collections;
  */
 @RestController
 @RequestMapping("/project")
-public class ProjectsController  extends BaseController{
+public class ProjectsController extends BaseController {
 
     @Resource
     private IProjectsService projectsService;
@@ -33,18 +33,11 @@ public class ProjectsController  extends BaseController{
     @PostMapping("/create")
     public Result create(@Valid @RequestBody ProjectsModel projectsModel) {
         return Result.of(() -> {
-            try {
-                if (!projectsModel._getServerModels().stream().allMatch(servicesModel -> servicesModel.getMemberId().equals(MemberCache.currentUser().getId()))) {
-                    return Result.fail("1401", "no project permission " + projectsModel.getName());
-                }
-                projectsModel.setMemberId(MemberCache.currentUser().getId());
-                return projectsService.save(projectsModel);
-            } catch (ShellConnectException e) {
-                return Result.fail("1404","服务器连接失败");
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Result.fail(e);
+            if (!projectsModel._getServerModels().stream().allMatch(servicesModel -> servicesModel.getMemberId().equals(MemberCache.currentUser().getId()))) {
+                return Result.fail("1401", "no project permission " + projectsModel.getName());
             }
+            projectsModel.setMemberId(MemberCache.currentUser().getId());
+            return projectsService.save(projectsModel);
         }).logFail();
     }
 
@@ -67,13 +60,9 @@ public class ProjectsController  extends BaseController{
     public Result update(@Valid @RequestBody ProjectsModel model) {
         return Result.of(() -> {
             model.setGitPassword(AESUtil.encryption(model.getGitPassword()));
-            try {
-                ProjectsModel newM = projectsService.update(model);
-                newM.setGitPassword(AESUtil.decrypt(newM.getGitPassword()));
-                return newM;
-            } catch (Exception e) {
-                return e;
-            }
+            ProjectsModel newM = projectsService.update(model);
+            newM.setGitPassword(AESUtil.decrypt(newM.getGitPassword()));
+            return newM;
         }).failFlat(this::failFlat).logFail();
     }
 

@@ -25,7 +25,7 @@ public abstract class BaseServiceImpl<M extends BaseModel,ID extends Serializabl
 
     }
     @Override
-    public M update(M o)  throws Exception{
+    public M update(M o){
         M m = jpa().findById((ID) o.getId()).orElse(null);
         Assert.notNull(m);
         ignoreNull(m,o);
@@ -44,7 +44,7 @@ public abstract class BaseServiceImpl<M extends BaseModel,ID extends Serializabl
     }
 
     @Override
-    public M save(M m)  throws Exception{
+    public M save(M m){
         return jpa().save(m);
     }
 
@@ -70,7 +70,7 @@ public abstract class BaseServiceImpl<M extends BaseModel,ID extends Serializabl
         }
     }
 
-    private void ignoreNull(M source,M target) throws Exception{
+    private void ignoreNull(M source,M target){
         Class<M> clazz = (Class<M>) source.getClass();
         Method[] methods = clazz.getDeclaredMethods();
         for (Method get:methods) {
