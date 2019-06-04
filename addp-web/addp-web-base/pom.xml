@@ -19,5 +19,9 @@
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.nix.jingxun</groupId>
+            <artifactId>addp-web-common</artifactId>
+        </dependency>
     </dependencies>
 </project>
