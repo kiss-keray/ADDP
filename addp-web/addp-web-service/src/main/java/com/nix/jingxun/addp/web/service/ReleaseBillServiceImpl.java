@@ -454,7 +454,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                             ShellExeLog.webSocketLog,
                             ShellExeLog.fail,
                             (r, c) -> {
-                                if (r.toString().contains("Successfully")) {
+                                if (r.toString().contains("Successfully") || nowEnv == ADDPEnvironment.bak) {
                                     ShellExeLog.success.accept(r, c);
                                 } else {
                                     ShellExeLog.fail.accept(r, c);
