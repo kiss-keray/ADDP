@@ -20,6 +20,7 @@ public  class WebConfig {
     public static Integer ioThreadPoolMax;
     public static Integer ioFutureMax;
 
+
     public void setAddpBaseFile(String addpBaseFile) {
         WebConfig.addpBaseFile = addpBaseFile;
     }

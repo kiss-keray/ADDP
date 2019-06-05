@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
 import com.nix.jingxun.addp.web.IEnum.ReleaseType;
+import com.nix.jingxun.addp.web.common.mq.MQProducer;
 import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.iservice.IReleaseServerStatusService;
@@ -42,7 +43,9 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
     @Resource
     private IServerService serverService;
     @Resource
-    ReleaseBillJpa releaseBillJpa;
+    private ReleaseBillJpa releaseBillJpa;
+    @Resource
+    private MQProducer producer;
 
     @Override
     protected JpaRepository<ReleaseServerStatusModel, Long> jpa() {
@@ -68,6 +71,7 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
                 case pullCode: {
                     if (releaseType == ReleaseType.run) {
                         model.setOneStartTime(LocalDateTime.now());
+                        model.setOneFinishTime(null);
                     } else {
                         model.setOneFinishTime(LocalDateTime.now());
                     }
@@ -76,6 +80,7 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
                 case build: {
                     if (releaseType == ReleaseType.run) {
                         model.setTwoStartTime(LocalDateTime.now());
+                        model.setTwoFinishTime(null);
                     } else {
                         model.setTwoFinishTime(LocalDateTime.now());
                     }
@@ -84,12 +89,14 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
                 case start: {
                     if (releaseType == ReleaseType.run) {
                         model.setThreeStartTime(LocalDateTime.now());
+                        model.setThreeFinishTime(null);
                     } else {
                         model.setThreeFinishTime(LocalDateTime.now());
                     }
                 }
                 break;
             }
+            producer.billStatusChange(billModel);
             releaseServerStatusService.update(model);
         } catch (Exception e) {
             log.error(StrUtil.format("修改服务器发布状态失败 {} {}", serverModel.getIp(), billModel._getChangeBranchModel().getName()), e);
@@ -117,32 +124,24 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
         ReleaseServerStatusModel statusModel = getByBillServer(billModel, serverModel);
 
         // 检测项目是否存在其他的发布单正在一二阶段  一二阶段暂时互斥 不能同时存在几个部署
-        statusModel.setReleasePhase(ReleasePhase.pullCode);
-        statusModel.setReleaseType(ReleaseType.run);
-        statusModel.setOneStartTime(LocalDateTime.now());
+        setCurrentStatus(billModel, serverModel, ReleasePhase.pullCode, ReleaseType.run);
         boolean result = false;
         ShellExe shellExe = null;
         try {
-            releaseServerStatusService.update(statusModel);
             shellExe = serverService.shellExeByUsername(serverModel);
-            if (releaseBillService.pullCode(billModel,shellExe)) {
-                statusModel.setReleaseType(ReleaseType.releaseSuccess);
-                statusModel.setOneFinishTime(LocalDateTime.now());
+            if (releaseBillService.pullCode(billModel, shellExe)) {
+                setCurrentStatus(billModel, serverModel, ReleasePhase.pullCode, ReleaseType.releaseSuccess);
                 result = true;
             } else {
-                statusModel.setReleaseType(ReleaseType.releaseFail);
-                statusModel.setOneFinishTime(LocalDateTime.now());
+                setCurrentStatus(billModel, serverModel, ReleasePhase.pullCode, ReleaseType.releaseFail);
             }
-            releaseServerStatusService.update(statusModel);
         } catch (Exception e) {
-            statusModel.setReleaseType(ReleaseType.releaseFail);
-            statusModel.setOneFinishTime(LocalDateTime.now());
-            try {
-                releaseServerStatusService.update(statusModel);
-            } catch (Exception ignore) {
+            setCurrentStatus(billModel, serverModel, ReleasePhase.pullCode, ReleaseType.releaseFail);
+
+        } finally {
+            if (shellExe != null) {
+                shellExe.close();
             }
-        }finally {
-            shellExe.close();
         }
         return result;
     }
@@ -150,65 +149,47 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
     @Override
     public boolean aServerBuild(ReleaseBillModel billModel, ServerModel serverModel) {
         ReleaseServerStatusModel statusModel = getByBillServer(billModel, serverModel);
-        statusModel.setReleasePhase(ReleasePhase.build);
-        statusModel.setReleaseType(ReleaseType.run);
-        statusModel.setTwoStartTime(LocalDateTime.now());
+        setCurrentStatus(billModel, serverModel, ReleasePhase.build, ReleaseType.run);
         boolean result = false;
         ShellExe shellExe = null;
         try {
             shellExe = serverService.shellExeByUsername(serverModel);
-            releaseServerStatusService.update(statusModel);
-            if (releaseBillService.build(billModel,shellExe)) {
-                statusModel.setReleaseType(ReleaseType.releaseSuccess);
-                statusModel.setTwoFinishTime(LocalDateTime.now());
+            if (releaseBillService.build(billModel, shellExe)) {
+                setCurrentStatus(billModel, serverModel, ReleasePhase.build, ReleaseType.releaseSuccess);
                 result = true;
             } else {
-                statusModel.setReleaseType(ReleaseType.releaseFail);
-                statusModel.setTwoFinishTime(LocalDateTime.now());
+                setCurrentStatus(billModel, serverModel, ReleasePhase.build, ReleaseType.releaseFail);
             }
-            releaseServerStatusService.update(statusModel);
         } catch (Exception e) {
-            statusModel.setReleaseType(ReleaseType.releaseFail);
-            statusModel.setTwoFinishTime(LocalDateTime.now());
-            try {
-                releaseServerStatusService.update(statusModel);
-            } catch (Exception ignore) {
-            }
+            setCurrentStatus(billModel, serverModel, ReleasePhase.build, ReleaseType.releaseFail);
         } finally {
-            shellExe.close();
+            if (shellExe != null) {
+                shellExe.close();
+            }
         }
         return result;
     }
 
     @Override
     public boolean aServerStart(ReleaseBillModel billModel, ServerModel serverModel) {
-        ReleaseServerStatusModel statusModel = getByBillServer(billModel, serverModel);
-        statusModel.setReleasePhase(ReleasePhase.start);
-        statusModel.setReleaseType(ReleaseType.run);
-        statusModel.setThreeStartTime(LocalDateTime.now());
+        setCurrentStatus(billModel, serverModel, ReleasePhase.start, ReleaseType.run);
         boolean result = false;
         ShellExe shellExe = null;
         try {
-            releaseServerStatusService.update(statusModel);
             shellExe = serverService.shellExeByUsername(serverModel);
-            if (releaseBillService.startApp(billModel,shellExe)) {
-                statusModel.setReleaseType(ReleaseType.releaseSuccess);
-                statusModel.setThreeFinishTime(LocalDateTime.now());
+            if (releaseBillService.startApp(billModel, shellExe)) {
+                setCurrentStatus(billModel, serverModel, ReleasePhase.start, ReleaseType.releaseSuccess);
                 result = true;
             } else {
-                statusModel.setReleaseType(ReleaseType.releaseFail);
-                statusModel.setThreeFinishTime(LocalDateTime.now());
+                setCurrentStatus(billModel, serverModel, ReleasePhase.start, ReleaseType.releaseFail);
             }
-            releaseServerStatusService.update(statusModel);
         } catch (Exception e) {
-            statusModel.setReleaseType(ReleaseType.releaseFail);
-            statusModel.setThreeFinishTime(LocalDateTime.now());
-            try {
-                releaseServerStatusService.update(statusModel);
-            } catch (Exception ignore) {
-            }
+            e.printStackTrace();
+            setCurrentStatus(billModel, serverModel, ReleasePhase.start, ReleaseType.releaseFail);
         } finally {
-            shellExe.close();
+            if (shellExe != null) {
+                shellExe.close();
+            }
         }
         return result;
     }

@@ -11,6 +11,7 @@ import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
 import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.common.ShellExeLog;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
+import com.nix.jingxun.addp.web.common.mq.MQProducer;
 import com.nix.jingxun.addp.web.common.supper.RedisLock;
 import com.nix.jingxun.addp.web.common.supper.WebThreadPool;
 import com.nix.jingxun.addp.web.iservice.*;
@@ -53,6 +54,8 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     private IReleaseServerStatusService releaseServerStatusService;
     @Resource
     private IChangeBranchService changeBranchService;
+    @Resource
+    private MQProducer producer;
 
 
     @Override
@@ -237,13 +240,13 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                             throw new ShellNoSuccessException("应用停止失败");
                         }
                         shellExe.close();
+                        releaseServerStatusService.setCurrentStatus(bill,serverModel,ReleasePhase.init,ReleaseType.wait);
                     } catch (Exception e) {
                         throw new ShellExeException(e);
                     }
                 })) {
-            bill.setReleasePhase(ReleasePhase.init);
         }
-        return super.update(bill);
+        return bill;
     }
 
     @Override
@@ -258,15 +261,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                     servicesService.selectEnvAllowServer(releaseBillModel._getChangeBranchModel()._getProjectsModel(), releaseBillModel.getEnvironment())
                             .forEach(s -> {
                                 s.setAllowRestart(false);
-                                try {
-                                    servicesService.update(s);
-                                } catch (Exception e) {
-                                    releaseBillModel.setReleaseType(ReleaseType.releaseFail);
-                                    try {
-                                        releaseBillService.update(releaseBillModel);
-                                    } catch (Exception ignore) {
-                                    }
-                                }
+                                servicesService.update(s);
                             });
                     successCallback.accept(releaseBillModel);
                 } else {
@@ -299,6 +294,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                         if (i == 0) {
                             releaseBillModel.setReleaseType(ReleaseType.stop);
                             update(releaseBillModel);
+                            producer.billStatusChange(releaseBillModel);
                             if (!skip) {
                                 break;
                             }
@@ -314,6 +310,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                         // 线上发布完成 将变更删除  发布单改为stop状态
                         changeBranchService.delete(releaseBillModel._getChangeBranchModel().getId());
                         releaseBillModel.setReleasePhase(ReleasePhase.stop);
+                        producer.billStatusChange(releaseBillModel);
                         releaseBillService.update(releaseBillModel);
                         // 解锁发布
                         RedisLock.unlock(releaseBillModel._getChangeBranchModel()._getProjectsModel().getName());

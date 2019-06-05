@@ -28,6 +28,10 @@ jingxun:
     ioThreadPoolMin: 10
     ioThreadPoolMax: 512
     ioFutureMax: 1024
+    mq:
+      rocketMQHost: 59.110.234.213:9876
+      mqGroup: addp
+      mqInstanceName: jingxun
 
 #开发
 ---
