@@ -21,4 +21,11 @@ echo "logPath=${logPath}"
 
 docker stop ${APP}-${ENV}
 docker rm ${APP}-${ENV}
-docker run  --name ${APP}-${ENV}  -p ${port}:${inPort} -v /tmp:/tmp -v ${logPath}:${logPath}  -dit ${APP}:${ENV}
+if [ "$ENV" = "bak" ]
+    then
+        docker run  --name ${APP}-${ENV}  -p ${port}:${inPort} -v /tmp:/tmp -v ${logPath}:${logPath}  -dit ${APP}:pro
+else
+    docker run  --name ${APP}-${ENV}  -p ${port}:${inPort} -v /tmp:/tmp -v ${logPath}:${logPath}  -dit ${APP}:${ENV}
+fi
+
+

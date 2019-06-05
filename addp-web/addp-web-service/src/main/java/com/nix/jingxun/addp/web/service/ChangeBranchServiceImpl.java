@@ -2,7 +2,6 @@ package com.nix.jingxun.addp.web.service;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.ssh.common.util.ShellUtil;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -58,63 +56,27 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
     public ChangeBranchModel save(ChangeBranchModel changeBranchModel) {
         ProjectsModel projectsModel = changeBranchModel._getProjectsModel();
         List<ServerModel> serverModels = projectsModel._getServerModels();
-        if (CollectionUtil.isNotEmpty(serverModels)) {
-            ServerModel serverModel = serverModels.remove(0);
+        boolean result = servicesService.moreServiceExec(serverModels, servicesModel -> {
             try {
-                ShellExe shellExe = servicesService.shellExeByUsername(serverModel);
+                ShellExe shellExe = servicesService.shellExeByUsername(servicesModel);
                 gitCreateBranch(changeBranchModel, shellExe);
                 shellExe.close();
-            } catch (JSchException | IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                throw new ShellExeException(e);
             }
-            boolean result = servicesService.moreServiceExec(serverModels, servicesModel -> {
-                try {
-                    ShellExe shellExe = servicesService.shellExeByUsername(servicesModel);
-                    initBranch(changeBranchModel, shellExe);
-                    shellExe.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new ShellExeException(e);
-                }
-            });
-            if (!result) {
-                throw new WebRunException(Code.exeError, "创建分支失败");
-            }
+        });
+        if (!result) {
+            throw new WebRunException(Code.exeError, "创建分支失败");
         }
         return super.save(changeBranchModel);
     }
 
-    public void initBranch(ChangeBranchModel changeBranchModel, ShellExe shellExe) {
-        if (!projectsService.cdRoot(changeBranchModel._getProjectsModel(), shellExe)) {
-            log.error("服务器{} 不存在项目{}的文件夹", shellExe.getIp(), changeBranchModel._getProjectsModel().getName());
-            throw new WebRunException(Code.dataError, "服务器不存在项目文件夹");
-        }
-        // 先判断分支是否存在 存在直接切换
-        boolean isHave = !shellExe.oneCmd("git checkout " + changeBranchModel.getBranchName()).matches("[\\S|\\s]*error:[\\S|\\s]*");
-        if (!isHave) {
-            shellExe.syncExecute("git fetch", (r,c) -> {
-                if (ShellUtil.shellNeedKeydown(r.toString())) {
-                    servicesService.gitAuth(shellExe,changeBranchModel._getProjectsModel());
-                }
-            }, ShellExeLog.fail)
-                    .syncExecute(StrUtil.format("git checkout -b {} {}", changeBranchModel.getBranchName(), changeBranchModel._getProjectsModel().getMaster()), (r, c) -> {
-                        if (r.toString().contains("error")) {
-                            ShellExeLog.fail.accept(r, c);
-                        }
-                    }, ShellExeLog.fail)
-                    .syncExecute(StrUtil.format("git branch --set-upstream-to origin/{}", changeBranchModel.getBranchName()), (r, c) -> {
-                        if (r.toString().contains("error")) {
-                            ShellExeLog.fail.accept(r, c);
-                        }
-                    }, ShellExeLog.fail);
-        }
-    }
-
     public void gitCreateBranch(ChangeBranchModel changeBranchModel, ShellExe shellExe) throws ShellExeException {
-       gitCreateBranch(changeBranchModel._getProjectsModel(),changeBranchModel.getBranchName(),shellExe);
+        gitCreateBranch(changeBranchModel._getProjectsModel(), changeBranchModel.getBranchName(), shellExe);
     }
 
-    public void gitCreateBranch(ProjectsModel projectsModel,String branch, ShellExe shellExe) throws ShellExeException {
+    public void gitCreateBranch(ProjectsModel projectsModel, String branch, ShellExe shellExe) throws ShellExeException {
         if (!projectsService.cdRoot(projectsModel, shellExe)) {
             log.error("服务器{} 不存在项目{}的文件夹", shellExe.getIp(), projectsModel.getName());
             throw new WebRunException(Code.dataError, "服务器不存在项目文件夹");
@@ -122,34 +84,28 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
         // 先判断分支是否存在 存在直接切换
         boolean isHave = !shellExe.oneCmd("git checkout " + branch).matches("[\\S|\\s]*error:[\\S|\\s]*");
         if (!isHave) {
-            // 先切换到master分支
-            shellExe.syncExecute(StrUtil.format("git checkout {}", projectsModel.getMaster()),
-                    ShellExeLog.success, ShellExeLog.fail)
-                    .syncExecute("git pull", (r, c) -> {
+            // 创建本地分支 git branch xxx
+            shellExe.syncExecute(StrUtil.format("git checkout -b {} {}", branch, projectsModel.getMaster()),
+                    (r, c) -> {
                         ShellExeLog.success.accept(r, c);
+                        // 远程分支不存在时
+                        if (r.toString().contains("Cannot update paths and switch to branch")) {
+                            shellExe.syncExecute(StrUtil.format("git checkout -b {} master", branch),
+                                    ShellExeLog.success, ShellExeLog.fail);
+                            return;
+                        }
                         if (ShellUtil.shellNeedKeydown(r.toString())) {
                             servicesService.gitAuth(shellExe, projectsModel);
                         }
                     }, ShellExeLog.fail)
-                    // 创建本地分支 git branch xxx
-                    .syncExecute(StrUtil.format("git checkout -b {}", branch), ShellExeLog.success, ShellExeLog.fail)
                     //push 到远程分支
-                    .syncExecute(StrUtil.format("git push origin {}", branch), (r, c) -> {
-                        ShellExeLog.success.accept(r, c);
+                    .syncExecute(StrUtil.format("git push --set-upstream origin {}", branch), (r1, c1) -> {
+                        ShellExeLog.success.accept(r1, c1);
                         // 如果push需要验证
-                        if (ShellUtil.shellNeedKeydown(r.toString())) {
+                        if (ShellUtil.shellNeedKeydown(r1.toString())) {
                             servicesService.gitAuth(shellExe, projectsModel);
                         }
-                    }, ShellExeLog.fail)
-                    // 关联分支
-                    .syncExecute(StrUtil.format("git branch --set-upstream-to origin/{}", branch),
-                            (r, c) -> {
-                                if (r.toString().matches("[\\S|\\s]*error:[\\S|\\s]*")) {
-                                    ShellExeLog.fail.accept(r, c);
-                                    return;
-                                }
-                                ShellExeLog.success.accept(r, c);
-                            }, ShellExeLog.fail);
+                    }, ShellExeLog.fail);
         }
     }
 
@@ -168,8 +124,7 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
         try {
             ShellExe shellExe = servicesService.shellExeByUsername(serverModels.get(0));
             projectsService.cdRoot(model._getProjectsModel(), shellExe);
-            shellExe.syncExecute("git checkout .", ShellExeLog.success, ShellExeLog.fail)
-                    .syncExecute(StrUtil.format("git checkout {}", model.getBranchName()), ShellExeLog.success, ShellExeLog.fail)
+            shellExe
                     .syncExecute("git fetch", (r, c) -> {
                         ShellExeLog.success.accept(r, c);
                         if (ShellUtil.shellNeedKeydown(r.toString())) {
