@@ -92,7 +92,11 @@ public class ChangeBranchServiceImpl extends BaseServiceImpl<ChangeBranchModel, 
         // 先判断分支是否存在 存在直接切换
         boolean isHave = !shellExe.oneCmd("git checkout " + changeBranchModel.getBranchName()).matches("[\\S|\\s]*error:[\\S|\\s]*");
         if (!isHave) {
-            shellExe.syncExecute("git fetch", ShellExeLog.success, ShellExeLog.fail)
+            shellExe.syncExecute("git fetch", (r,c) -> {
+                if (ShellUtil.shellNeedKeydown(r.toString())) {
+                    servicesService.gitAuth(shellExe,changeBranchModel._getProjectsModel());
+                }
+            }, ShellExeLog.fail)
                     .syncExecute(StrUtil.format("git checkout -b {} {}", changeBranchModel.getBranchName(), changeBranchModel._getProjectsModel().getMaster()), (r, c) -> {
                         if (r.toString().contains("error")) {
                             ShellExeLog.fail.accept(r, c);
