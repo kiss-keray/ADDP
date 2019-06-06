@@ -118,7 +118,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
     /**
      * 分批发布
      * */
-    ReleaseBillModel proBatchRelease(ReleaseBillModel releaseBillModel,Integer batchNum);
+    boolean proBatchRelease(ReleaseBillModel releaseBillModel,Integer batchNum);
 
     boolean pullCode(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception;
 

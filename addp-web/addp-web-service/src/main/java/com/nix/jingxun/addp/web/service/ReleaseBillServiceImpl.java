@@ -276,7 +276,9 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                 try {
                     int i = releaseBillModel.getReleaseType() == ReleaseType.stop ? 1 : 0;
                     for (; i < allBatch; i++) {
-                        proBatchRelease(releaseBillModel, i);
+                        if (!proBatchRelease(releaseBillModel, i)) {
+                            break;
+                        }
                         if (i == 0) {
                             setBillStatus(releaseBillModel,ReleasePhase.start,ReleaseType.stop);
                             if (!skip) {
@@ -291,9 +293,9 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                             model.setAllowRestart(true);
                             servicesService.update(model);
                         }
+                        setBillStatus(releaseBillModel,ReleasePhase.stop,ReleaseType.wait);
                         // 线上发布完成 将变更删除  发布单改为stop状态
                         changeBranchService.delete(releaseBillModel._getChangeBranchModel().getId());
-                        setBillStatus(releaseBillModel,ReleasePhase.stop,ReleaseType.wait);
                         // 解锁发布
                         RedisLock.unlock(releaseBillModel._getChangeBranchModel()._getProjectsModel().getName());
                     }
@@ -313,7 +315,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     }
 
     @Override
-    public ReleaseBillModel proBatchRelease(ReleaseBillModel releaseBillModel, Integer batchNum) {
+    public boolean proBatchRelease(ReleaseBillModel releaseBillModel, Integer batchNum) {
         List<ServerModel> proAllServer = servicesService.selectAllServes(releaseBillModel._getChangeBranchModel()._getProjectsModel(), ADDPEnvironment.pro);
         // 暂时只支持分2批发布  后面单独写线上发布单
         List<ServerModel> workServers = batchServers(proAllServer, batchNum, 2);
@@ -325,12 +327,12 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                 e.printStackTrace();
             }
         });
-        Assert.isTrue(startApp(releaseBillModel));
+        boolean result = startApp(releaseBillModel);
         workServers.forEach(serverModel -> {
             serverModel.setAllowRestart(false);
             servicesService.update(serverModel);
         });
-        return releaseBillModel;
+        return result;
     }
 
 
