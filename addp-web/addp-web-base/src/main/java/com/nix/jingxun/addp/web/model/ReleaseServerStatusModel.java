@@ -62,7 +62,7 @@ public class ReleaseServerStatusModel extends BaseModel{
     }
 
     @Transient
-    public int getthreeTime() {
+    public int getThreeTime() {
         if (threeFinishTime != null && threeStartTime != null) {
             return (int) (threeFinishTime.toEpochSecond(ZoneOffset.UTC) - threeStartTime.toEpochSecond(ZoneOffset.UTC));
         }

@@ -89,6 +89,7 @@ public class ReleaseStatusSocket implements IWebSocket {
         } catch (IOException ignore) {
         }
     }
+
     private void unSubscribeBillStatus() {
         Long billId = sessionBillIpMap.remove(mySession);
         if (billId == null) {
@@ -102,7 +103,7 @@ public class ReleaseStatusSocket implements IWebSocket {
         } catch (Exception ignore) {
         }
         if (sessions.size() == 0) {
-            synchronized (sessionRemoveClock[(int) (billId  & 15)]) {
+            synchronized (sessionRemoveClock[(int) (billId & 15)]) {
                 if (sessions.size() == 0) {
                     sessionMap.remove(billId);
                     log.info("移除{}发布单订阅", billId);

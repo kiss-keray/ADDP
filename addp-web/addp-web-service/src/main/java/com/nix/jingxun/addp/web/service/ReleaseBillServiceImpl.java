@@ -78,7 +78,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
             } catch (Exception e) {
                 e.printStackTrace();
                 failCallback.accept(releaseBillModel);
-            }finally {
+            } finally {
                 RedisLock.unlock(releaseBillModel._getChangeBranchModel()._getProjectsModel().getName());
             }
         });
@@ -88,7 +88,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     @Override
     public boolean pullCode(ReleaseBillModel releaseBillModel) {
         try {
-            setBillStatus(releaseBillModel,ReleasePhase.pullCode,ReleaseType.run);
+            setBillStatus(releaseBillModel, ReleasePhase.pullCode, ReleaseType.run);
             // 根据当前环境得到项目的服务器组
             List<ServerModel> serverModels = servicesService.selectEnvAllowServer(releaseBillModel._getChangeBranchModel()._getProjectsModel()
                     , releaseBillModel.getEnvironment())
@@ -104,14 +104,14 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                     });
             if (!result) {
                 log.error("部署第一阶段失败 : {}", releaseBillModel);
-                setBillStatus(releaseBillModel,ReleasePhase.pullCode,ReleaseType.releaseFail);
+                setBillStatus(releaseBillModel, ReleasePhase.pullCode, ReleaseType.releaseFail);
             } else {
-                setBillStatus(releaseBillModel,ReleasePhase.pullCode,ReleaseType.releaseSuccess);
+                setBillStatus(releaseBillModel, ReleasePhase.pullCode, ReleaseType.releaseSuccess);
             }
             return result;
         } catch (Exception e) {
             log.error("部署第一阶段失败 : {}", releaseBillModel);
-            setBillStatus(releaseBillModel,ReleasePhase.pullCode,ReleaseType.releaseFail);
+            setBillStatus(releaseBillModel, ReleasePhase.pullCode, ReleaseType.releaseFail);
             return false;
         }
     }
@@ -119,7 +119,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     @Override
     public boolean build(ReleaseBillModel releaseBillModel) {
         try {
-            setBillStatus(releaseBillModel,ReleasePhase.build,ReleaseType.run);
+            setBillStatus(releaseBillModel, ReleasePhase.build, ReleaseType.run);
             boolean result = servicesService.moreServiceExec(
                     servicesService.selectEnvAllowServer(releaseBillModel._getChangeBranchModel()._getProjectsModel(),
                             releaseBillModel.getEnvironment())
@@ -133,14 +133,14 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                     });
             if (!result) {
                 log.error("部署第二阶段失败 : {}", releaseBillModel);
-                setBillStatus(releaseBillModel,ReleasePhase.build,ReleaseType.releaseFail);
+                setBillStatus(releaseBillModel, ReleasePhase.build, ReleaseType.releaseFail);
             } else {
-                setBillStatus(releaseBillModel,ReleasePhase.build,ReleaseType.releaseSuccess);
+                setBillStatus(releaseBillModel, ReleasePhase.build, ReleaseType.releaseSuccess);
             }
             return result;
         } catch (Exception e) {
             log.error("部署第二阶段失败 : {}", releaseBillModel);
-            setBillStatus(releaseBillModel,ReleasePhase.build,ReleaseType.releaseFail);
+            setBillStatus(releaseBillModel, ReleasePhase.build, ReleaseType.releaseFail);
         }
         return false;
     }
@@ -149,7 +149,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
     public boolean startApp(ReleaseBillModel releaseBillModel) {
         Supplier<Boolean> work = () -> {
             try {
-                setBillStatus(releaseBillModel,ReleasePhase.start,ReleaseType.run);
+                setBillStatus(releaseBillModel, ReleasePhase.start, ReleaseType.run);
                 boolean result = servicesService.moreServiceExec(
                         servicesService.selectEnvAllowServer(releaseBillModel._getChangeBranchModel()._getProjectsModel(), releaseBillModel.getEnvironment()),
                         (server) -> {
@@ -159,14 +159,14 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                         });
                 if (!result) {
                     log.error("部署第三阶段失败 : {}", releaseBillModel);
-                    setBillStatus(releaseBillModel,ReleasePhase.start,ReleaseType.releaseFail);
+                    setBillStatus(releaseBillModel, ReleasePhase.start, ReleaseType.releaseFail);
                 } else {
-                    setBillStatus(releaseBillModel,ReleasePhase.start,ReleaseType.releaseSuccess);
+                    setBillStatus(releaseBillModel, ReleasePhase.start, ReleaseType.releaseSuccess);
                 }
                 return result;
             } catch (Exception e) {
                 log.error("部署第三阶段失败 : {}", releaseBillModel);
-                setBillStatus(releaseBillModel,ReleasePhase.start,ReleaseType.releaseFail);
+                setBillStatus(releaseBillModel, ReleasePhase.start, ReleaseType.releaseFail);
                 return false;
             }
         };
@@ -216,7 +216,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
         if (bill.getReleaseType() != ReleaseType.releaseSuccess) {
             return bill;
         }
-        if (servicesService.moreServiceExec(servicesService.selectEnvAllowServer(bill._getChangeBranchModel()._getProjectsModel(),bill.getEnvironment()),
+        if (servicesService.moreServiceExec(servicesService.selectEnvAllowServer(bill._getChangeBranchModel()._getProjectsModel(), bill.getEnvironment()),
                 (serverModel) -> {
                     try {
                         ShellExe shellExe = servicesService.shellExeByUsername(serverModel);
@@ -224,13 +224,13 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                             throw new ShellNoSuccessException("应用停止失败");
                         }
                         shellExe.close();
-                        releaseServerStatusService.setCurrentStatus(bill,serverModel,ReleasePhase.init,ReleaseType.wait);
+                        releaseServerStatusService.setCurrentStatus(bill, serverModel, ReleasePhase.init, ReleaseType.wait);
                     } catch (Exception e) {
                         throw new ShellExeException(e);
                     }
                 })) {
 
-            setBillStatus(bill,ReleasePhase.init,ReleaseType.wait);
+            setBillStatus(bill, ReleasePhase.init, ReleaseType.wait);
         }
         return bill;
     }
@@ -280,20 +280,20 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                             break;
                         }
                         if (i == 0) {
-                            setBillStatus(releaseBillModel,ReleasePhase.start,ReleaseType.stop);
+                            setBillStatus(releaseBillModel, ReleasePhase.start, ReleaseType.stop);
                             if (!skip) {
                                 break;
                             }
                         }
                     }
                     if (i == allBatch) {
-                        log.info("线上发布成功 {}",releaseBillModel._getChangeBranchModel().getName());
+                        log.info("线上发布成功 {}", releaseBillModel._getChangeBranchModel().getName());
                         // 发布完成后将服务器跟改为可发布状态
                         for (ServerModel model : releaseBillModel._getChangeBranchModel()._getProjectsModel()._getServerModels()) {
                             model.setAllowRestart(true);
                             servicesService.update(model);
                         }
-                        setBillStatus(releaseBillModel,ReleasePhase.stop,ReleaseType.wait);
+                        setBillStatus(releaseBillModel, ReleasePhase.stop, ReleaseType.wait);
                         // 线上发布完成 将变更删除  发布单改为stop状态
                         changeBranchService.delete(releaseBillModel._getChangeBranchModel().getId());
                         // 解锁发布
@@ -364,7 +364,10 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                                 ShellExeLog.webSocketLog,
                                 ShellExeLog.fail,
                                 (r, c) -> {
-                                    if (!(r.toString().contains("Fast-forward") && r.toString().contains("Updating"))) {
+                                    if (!(
+                                            (r.toString().contains("Fast-forward") && r.toString().contains("Updating")) ||
+                                                    r.toString().contains("Already up-to-date")
+                                    )) {
                                         ShellExeLog.fail.accept("git marge失败", StrUtil.format("git merge {}", releaseBillModel._getChangeBranchModel().getBranchName()));
                                     }
                                     ShellExeLog.success.accept(r, c);
@@ -375,7 +378,8 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                                 servicesService.gitAuth(shellExe, changeBranchModel._getProjectsModel());
                             }
                         });
-            };
+            }
+            ;
             return true;
         } catch (Exception e) {
             log.error("发布单发布第一阶段失败", e);
@@ -443,7 +447,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                             })
                     .ASsyncExecute(StrUtil.format("bash ./ADDP-INF/start.sh {} {} {} {} {}",
                             changeBranchModel.getProjectsModel().getName(), nowEnv.name()
-                            , nowEnv.getPort(), changeBranchModel.getPort(),projectsModel.getLogPath()),
+                            , nowEnv.getPort(), changeBranchModel.getPort(), projectsModel.getLogPath()),
                             ShellExeLog.webSocketLog, ShellExeLog.fail,
                             (r, c) -> {
                                 if (r.toString().matches("[\\S\\s]+[\\w]{64}[\\S\\s]*")) {
