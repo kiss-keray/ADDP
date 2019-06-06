@@ -1,10 +1,12 @@
 package com.nix.jingxun.addp.web.common.supper;
 
 import com.nix.jingxun.addp.web.common.PermissionHandler;
+import com.nix.jingxun.addp.web.common.annotation.Clear;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
 import com.nix.jingxun.addp.web.model.MemberModel;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -25,7 +27,7 @@ import java.util.stream.Stream;
  * 权限管理
  */
 @Component
-public class PermissionInterceptor implements HandlerInterceptor, PermissionHandler<Object,Method> {
+public class PermissionInterceptor implements HandlerInterceptor, PermissionHandler<Object, Method> {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception exception) throws Exception {
     }
@@ -34,10 +36,9 @@ public class PermissionInterceptor implements HandlerInterceptor, PermissionHand
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
 
     }
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //将session缓存
-        System.out.println(Arrays.toString(request.getCookies()));
         if (request.getCookies() != null) {
             Stream.of(request.getCookies())
                     .filter(cookie -> cookie.getName().equals(MemberCache.USER_SESSION_KEY))
@@ -45,7 +46,7 @@ public class PermissionInterceptor implements HandlerInterceptor, PermissionHand
                     .ifPresent(token -> {
                         try {
                             MemberCache.setToken(
-                                    URLDecoder.decode(token.getValue(),"utf-8")
+                                    URLDecoder.decode(token.getValue(), "utf-8")
                             );
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
@@ -53,48 +54,29 @@ public class PermissionInterceptor implements HandlerInterceptor, PermissionHand
                     });
         }
 
+
 //        //获取session缓存用户
 //        MemberBaseModel user = (MemberBaseModel) request.getSession().getAttribute(MemberCache.USER_SESSION_KEY);
 //        //将session缓存
 //        MemberCache.putUser(request.getSession());
-//        //对请求方法进行拦截
-//        if (handler instanceof HandlerMethod) {
-//            HandlerMethod handlerMethod = (HandlerMethod) handler;
-//            Method method = handlerMethod.getMethod();
-//            //判断controller需要执行的方法是否需要权限校验
-//            if (methodIsPermission(method)) {
-//                Clear methodClear = method.getAnnotation(Clear.class);
-//                Clear controllerClear = method.getDeclaringClass().getAnnotation(Clear.class);
-//                //如果method没有标识为清除权限校验
-//                if (methodClear == null && controllerClear == null) {
-//                    boolean ok;
-//                    if (user != null) {
-//                        //判断用户是否具有方法的执行权限
-//                        ok = userPermission(user,method);
-//                    } else {
-//                        //如果用户未登录
-//                        AdminController adminController = method.getDeclaringClass().getAnnotation(AdminController.class);
-//                        if (adminController != null) {
-//                            response.sendRedirect("/admin/login");
-//                        } else {
-//                            response.sendRedirect("/member/login");
-//                        }
-//                        return false;
-//                    }
-//                    //如果用户权限不足
-//                    if (!ok) {
-//                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "权限不足");
-//                        return ok;
-//                    }
-//                }
-//            }
-//        }
+        //对请求方法进行拦截
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            Method method = handlerMethod.getMethod();
+            //判断controller需要执行的方法是否需要权限校验
+            if (method.getAnnotation(Clear.class) == null) {
+                if (MemberCache.currentUser() == null) {
+                    response.setStatus(401);
+                    return false;
+                }
+            }
+        }
         return true;
     }
 
     /**
      * 判断该方法是否需要拦截权限
-     * */
+     */
 //    private boolean methodIsPermission(Method method) {
 //        MemberController memberController = method.getDeclaringClass().getAnnotation(MemberController.class);
 //        AdminController adminController = method.getDeclaringClass().getAnnotation(AdminController.class);
@@ -147,7 +129,6 @@ public class PermissionInterceptor implements HandlerInterceptor, PermissionHand
 //        }
 //        return false;
 //    }
-
     @Override
     public boolean isHavePermission(Object roleInterface, Method method) {
         return false;

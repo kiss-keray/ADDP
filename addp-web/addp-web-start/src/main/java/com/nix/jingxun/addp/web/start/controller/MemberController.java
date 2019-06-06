@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.web.start.controller;
 
 import cn.hutool.core.map.MapUtil;
 import com.nix.jingxun.addp.common.Result;
+import com.nix.jingxun.addp.web.common.annotation.Clear;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
@@ -30,18 +31,21 @@ public class MemberController extends BaseController {
                 return Result.fail("FAIL", "用户已存在");
             }
             member.setPassword(null);
-            MemberCache.setCurrentUser(member);
+            String token = MemberCache.setCurrentUser(member);
             return Result.success(member);
         }).failFlat(this::failFlat).logFail();
     }
 
+    @Clear
     @PostMapping("/login")
     public Result login(@RequestParam("username") String username, @RequestParam("password") String password) {
         return Result.of(() -> memberService.login(username, password))
-                .peek(MemberCache::setCurrentUser).map(model ->
-                        MapUtil.builder()
-                                .put("member",model)
-                                .put("token",MemberCache.memberToken(model))
-                                .build()).logFail();
+                .map(model -> {
+                    String token = MemberCache.setCurrentUser(model);
+                    return MapUtil.builder()
+                            .put("member", model)
+                            .put("token", token)
+                            .build();
+                }).failFlat(this::failFlat).logFail();
     }
 }

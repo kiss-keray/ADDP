@@ -21,6 +21,10 @@ spring:
       max-wait: 3000
       min-idle: 1
       time-between-eviction-runs-millis: 1000
+  mvc:
+    view:
+      suffix: .html
+    static-path-pattern: /react/**
 
 jingxun:
   web:
@@ -32,7 +36,6 @@ jingxun:
       rocketMQHost: 59.110.234.213:9876
       mqGroup: addp
       mqInstanceName: jingxun
-
 #开发
 ---
 spring:
