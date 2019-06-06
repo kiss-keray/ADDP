@@ -14,6 +14,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -119,5 +120,13 @@ public class SpringConfig {
         return objectMapper;
     }
 
+
+    /**
+     * web socket支持
+     * */
+    @Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
+    }
 
 }

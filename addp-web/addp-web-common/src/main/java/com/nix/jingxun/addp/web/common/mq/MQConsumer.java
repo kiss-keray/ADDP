@@ -28,6 +28,9 @@ public class MQConsumer {
     private DefaultMQPushConsumer billStatusConsumer;
     @PostConstruct
     public void billStatusConsumer() {
+        initBillStatusConsumer();
+    }
+    public void initBillStatusConsumer() {
         billStatusConsumer = new DefaultMQPushConsumer(MQConfig.mqGroup);
         billStatusConsumer.setNamesrvAddr(MQConfig.rocketMQHost);
         billStatusConsumer.setInstanceName(MQConfig.mqInstanceName);

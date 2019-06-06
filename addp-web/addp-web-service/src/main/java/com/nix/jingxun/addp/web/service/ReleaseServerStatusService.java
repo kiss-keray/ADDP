@@ -67,37 +67,38 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
             ReleaseServerStatusModel model = getByBillServer(billModel, serverModel);
             model.setReleasePhase(releasePhase);
             model.setReleaseType(releaseType);
+            LocalDateTime now = LocalDateTime.now();
             switch (releasePhase) {
                 case pullCode: {
                     if (releaseType == ReleaseType.run) {
-                        model.setOneStartTime(LocalDateTime.now());
-                        model.setOneFinishTime(null);
+                        model.setOneStartTime(now);
+                        model.setOneFinishTime(now);
                     } else {
-                        model.setOneFinishTime(LocalDateTime.now());
+                        model.setOneFinishTime(now);
                     }
                 }
                 break;
                 case build: {
                     if (releaseType == ReleaseType.run) {
-                        model.setTwoStartTime(LocalDateTime.now());
-                        model.setTwoFinishTime(null);
+                        model.setTwoStartTime(now);
+                        model.setTwoFinishTime(now);
                     } else {
-                        model.setTwoFinishTime(LocalDateTime.now());
+                        model.setTwoFinishTime(now);
                     }
                 }
                 break;
                 case start: {
                     if (releaseType == ReleaseType.run) {
-                        model.setThreeStartTime(LocalDateTime.now());
-                        model.setThreeFinishTime(null);
+                        model.setThreeStartTime(now);
+                        model.setThreeFinishTime(now);
                     } else {
-                        model.setThreeFinishTime(LocalDateTime.now());
+                        model.setThreeFinishTime(now);
                     }
                 }
                 break;
             }
-            producer.billStatusChange(billModel);
             releaseServerStatusService.update(model);
+            producer.billStatusChange(billModel);
         } catch (Exception e) {
             log.error(StrUtil.format("修改服务器发布状态失败 {} {}", serverModel.getIp(), billModel._getChangeBranchModel().getName()), e);
         }
@@ -121,8 +122,6 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
 
     @Override
     public boolean aServerPullCode(ReleaseBillModel billModel, ServerModel serverModel) {
-        ReleaseServerStatusModel statusModel = getByBillServer(billModel, serverModel);
-
         // 检测项目是否存在其他的发布单正在一二阶段  一二阶段暂时互斥 不能同时存在几个部署
         setCurrentStatus(billModel, serverModel, ReleasePhase.pullCode, ReleaseType.run);
         boolean result = false;
@@ -148,7 +147,6 @@ public class ReleaseServerStatusService extends BaseServiceImpl<ReleaseServerSta
 
     @Override
     public boolean aServerBuild(ReleaseBillModel billModel, ServerModel serverModel) {
-        ReleaseServerStatusModel statusModel = getByBillServer(billModel, serverModel);
         setCurrentStatus(billModel, serverModel, ReleasePhase.build, ReleaseType.run);
         boolean result = false;
         ShellExe shellExe = null;

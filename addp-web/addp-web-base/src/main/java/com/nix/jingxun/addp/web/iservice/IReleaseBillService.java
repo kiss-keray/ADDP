@@ -2,6 +2,8 @@ package com.nix.jingxun.addp.web.iservice;
 
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
+import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
+import com.nix.jingxun.addp.web.IEnum.ReleaseType;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ReleaseBillModel;
@@ -125,5 +127,7 @@ public interface IReleaseBillService  extends BaseService<ReleaseBillModel,Long>
     boolean startApp(ReleaseBillModel releaseBillModel, ShellExe shellExe) throws Exception;
 
     boolean billDown(ReleaseBillModel bill, ShellExe shellExe);
+
+    void setBillStatus(ReleaseBillModel billModel,ReleasePhase releasePhase, ReleaseType releaseType);
 
 }
