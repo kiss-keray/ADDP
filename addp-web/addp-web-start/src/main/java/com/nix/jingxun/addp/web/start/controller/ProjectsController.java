@@ -37,6 +37,7 @@ public class ProjectsController extends BaseController {
                 return Result.fail("1401", "no project permission " + projectsModel.getName());
             }
             projectsModel.setMemberId(MemberCache.currentUser().getId());
+            projectsModel.setGitPassword(AESUtil.encryption(projectsModel.getGitPassword()));
             return projectsService.save(projectsModel);
         }).logFail();
     }
