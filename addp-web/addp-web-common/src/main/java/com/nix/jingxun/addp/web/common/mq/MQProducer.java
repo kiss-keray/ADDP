@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.SendStatus;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.stereotype.Component;
@@ -52,7 +53,10 @@ public class MQProducer {
         Message message = new Message(MQTopic.BILL_STATUS_TP, billModel.getId().toString().getBytes());
         try {
             log.info("bill start mq send {}",billModel.getId());
-            producer.send(message);
+            SendResult result = producer.send(message);
+            if (result.getSendStatus() != SendStatus.SEND_OK) {
+                log.warn("消息通知异常{}",result);
+            }
         } catch (InterruptedException | RemotingException e) {
             billStatusChange(billModel, time);
         } catch (Exception e) {
