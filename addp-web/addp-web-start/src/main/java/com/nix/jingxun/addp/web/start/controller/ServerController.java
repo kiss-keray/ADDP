@@ -5,6 +5,8 @@ import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.common.util.AESUtil;
 import com.nix.jingxun.addp.web.domain.WebPageable;
+import com.nix.jingxun.addp.web.exception.Code;
+import com.nix.jingxun.addp.web.exception.WebRunException;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.model.MemberModel;
@@ -13,9 +15,12 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 /**
  * @author keray
@@ -32,32 +37,27 @@ public class ServerController extends BaseController{
     private IProjectsService projectsService;
 
     @PostMapping("/create")
-    public Result create(@Valid @ModelAttribute ServerModel serverModel) {
+    public Result create(@Valid @ModelAttribute ServerModel serverModel,
+                         @RequestParam(value = "sshFile",required = false) MultipartFile proKey) {
         return Result.of(() -> {
+            if (proKey != null) {
+                byte[] bytes = new byte[10240];
+                try {
+                    int len = proKey.getInputStream().read(bytes);
+                    serverModel.setSshKey(new String(bytes,0,len, StandardCharsets.UTF_8));
+                } catch (IOException e) {
+                    throw new WebRunException(Code.dataError,e.getMessage());
+                }
+
+            }
             MemberModel currentMember = MemberCache.currentUser();
             serverModel.setMemberId(currentMember == null ? -1 : currentMember.getId());
             serverModel.setPassword(AESUtil.encryption(serverModel.getPassword()));
-            try {
-                return servicesService.save(serverModel);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return Result.fail(e);
+            serverModel.setPassphrase(AESUtil.encryption(serverModel.getPassphrase()));
+            if (serverModel.getId() != null) {
+                return servicesService.update(serverModel);
             }
-
-        }).logFail();
-    }
-
-    @PutMapping("/update")
-    public Result update(@Valid @ModelAttribute ServerModel serverModel) {
-        return Result.of(() -> {
-            serverModel.setPassword(AESUtil.encryption(serverModel.getPassword()));
-            try {
-                ServerModel newM = servicesService.update(serverModel);
-                newM.setPassword(AESUtil.decrypt(newM.getPassword()));
-                return newM;
-            } catch (Exception e) {
-                return e;
-            }
+            return servicesService.save(serverModel);
         }).failFlat(this::failFlat).logFail();
     }
 
@@ -66,7 +66,10 @@ public class ServerController extends BaseController{
         return Result.of(() -> {
             if (webPageable != null) {
                 Page<ServerModel> page = servicesService.memberServices(webPageable,environment);
-                page.getContent().forEach(s -> s.setPassword(AESUtil.decrypt(s.getPassword())));
+                page.getContent().forEach(s -> {
+                    s.setPassword(AESUtil.decrypt(s.getPassword()));
+                    s.setPassphrase(AESUtil.decrypt(s.getPassphrase()));
+                });
                 return page;
             }
             return Collections.emptyList();

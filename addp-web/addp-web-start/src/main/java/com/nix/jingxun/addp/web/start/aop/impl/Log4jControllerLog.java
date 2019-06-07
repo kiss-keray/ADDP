@@ -20,8 +20,12 @@ public class Log4jControllerLog implements ControllerLog {
         if (joinPoint != null) {
             log.info(joinPoint.getSignature().getDeclaringTypeName());
             log.info(joinPoint.getSignature().getName());
-            String str = JSON.toJSONString(joinPoint.getArgs());
-            log.info(str.length() > 1024 ? joinPoint.getArgs().toString() : str);
+            try {
+                String str = JSON.toJSONString(joinPoint.getArgs());
+                log.info(str.length() > 1024 ? joinPoint.getArgs().toString() : str);
+            }catch (Exception e) {
+                log.error("args to json error");
+            }
         }
         log.info("==============================================");
     }

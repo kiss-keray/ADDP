@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.web.common.util;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.symmetric.AES;
 import com.nix.jingxun.addp.web.common.config.WebConfig;
 
@@ -13,7 +14,7 @@ public class AESUtil {
      * 加密
      * */
     public static String encryption(String source) {
-        if (source == null) {
+        if (StrUtil.isBlank(source)) {
             return null;
         }
         return AES.encryptBase64(source);
@@ -22,7 +23,7 @@ public class AESUtil {
      * 解密
      * */
     public static String decrypt(String base64Str) {
-        if (base64Str == null) {
+        if (StrUtil.isBlank(base64Str)) {
             return null;
         }
         return AES.decryptStr(base64Str);

@@ -1,9 +1,6 @@
 package com.nix.jingxun.addp.ssh.common.util;
 
-import com.jcraft.jsch.ChannelShell;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import com.jcraft.jsch.*;
 import com.nix.jingxun.addp.common.Fetch;
 import com.nix.jingxun.addp.ssh.common.exception.ShellConnectException;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
@@ -32,7 +29,6 @@ public class ShellExe {
                         t.setName("shell");
                         return t;
                     });
-    private final static JSch jsch = new JSch();
     //设置ssh连接的远程端口
     private static final int DEFAULT_SSH_PORT = 22;
     private final Session session;
@@ -42,10 +38,21 @@ public class ShellExe {
     private String ip;
 
     private ShellExe(String ip, String username, String password, long time) throws IOException, JSchException {
+        JSch jsch = new JSch();
         this.ip = ip;
         //创建session并且打开连接，因为创建session之后要主动打开连接
         session = jsch.getSession(username, ip, DEFAULT_SSH_PORT);
         session.setPassword(password);
+        sessionConnect(session,time);
+    }
+    private ShellExe(String ip,String username,String sshKey,String passphrase,long time) throws IOException, JSchException {
+        JSch jsch = new JSch();
+        this.ip = ip;
+        jsch.addIdentity("addp",sshKey.getBytes(),null,passphrase.getBytes());
+        session =jsch.getSession(username, ip, DEFAULT_SSH_PORT);
+        sessionConnect(session,time);
+    }
+    private void sessionConnect(Session session,long time) throws IOException, JSchException {
         //  必须设置userInfo 同意key使用
         SSHUser userInfo = new SSHUser();
         session.setUserInfo(userInfo);
@@ -75,6 +82,10 @@ public class ShellExe {
 
     public static ShellExe connect(String ip, String username, String password) throws IOException, JSchException {
         return new ShellExe(ip, username, password, 3000);
+    }
+
+    public static ShellExe connect(String ip,String username,String sshKey,String passphrase) throws IOException, JSchException {
+        return new ShellExe(ip,username,sshKey,passphrase,3000);
     }
 
     @SafeVarargs

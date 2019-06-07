@@ -92,7 +92,13 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
      */
     public ShellExe shellExeByUsername(ServerModel serverModel) throws JSchException, IOException {
         // 拿到服务器执行shell
-        return ShellExe.connect(serverModel.getIp(), serverModel.getUsername(), AESUtil.decrypt(serverModel.getPassword()));
+        if (StrUtil.isNotBlank(serverModel.getPassword())) {
+            return ShellExe.connect(serverModel.getIp(), serverModel.getUsername(), AESUtil.decrypt(serverModel.getPassword()));
+        }
+        if (StrUtil.isNotBlank(serverModel.getSshKey())) {
+            return ShellExe.connect(serverModel.getIp(),serverModel.getUsername(),serverModel.getSshKey(),AESUtil.decrypt(serverModel.getPassphrase()));
+        }
+        throw new JSchException("auth fail");
     }
 
     public ShellExe gitAuth(ShellExe shellExe, ProjectsModel projectsModel) {

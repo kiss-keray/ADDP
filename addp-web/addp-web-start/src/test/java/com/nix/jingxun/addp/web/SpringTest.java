@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.web;
 
+import com.jcraft.jsch.JSchException;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.iservice.IServerService;
@@ -12,13 +13,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 /**
  * @author keray
  * @date 2019/05/21 18:46
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ComponentScan("com.nix.jingxun.addp.*")
 public class SpringTest {
     @Resource
@@ -43,5 +45,10 @@ public class SpringTest {
     @Test
     public void selectProjectBill() {
         System.out.println(releaseBillService.selectProjectBill(4L,ADDPEnvironment.test));
+    }
+
+    @Test
+    public void sshKey() throws IOException, JSchException {
+        servicesService.shellExeByUsername(servicesService.findById(4L));
     }
 }

@@ -24,14 +24,19 @@ import javax.validation.constraints.Pattern;
 public class ServerModel extends BaseModel {
 
     @Pattern(regexp = "[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}\\.[\\d]{1,3}")
-    @Column(nullable = false)
+    @Column(nullable = false,length = 32)
     private String ip;
     // ssh端口 默认22
     @Column(columnDefinition="int(11) default 22")
     private Integer port;
+    @Column(length = 64)
     private String username;
+    @Column(length = 64)
     private String password;
+    @Column(columnDefinition="text")
     private String sshKey;
+    @Column(length = 64)
+    private String passphrase;
     private Long memberId;
     // 服务器所属环境
     @Enumerated(EnumType.STRING)
