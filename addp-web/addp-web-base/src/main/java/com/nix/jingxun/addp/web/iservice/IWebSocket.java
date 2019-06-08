@@ -8,4 +8,5 @@ import com.nix.jingxun.addp.web.model.ReleaseBillModel;
  */
 public interface IWebSocket {
     void notifyClient(ReleaseBillModel billModel);
+    void pushReleaseData(Long billId,String content);
 }

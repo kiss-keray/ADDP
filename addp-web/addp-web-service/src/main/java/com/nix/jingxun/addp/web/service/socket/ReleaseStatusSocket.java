@@ -35,6 +35,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ReleaseStatusSocket implements IWebSocket {
 
     private static final ConcurrentMap<Long, Set<Session>> sessionMap = new ConcurrentHashMap<>();
+    private final static ConcurrentMap<Long,StringBuffer> releaseContent = new ConcurrentHashMap<>();
     private static final ConcurrentMap<Session, Long> sessionBillIpMap = new ConcurrentHashMap<>();
     private static final String[] sessionRemoveClock = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"};
     private Session mySession;
@@ -76,14 +77,17 @@ public class ReleaseStatusSocket implements IWebSocket {
         unSubscribeBillStatus();
         sessionBillIpMap.put(mySession, billId);
         Set<Session> sessions = sessionMap.get(billId);
+        releaseContent.putIfAbsent(billId,new StringBuffer());
         if (sessions == null) {
             sessions = Collections.synchronizedSet(new LinkedHashSet());
+            synchronized (sessionRemoveClock[(int) (billId & 15)]) {
+                Set<Session> bak = sessionMap.putIfAbsent(billId, sessions);
+                if (bak != null) {
+                    sessions = bak;
+                }
+            }
         }
-
         sessions.add(mySession);
-        synchronized (sessionRemoveClock[(int) (billId & 15)]) {
-            sessionMap.putIfAbsent(billId, sessions);
-        }
         try {
             send(mySession, WebSocketMsg.of("hello", StrUtil.format("订阅{}发布单成功", billId)));
         } catch (IOException ignore) {
@@ -132,6 +136,24 @@ public class ReleaseStatusSocket implements IWebSocket {
                                 .environment(billModel.getEnvironment())
                                 .releaseServerStatusModels(models)
                                 .build()));
+                    } catch (IOException e) {
+                        log.error("bill status send socket error:", e);
+                    }
+                });
+            }
+        });
+    }
+
+
+    public void pushReleaseData(Long billId,String content) {
+        log.info("notify client release data {}", billId);
+        StringBuffer data = releaseContent.get(billId);
+        WebThreadPool.IO_THREAD.execute(() -> {
+            if (sessionMap.containsKey(billId)) {
+                List<Session> clients = new CopyOnWriteArrayList<>(sessionMap.get(billId));
+                clients.forEach(client -> {
+                    try {
+                        send(client,WebSocketMsg.of("release_data",content));
                     } catch (IOException e) {
                         log.error("bill status send socket error:", e);
                     }

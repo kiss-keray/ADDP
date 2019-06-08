@@ -45,6 +45,9 @@ public class ReleaseServerStatusModel extends BaseModel{
     private LocalDateTime threeStartTime;
     private LocalDateTime threeFinishTime;
 
+
+    @Column(columnDefinition="text")
+    private String releaseData;
     @Transient
     public int getOneTime() {
         if (oneFinishTime != null && oneStartTime != null) {
