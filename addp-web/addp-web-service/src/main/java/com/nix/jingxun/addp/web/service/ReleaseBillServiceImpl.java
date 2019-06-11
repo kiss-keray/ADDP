@@ -360,6 +360,7 @@ public class ReleaseBillServiceImpl extends BaseServiceImpl<ReleaseBillModel, Lo
                 String branch = releaseBillModel._getChangeBranchModel()._getProjectsModel().getMaster();
                 // 合并当前分支到master 并切换到master (master为项目设置主分支)
                 shellExe.syncExecute(StrUtil.format("git checkout {}", branch), ShellExeLog.success, ShellExeLog.fail)
+                        .syncExecute(StrUtil.format("git reset --hard origin/{}",branch),ShellExeLog.success,ShellExeLog.fail)
                         .ASsyncExecute(StrUtil.format("git merge {}", releaseBillModel._getChangeBranchModel().getBranchName()),
                                 ShellExeLog.webSocketLog,
                                 ShellExeLog.fail,

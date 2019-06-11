@@ -9,6 +9,7 @@ import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IProjectsService;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
+import com.nix.jingxun.addp.web.iservice.IServerService;
 import com.nix.jingxun.addp.web.model.ChangeBranchModel;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
 import com.nix.jingxun.addp.web.model.ServerModel;
@@ -35,6 +36,8 @@ public class ChangeBranchController extends BaseController {
 
     @Resource
     private IReleaseBillService releaseBillService;
+    @Resource
+    private IServerService serverService;
 
     @PostMapping("/create")
     public Result create(@Valid @ModelAttribute ChangeBranchModel changeBranchModel) {
@@ -93,9 +96,8 @@ public class ChangeBranchController extends BaseController {
         return Result.of(() -> {
             try {
                 ChangeBranchModel model = changeBranchService.findById(id);
-                List<ServerModel> servers = model._getProjectsModel()._getServerModels();
-                if (CollectionUtil.isEmpty(servers) || CollectionUtil.isEmpty(servers.stream()
-                .filter(s -> s.getEnvironment() == environment).collect(Collectors.toList()))) {
+                List<ServerModel> servers =serverService.selectAllServes(model._getProjectsModel(),environment);
+                if (CollectionUtil.isEmpty(servers)) {
                     return Result.fail(Code.dataError.name(),"当前环境未设置服务器，无法部署");
                 }
                 return releaseBillService.createBill(model,environment);
