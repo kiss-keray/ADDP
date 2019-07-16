@@ -122,5 +122,11 @@
             <artifactId>addp-common</artifactId>
             <version>1.0.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.nix.jingxun</groupId>
+            <artifactId>addp-rpc-producer</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 </project>

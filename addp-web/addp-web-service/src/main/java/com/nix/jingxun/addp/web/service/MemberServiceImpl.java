@@ -1,7 +1,5 @@
 package com.nix.jingxun.addp.web.service;
 
-import cn.hutool.crypto.digest.MD5;
-import com.nix.jingxun.addp.web.common.util.MD5Util;
 import com.nix.jingxun.addp.web.iservice.IMemberService;
 import com.nix.jingxun.addp.web.jpa.MemberJpa;
 import com.nix.jingxun.addp.web.model.MemberModel;
@@ -9,6 +7,7 @@ import com.nix.jingxun.addp.web.service.base.BaseServiceImpl;
 import org.springframework.data.domain.Example;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -51,5 +50,19 @@ public class MemberServiceImpl extends BaseServiceImpl<MemberModel,Long> impleme
             m.setPassword(null);
             return m;
         }).orElse(null);
+    }
+
+
+    @Override
+    @Transactional
+    public MemberModel add(String username, String password) {
+        MemberModel model = super.save(MemberModel.builder()
+                .username(username)
+                .password(password)
+                .build());
+        if (true) {
+//            throw new RuntimeException("sssss");
+        }
+        return model;
     }
 }

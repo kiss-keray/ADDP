@@ -17,5 +17,10 @@
             <groupId>com.nix.jingxun</groupId>
             <artifactId>addp-rpc-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.nix.jingxun</groupId>
+            <artifactId>addp-web-base</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 </project>

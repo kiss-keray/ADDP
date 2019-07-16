@@ -25,12 +25,8 @@ public final class RPCProducer {
         nettyServer.start();
     }
 
-    public static Object registerProducer(Class<?> interfaceClass,Object producer, String app, String group, String version,Object newBean) throws Exception {
+    public static Object registerProducer(Class<?> interfaceClass,Object producer, String app, String group, String version) throws Exception {
         // 防止bean被多个factory注入
-
-        if (InvokeContainer.isExistImpl(interfaceClass.getName())) {
-            return newBean;
-        }
         try {
             String host = (CommonConfig.PRODUCER_INVOKE_LOCALHOST == null ?
                     Inet4Address.getLocalHost().getHostAddress() : CommonConfig.PRODUCER_INVOKE_LOCALHOST) + ":" + CommonConfig.PRODUCER_INVOKE_PORT;
@@ -41,7 +37,7 @@ public final class RPCProducer {
             request.setGroup(group);
             request.setVersion(version);
             Method[] methods = interfaceClass.getMethods();
-            if (methods != null && methods.length > 0) {
+            if (methods.length > 0) {
                 request.setMethods(Stream.of(methods)
                         .map(item -> new Producer2ServerRequest.MethodMsg(item.getName(),
                                 Stream.of(item.getParameterTypes())
@@ -62,7 +58,7 @@ public final class RPCProducer {
         log.info("服务注册SUCCESS {}",interfaceClass.getName());
         RPCInvoke rpcBean = ASM.changeBean(producer);
         InvokeContainer.addInterface(interfaceClass.getName(), rpcBean);
-        return rpcBean;
+        return null;
     }
 
 }

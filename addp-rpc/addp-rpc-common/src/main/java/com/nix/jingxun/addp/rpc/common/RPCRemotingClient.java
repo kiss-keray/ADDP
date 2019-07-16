@@ -88,7 +88,7 @@ public class RPCRemotingClient extends BaseRemoting {
             ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_SYN_COMMAND, new ARPCHeardProcessor());
             ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_ACK_COMMAND, new ARPCHeardProcessor());
         } catch (Exception e) {
-            log.info("client注册协议失败");
+            log.error("client注册协议失败",e);
         }
     }
 

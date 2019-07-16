@@ -22,6 +22,7 @@ public final class InvokeContainer {
     public static RPCInvoke getImpl(String key) {
         return INVOKE_INTERFACES.get(key);
     }
+
     public static boolean isExistImpl(String  key) {
         return INVOKE_INTERFACES.containsKey(key);
     }

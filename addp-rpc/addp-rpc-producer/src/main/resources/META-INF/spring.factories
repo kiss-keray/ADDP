@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.nix.jingxun.addp.rpc.producer.RegisterProducer
+com.nix.jingxun.addp.rpc.producer.RegisterProducer,\
+com.nix.jingxun.addp.rpc.producer.SpringEvent

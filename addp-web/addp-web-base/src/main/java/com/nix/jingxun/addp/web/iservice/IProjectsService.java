@@ -1,5 +1,6 @@
 package com.nix.jingxun.addp.web.iservice;
 
+import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
 import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import com.nix.jingxun.addp.ssh.common.util.ShellExe;
 import com.nix.jingxun.addp.web.model.ProjectsModel;
@@ -9,6 +10,8 @@ import com.nix.jingxun.addp.web.model.ServerModel;
  * @author keray
  * @date 2019/04/21 13:54
  */
+
+//@RPCInterfaceAnnotation(appName = "app1")
 public interface IProjectsService extends BaseService<ProjectsModel,Long> {
 
     /**

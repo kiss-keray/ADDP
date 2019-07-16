@@ -24,7 +24,7 @@ public class ASM {
         createInit(cw,newClassPath);
         createInvokeMethod(impl.getMethods(),cw,newClassPath);
         cw.visitEnd();
-        Class<?> clazz = CommonUtil.createClassFile(cw.toByteArray(),CommonUtil.filepath2ClassName(newClassPath));
+        Class<?> clazz = CommonUtil.createClassLoader(cw.toByteArray(),CommonUtil.filepath2ClassName(newClassPath));
         Constructor constructor = clazz.getConstructor(Object.class);
         return (RPCInvoke) constructor.newInstance(bean);
     }

@@ -1,6 +1,5 @@
 package com.nix.jingxun.addp.rpc.producer;
 
-import com.nix.jingxun.addp.rpc.producer.test.HelloImpl;
 import com.nix.jingxun.addp.rpc.producer.test.User1;
 import org.junit.Test;
 
@@ -18,7 +17,6 @@ public class ASMTest {
     @Test
     public void implTest() throws Exception {
         User1 user;
-        ASM.changeBean(new HelloImpl());
 
     }
 }

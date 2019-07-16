@@ -1,5 +1,7 @@
 package com.nix.jingxun.addp.rpc.producer;
 
+import com.nix.jingxun.addp.rpc.common.event.ProducerBeanPostEvent;
+import io.swagger.models.auth.In;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,5 +21,10 @@ public class Main {
     @Test
     public void main() throws Exception {
         System.in.read(new byte[1]);
+    }
+
+    @Test
+    public void eventTest() {
+        applicationContext.publishEvent(new ProducerBeanPostEvent(this,"test", Integer.class));
     }
 }

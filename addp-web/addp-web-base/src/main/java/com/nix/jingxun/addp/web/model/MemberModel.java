@@ -18,10 +18,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Proxy(lazy = false)
-@Table(name = "nix_member",indexes = {@Index(name = "index_username",columnList = "username",unique = true)})
-public class MemberModel  extends BaseModel {
+@Table(name = "nix_member")
+public class MemberModel extends BaseModel {
     @Column(length = 64)
     private String username;
     @Column(length = 32)
     private String password;
+
+    public static void main(String[] args) {
+        System.out.println(new MemberModel());
+    }
 }

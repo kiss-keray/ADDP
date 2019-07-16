@@ -1,7 +1,7 @@
-package com.nix.jingxun.addp.rpc.producer.test;
+package com.nix.jingxun.addp.rpc.consumer;
 
 import com.nix.jingxun.addp.rpc.consumer.proxy.RPCConsumerFactory;
-import com.nix.jingxun.addp.rpc.producer.test.Hello;
+import com.nix.jingxun.addp.web.iservice.IMemberService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class Config {
     @Bean
-    public Hello hello() {
-        return RPCConsumerFactory.consumer(Hello.class);
+    public IMemberService memberService() {
+        return RPCConsumerFactory.consumer(IMemberService.class);
     }
 }

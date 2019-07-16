@@ -18,24 +18,24 @@ import java.time.LocalDateTime;
 @Component
 public class ModelTimeAop {
 
-    @Pointcut("execution(* com.nix.jingxun.addp.web.service.base.BaseServiceImpl.update(*))")
-    public void update() {}
-
-    @Before("update()")
-    public void updateBefore(JoinPoint joinPoint) {
-        Object[] args = joinPoint.getArgs();
-        BaseModel model = (BaseModel) args[0];
-        model.setModifyTime(LocalDateTime.now());
-    }
-
-    @Pointcut("execution(* com.nix.jingxun.addp.web.service.base.BaseServiceImpl.save(*))")
-    public void save() {}
-
-    @Before("save()")
-    public void saveBefore(JoinPoint joinPoint) {
-        Object[] args = joinPoint.getArgs();
-        BaseModel model = (BaseModel) args[0];
-        model.setCreateTime(LocalDateTime.now());
-        model.setModifyTime(LocalDateTime.now());
-    }
+//    @Pointcut("execution(* com.nix.jingxun.addp.web.service.base.BaseServiceImpl.update(*))")
+//    public void update() {}
+//
+//    @Before("update()")
+//    public void updateBefore(JoinPoint joinPoint) {
+//        Object[] args = joinPoint.getArgs();
+//        BaseModel model = (BaseModel) args[0];
+//        model.setModifyTime(LocalDateTime.now());
+//    }
+//
+//    @Pointcut("execution(* com.nix.jingxun.addp.web.service.base.BaseServiceImpl.save(*))")
+//    public void save() {}
+//
+//    @Before("save()")
+//    public void saveBefore(JoinPoint joinPoint) {
+//        Object[] args = joinPoint.getArgs();
+//        BaseModel model = (BaseModel) args[0];
+//        model.setCreateTime(LocalDateTime.now());
+//        model.setModifyTime(LocalDateTime.now());
+//    }
 }

@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.rpc.server;
+package com.nix.jingxun.addp.rpc.server.config;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;

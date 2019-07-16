@@ -6,11 +6,12 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: net.sf.log4jdbc.DriverSpy
-    url: jdbc:log4jdbc:mysql://59.110.234.213:3306/addp-web?useSSL=false&characterEncoding=utf8
+    url: jdbc:log4jdbc:mysql://59.110.234.213:3306/addp-web-test?useSSL=false&characterEncoding=utf8
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8

@@ -14,8 +14,7 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.web.socket.server.standard.ServerEndpointExporter;
-
+import org.springframework.orm.jpa.JpaTransactionManager;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -121,12 +120,18 @@ public class SpringConfig {
     }
 
 
+    @Bean
+    public JpaTransactionManager transactionManager() {
+        return new JpaTransactionManager();
+    }
+
+
     /**
      * web socket支持
      * */
-    @Bean
-    public ServerEndpointExporter serverEndpointExporter() {
-        return new ServerEndpointExporter();
-    }
+//    @Bean
+//    public ServerEndpointExporter serverEndpointExporter() {
+//        return new ServerEndpointExporter();
+//    }
 
 }
