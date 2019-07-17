@@ -21,7 +21,7 @@ public class JsonTest {
                 "            \"methodName\": \"sayHello\",\n" +
                 "            \"paramType\": [\n" +
                 "                \"java.lang.String\",\n" +
-                "                \"com.nix.jingxun.addp.rpc.common.RPCRequest\"\n" +
+                "                \"com.nix.jingxun.addp.rpc.common.protocol.RPCRequest\"\n" +
                 "            ]\n" +
                 "        }\n" +
                 "    ],\n" +

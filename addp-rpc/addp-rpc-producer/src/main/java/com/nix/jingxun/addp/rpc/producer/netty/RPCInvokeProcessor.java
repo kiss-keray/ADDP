@@ -3,18 +3,17 @@ package com.nix.jingxun.addp.rpc.producer.netty;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alipay.remoting.RemotingContext;
-import com.nix.jingxun.addp.rpc.common.RPCRequest;
-import com.nix.jingxun.addp.rpc.common.RPCResponse;
+import com.alipay.remoting.ResponseStatus;
+import com.nix.jingxun.addp.rpc.common.exception.RpcRuntimeException;
+import com.nix.jingxun.addp.rpc.common.protocol.RPCRequest;
+import com.nix.jingxun.addp.rpc.common.protocol.RPCResponse;
 import com.nix.jingxun.addp.rpc.common.protocol.AbstractRPCRequestProcessor;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
-import com.nix.jingxun.addp.rpc.common.serializable.JsonSerializer;
 import com.nix.jingxun.addp.rpc.producer.ASM;
 import com.nix.jingxun.addp.rpc.producer.InvokeContainer;
 import com.nix.jingxun.addp.rpc.producer.RPCInvoke;
 import lombok.extern.slf4j.Slf4j;
-
-import java.lang.reflect.Method;
 
 /**
  * @author keray
@@ -28,14 +27,20 @@ public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> 
             response.setContext(request.getContext());
             RPCInvoke invoke = InvokeContainer.getImpl(request.getInterfaceName());
             Class<?>[] methodParamSign = request.getMethodParamTypes();
-            Object result = invoke.invoke(ASM.getMethodSign(request.getMethod(),methodParamSign),request.getParams());
-            response.setCode(RPCResponse.ResponseCode.SUCCESS);
-            if (result != null) {
-                response.setResult(new RPCResponse.SuccessResult(result.getClass(), result));
+            Object result = null;
+            try {
+                result = invoke.invoke(ASM.getMethodSign(request.getMethod(),methodParamSign),request.getParams());
+                response.setStatus(ResponseStatus.SUCCESS);
+                if (result != null) {
+                    response.setResult(new RPCResponse.SuccessResult(result.getClass(), result));
+                }
+            }catch (Exception e) {
+                response.setStatus(ResponseStatus.SERVER_EXCEPTION);
+                response.setError(new RPCResponse.ErrorResult("rpc执行失败", e));
             }
         } catch (Exception e) {
-            response.setCode(RPCResponse.ResponseCode.ERROR);
-            response.setError(new RPCResponse.ErrorResult(RPCResponse.ResponseError.EXCEPTION, e));
+            response.setStatus(ResponseStatus.UNKNOWN);
+            response.setError(new RPCResponse.ErrorResult("rpc执行失败", new RpcRuntimeException(e)));
         }
         return response;
     }
@@ -43,7 +48,7 @@ public class RPCInvokeProcessor extends AbstractRPCRequestProcessor<RPCPackage> 
     @Override
     public RPCPackage process(RemotingContext ctx, RPCPackage msg) throws Exception {
         log.info("rpc invoke {}", msg);
-        RPCRequest request = (RPCRequest) msg.getObject();
+        RPCRequest request = msg.coverRequest();
         if (request.getParamData() != null) {
             for (int i = 0;i < request.getMethodParamTypes().length;i ++ ) {
                 try {

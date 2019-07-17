@@ -29,9 +29,11 @@ public class ARPCDecoder implements CommandDecoder {
             RPCPackage message = RPCPackage.createRequestMessage(RPCPackageCode.valueOfCode(commandCode));
             message.setId(id);
             byte[] content = new byte[in.readInt()];
-            in.readBytes(content);
-            message.setContent(content);
-            message.deserialize();
+            if (content.length > 0) {
+                in.readBytes(content);
+                message.setContent(content);
+                message.deserialize();
+            }
             log.debug("decode : {}", message);
             out.add(message);
         } catch (Exception e) {

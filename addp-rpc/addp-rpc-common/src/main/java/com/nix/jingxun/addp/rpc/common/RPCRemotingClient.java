@@ -6,7 +6,7 @@ import com.alipay.remoting.config.switches.GlobalSwitch;
 import com.alipay.remoting.connection.ConnectionFactory;
 import com.alipay.remoting.exception.RemotingException;
 import com.alipay.remoting.rpc.HeartbeatHandler;
-import com.alipay.remoting.rpc.RpcCommandFactory;
+import com.alipay.remoting.util.RemotingUtil;
 import com.nix.jingxun.addp.rpc.common.protocol.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -88,7 +88,7 @@ public class RPCRemotingClient extends BaseRemoting {
             ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_SYN_COMMAND, new ARPCHeardProcessor());
             ProtocolManager.getProtocol(ProtocolCode.fromBytes(ARPCProtocolV1.PROTOCOL_CODE)).getCommandHandler().registerProcessor(RPCPackageCode.HEART_ACK_COMMAND, new ARPCHeardProcessor());
         } catch (Exception e) {
-            log.error("client注册协议失败",e);
+            log.error("client注册协议失败", e);
         }
     }
 
@@ -148,17 +148,8 @@ public class RPCRemotingClient extends BaseRemoting {
 
     @Override
     protected InvokeFuture createInvokeFuture(Connection conn, RemotingCommand request, InvokeContext invokeContext, InvokeCallback invokeCallback) {
-        return new DefaultInvokeFuture(request.getId(), new InvokeCallbackListener() {
-            @Override
-            public void onResponse(InvokeFuture invokeFuture) {
-
-            }
-
-            @Override
-            public String getRemoteAddress() {
-                return null;
-            }
-        }, invokeCallback, request.getProtocolCode().getFirstByte(), this.getCommandFactory(), invokeContext);
+        return new DefaultInvokeFuture(request.getId(), new RpcInvokeCallbackListener(RemotingUtil.parseRemoteAddress(conn.getChannel())),
+                invokeCallback, request.getProtocolCode().getFirstByte(), this.getCommandFactory(), invokeContext);
     }
 
 }

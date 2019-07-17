@@ -1,9 +1,7 @@
-package com.nix.jingxun.addp.rpc.common;
+package com.nix.jingxun.addp.rpc.common.protocol;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import com.alipay.remoting.ResponseStatus;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -38,18 +36,10 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Builder
 public class RPCResponse implements Serializable {
-    public enum ResponseCode {
-        SUCCESS,
-        ERROR
-    }
 
-    public enum ResponseError {
-        TIMEOUT,
-        EXCEPTION
-    }
-
-    private ResponseCode code;
+    private ResponseStatus status;
     private SuccessResult result;
     private ErrorResult error;
     private Map<String, String> context;
@@ -58,6 +48,7 @@ public class RPCResponse implements Serializable {
     @AllArgsConstructor
     @NoArgsConstructor
     @ToString
+    @Builder
     public static class SuccessResult {
         private Class clazz;
         private Object data;
@@ -75,8 +66,9 @@ public class RPCResponse implements Serializable {
     @Data
     @NoArgsConstructor
     @ToString
+    @Builder
     public static class ErrorResult {
-        ResponseError code;
-        Throwable exception;
+        private String errorMsg;
+        private Throwable exception;
     }
 }

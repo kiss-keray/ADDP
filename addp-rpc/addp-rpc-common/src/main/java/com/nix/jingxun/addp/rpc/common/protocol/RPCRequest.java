@@ -1,9 +1,6 @@
-package com.nix.jingxun.addp.rpc.common;
+package com.nix.jingxun.addp.rpc.common.protocol;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -64,6 +61,7 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Builder
 public class RPCRequest implements Serializable {
     private String interfaceName;
     private String method;

@@ -1,6 +1,7 @@
 package com.nix.jingxun.addp.rpc.producer;
 
 import com.nix.jingxun.addp.rpc.common.Producer2ServerRequest;
+import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
 import com.nix.jingxun.addp.rpc.common.config.CommonConfig;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
@@ -25,8 +26,28 @@ public final class RPCProducer {
         nettyServer.start();
     }
 
+    public static Object registerProducer(Class<?> interfaceClass,Object producer) throws Exception {
+        RPCInterfaceAnnotation annotation = interfaceClass.getAnnotation(RPCInterfaceAnnotation.class);
+        if (annotation != null) {
+            String appName = annotation.appName();
+            String group = annotation.group();
+            String version = annotation.version();
+            return RPCProducer.registerProducer(interfaceClass, producer, appName, group, version);
+        }
+        return null;
+    }
+
     public static Object registerProducer(Class<?> interfaceClass,Object producer, String app, String group, String version) throws Exception {
         // 防止bean被多个factory注入
+        if (!CommonConfig.NO_CENTER_SERVER) {
+            remotingRegister(interfaceClass, app, group, version);
+        }
+        RPCInvoke rpcBean = ASM.changeBean(producer);
+        InvokeContainer.addInterface(interfaceClass.getName(), rpcBean);
+        return rpcBean;
+    }
+
+    private static boolean remotingRegister(Class<?> interfaceClass, String app, String group, String version) {
         try {
             String host = (CommonConfig.PRODUCER_INVOKE_LOCALHOST == null ?
                     Inet4Address.getLocalHost().getHostAddress() : CommonConfig.PRODUCER_INVOKE_LOCALHOST) + ":" + CommonConfig.PRODUCER_INVOKE_PORT;
@@ -56,9 +77,6 @@ public final class RPCProducer {
             throw new RuntimeException(e);
         }
         log.info("服务注册SUCCESS {}",interfaceClass.getName());
-        RPCInvoke rpcBean = ASM.changeBean(producer);
-        InvokeContainer.addInterface(interfaceClass.getName(), rpcBean);
-        return null;
+        return true;
     }
-
 }

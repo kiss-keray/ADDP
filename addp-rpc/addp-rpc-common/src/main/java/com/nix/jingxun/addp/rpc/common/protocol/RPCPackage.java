@@ -9,10 +9,8 @@ import com.alipay.remoting.RemotingCommand;
 import com.alipay.remoting.config.switches.ProtocolSwitch;
 import com.alipay.remoting.exception.DeserializationException;
 import com.alipay.remoting.exception.SerializationException;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import com.alipay.remoting.rpc.protocol.RpcResponseCommand;
+import lombok.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,11 +19,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2018/12/09 00:17
  */
 @Data
+@Builder
 public class RPCPackage implements RemotingCommand {
     private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
 
     public RPCPackage() {
         this.id = NEXT_ID.getAndIncrement();
+    }
+
+    public RPCPackage(int id, CommandCode commandCode, byte[] content, Object object, PackageObject jsonObject) {
+        this.id = id;
+        this.commandCode = commandCode;
+        this.content = content;
+        this.object = object;
+        this.jsonObject = jsonObject;
     }
 
     /**
@@ -45,10 +52,17 @@ public class RPCPackage implements RemotingCommand {
     @JSONField(serialize = false)
     protected byte[] content = new byte[0];
 
+
     private Object object;
 
+
     private PackageObject jsonObject;
-    private Throwable throwable;
+
+
+    public RPCPackage nextId() {
+        this.id = NEXT_ID.getAndIncrement();
+        return this;
+    }
 
     @Override
     public ProtocolCode getProtocolCode() {
@@ -83,10 +97,12 @@ public class RPCPackage implements RemotingCommand {
 
     @Override
     public void serializeContent(InvokeContext invokeContext) throws SerializationException {
+
     }
 
     @Override
     public void deserializeContent(InvokeContext invokeContext) throws DeserializationException {
+
     }
 
     @Override
@@ -108,6 +124,16 @@ public class RPCPackage implements RemotingCommand {
         this.object = object;
     }
 
+    public RPCRequest coverRequest() {
+        return (RPCRequest) object;
+    }
+    public RPCResponse coverResponse() {
+        RPCResponse response = (RPCResponse) object;
+        if (response.getResult() != null) {
+            response.getResult().setData(JSON.parseObject(JSON.toJSONString(response.getResult().getData()), response.getResult().getClazz()));
+        }
+        return response;
+    }
     public static RPCPackage createRequestMessage(RPCPackageCode commandCode) {
         RPCPackage message = new RPCPackage();
         message.setCommandCode(commandCode);
@@ -149,7 +175,6 @@ public class RPCPackage implements RemotingCommand {
                 ", commandCode=" + commandCode +
                 ", object=" + object +
                 ", jsonObject=" + jsonObject +
-                ", throwable=" + throwable +
                 '}';
     }
 }

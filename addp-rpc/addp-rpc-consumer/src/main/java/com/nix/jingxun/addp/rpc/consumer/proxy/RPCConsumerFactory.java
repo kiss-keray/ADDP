@@ -3,13 +3,12 @@ package com.nix.jingxun.addp.rpc.consumer.proxy;
 import com.nix.jingxun.addp.rpc.common.RPCInterfaceAnnotation;
 import com.nix.jingxun.addp.rpc.common.RPCType;
 import com.nix.jingxun.addp.rpc.common.util.CommonUtil;
-import com.nix.jingxun.addp.rpc.consumer.exception.CreateBeanException;
+import com.nix.jingxun.addp.rpc.common.exception.CreateBeanException;
 import org.objectweb.asm.*;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**

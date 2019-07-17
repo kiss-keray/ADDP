@@ -3,7 +3,7 @@ package com.nix.jingxun.addp.rpc.server.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.nix.jingxun.addp.rpc.common.Producer2ServerRequest;
 import com.nix.jingxun.addp.rpc.common.RPCMethodParser;
-import com.nix.jingxun.addp.rpc.common.RPCRequest;
+import com.nix.jingxun.addp.rpc.common.protocol.RPCRequest;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackage;
 import com.nix.jingxun.addp.rpc.common.protocol.RPCPackageCode;
 import com.nix.jingxun.addp.rpc.common.util.FluentMaps;

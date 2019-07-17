@@ -17,8 +17,4 @@ public @interface RPCInterfaceAnnotation {
     String group() default "RPC";
 
     String version() default "1.0.0";
-
-    RPCType type() default RPCType.SYNC_EXEC_METHOD;
-
-    int timeout() default 0;
 }

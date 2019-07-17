@@ -40,17 +40,10 @@ public class SpringEvent implements ProducerEventProcessor {
 
     private void registeredBean(ProducerBeanPostEvent event) {
         Object bean = applicationContext.getBean(event.getBeanName());
-        Class<?> clazz = event.getClazz();
-        RPCInterfaceAnnotation annotation = clazz.getAnnotation(RPCInterfaceAnnotation.class);
-        if (annotation != null) {
-            String appName = annotation.appName();
-            String group = annotation.group();
-            String version = annotation.version();
-            try {
-                RPCProducer.registerProducer(clazz, bean, appName, group, version);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        try {
+            RPCProducer.registerProducer(event.getClazz(), bean);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

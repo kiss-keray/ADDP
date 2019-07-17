@@ -1,7 +1,5 @@
 package com.nix.jingxun.addp.rpc.common;
 
-import com.nix.jingxun.addp.rpc.common.RPCRequest;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

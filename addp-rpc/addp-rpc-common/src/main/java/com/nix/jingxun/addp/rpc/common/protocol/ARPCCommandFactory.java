@@ -3,8 +3,10 @@ package com.nix.jingxun.addp.rpc.common.protocol;
 import com.alipay.remoting.CommandFactory;
 import com.alipay.remoting.RemotingCommand;
 import com.alipay.remoting.ResponseStatus;
+import com.alipay.remoting.exception.ConnectionClosedException;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author keray
@@ -19,7 +21,9 @@ public class ARPCCommandFactory implements CommandFactory {
      */
     @Override
     public RPCPackage createRequestCommand(Object requestObject) {
-        return null;
+        return RPCPackage.builder()
+                .object(requestObject)
+                .build().nextId();
     }
 
     /**
@@ -31,43 +35,118 @@ public class ARPCCommandFactory implements CommandFactory {
      */
     @Override
     public RPCPackage createResponse(Object responseObject, RemotingCommand requestCmd) {
-        return null;
+        return RPCPackage.builder()
+                .id(requestCmd.getId())
+                .object(RPCResponse.builder()
+                        .status(ResponseStatus.SUCCESS)
+                        .result(
+                                RPCResponse.SuccessResult.builder()
+                                        .clazz(responseObject.getClass())
+                                        .data(responseObject)
+                                        .build()
+                        ))
+                .build();
     }
 
     @Override
     public RPCPackage createExceptionResponse(int id, String errMsg) {
-        RPCPackage rpcPackage = RPCPackage.createMessage(id, RPCPackageCode.RESPONSE_ERROR);
-        rpcPackage.setContent(errMsg.getBytes());
-        return rpcPackage;
+        return RPCPackage.builder()
+                .id(id)
+                .object(
+                        RPCResponse.builder()
+                                .error(
+                                        RPCResponse.ErrorResult.builder()
+                                                .errorMsg(errMsg)
+                                                .build()
+                                ).build()
+                )
+                .build();
     }
 
     @Override
     public RPCPackage createExceptionResponse(int id, Throwable t, String errMsg) {
-        return null;
+        return RPCPackage.builder()
+                .id(id)
+                .object(
+                        RPCResponse.builder()
+                                .error(
+                                        RPCResponse.ErrorResult.builder()
+                                                .exception(t)
+                                                .build()
+                                )
+                )
+                .build();
     }
 
     @Override
     public RPCPackage createExceptionResponse(int id, ResponseStatus status) {
-        return null;
+        return RPCPackage.builder()
+                .id(id)
+                .object(
+                        RPCResponse.builder()
+                                .status(status)
+                                .build()
+                )
+                .build();
     }
 
     @Override
     public RPCPackage createExceptionResponse(int id, ResponseStatus status, Throwable t) {
-        return null;
+        return RPCPackage.builder()
+                .id(id)
+                .object(
+                        RPCResponse.builder()
+                                .status(status)
+                                .error(
+                                        RPCResponse.ErrorResult.builder()
+                                                .exception(t)
+                                                .build()
+                                )
+                                .build()
+                )
+                .build();
     }
 
     @Override
     public RPCPackage createTimeoutResponse(InetSocketAddress address) {
-        return null;
+        return RPCPackage.builder()
+                .object(
+                        RPCResponse.builder()
+                                .status(ResponseStatus.TIMEOUT)
+                                .error(RPCResponse.ErrorResult.builder()
+                                        .exception(new TimeoutException(address.toString()))
+                                        .build())
+                                .build()
+                )
+                .build();
     }
 
     @Override
     public RPCPackage createSendFailedResponse(InetSocketAddress address, Throwable throwable) {
-        return null;
+        return RPCPackage.builder()
+                .object(
+                        RPCResponse.builder()
+                                .status(ResponseStatus.CLIENT_SEND_ERROR)
+                                .error(RPCResponse.ErrorResult.builder()
+                                        .exception(throwable)
+                                        .build())
+                                .build()
+                )
+                .build();
     }
 
     @Override
     public RPCPackage createConnectionClosedResponse(InetSocketAddress address, String message) {
-        return null;
+        return RPCPackage.builder()
+                .object(
+                        RPCResponse.builder()
+                                .status(ResponseStatus.CONNECTION_CLOSED)
+                                .error(RPCResponse.ErrorResult.builder()
+                                        .exception(new ConnectionClosedException(address.toString()))
+                                        .errorMsg(message)
+                                        .build())
+                                .build()
+                )
+                .build();
     }
 }

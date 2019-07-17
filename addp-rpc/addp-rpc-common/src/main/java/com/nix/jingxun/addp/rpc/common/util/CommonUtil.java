@@ -2,7 +2,8 @@ package com.nix.jingxun.addp.rpc.common.util;
 
 import com.nix.jingxun.addp.rpc.common.IClassLoader;
 import com.nix.jingxun.addp.rpc.common.RPCContext;
-import com.nix.jingxun.addp.rpc.common.RPCRequest;
+import com.nix.jingxun.addp.rpc.common.protocol.RPCRequest;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,6 +13,7 @@ import java.util.Date;
  * @author keray
  * @date 2018/12/15 16:12
  */
+@Slf4j
 public class CommonUtil {
 
     public static String className2FilePath(String clazzName) {
@@ -35,8 +37,7 @@ public class CommonUtil {
         return Class.forName(CommonUtil.filepath2ClassName(name));
     }
     public static Class<?> createClassLoader(byte[] data,String name) throws Exception {
-        System.out.println("load class = " + name);
-        System.out.println("loader=" + Thread.currentThread().getContextClassLoader().getClass());
+        log.info("load class {} ", name);
         return new IClassLoader(Thread.currentThread().getContextClassLoader()).loadClass(data,name);
     }
     public static RPCRequest createInvokeRPCRequest(String proxyInterface, String method, Object[] args) {

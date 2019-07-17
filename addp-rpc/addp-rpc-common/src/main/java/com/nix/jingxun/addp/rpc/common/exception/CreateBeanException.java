@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.rpc.consumer.exception;
+package com.nix.jingxun.addp.rpc.common.exception;
 
 public class CreateBeanException extends RuntimeException{
     public CreateBeanException() {
