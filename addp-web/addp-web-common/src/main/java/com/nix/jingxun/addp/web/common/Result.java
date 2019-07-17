@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.common;
+package com.nix.jingxun.addp.web.common;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,7 +20,7 @@ public class Result<T> {
     protected T data;
     @ToString(callSuper = true)
     @EqualsAndHashCode(callSuper = true)
-    public static class SuccessResult<T> extends Result<T>{
+    public static class SuccessResult<T> extends Result<T> {
         public SuccessResult(T data) {
             success = true;
             this.data = data;
@@ -92,7 +92,7 @@ public class Result<T> {
         return this;
     }
 
-    public <S2> Result<S2> flatMap(Function<T,Result<S2>> function) {
+    public <S2> Result<S2> flatMap(Function<T, Result<S2>> function) {
         try {
             return function.apply(this.getData());
         }catch (Exception e) {
@@ -100,14 +100,14 @@ public class Result<T> {
         }
     }
 
-    public <S2> Result<S2> flat(Function<Result<T>,Result<S2>> function) {
+    public <S2> Result<S2> flat(Function<Result<T>, Result<S2>> function) {
         try {
             return function.apply(this);
         }catch (Exception e) {
             return Result.fail(e);
         }
     }
-    public  Result<T> failFlat(Function<FailResult<? extends Exception,T>,Result<T>> function) {
+    public Result<T> failFlat(Function<FailResult<? extends Exception,T>, Result<T>> function) {
         if (this instanceof FailResult) {
             try {
                 return function.apply((FailResult<? extends Exception, T>) this);

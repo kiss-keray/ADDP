@@ -1,9 +1,11 @@
 package com.nix.jingxun.addp.ssh.common.util;
 
-import com.jcraft.jsch.*;
-import com.nix.jingxun.addp.common.Fetch;
+import com.jcraft.jsch.ChannelShell;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.nix.jingxun.addp.ssh.common.Fetch;
 import com.nix.jingxun.addp.ssh.common.exception.ShellConnectException;
-import com.nix.jingxun.addp.ssh.common.exception.ShellExeException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;

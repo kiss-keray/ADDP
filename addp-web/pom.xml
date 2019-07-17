@@ -117,16 +117,6 @@
             <artifactId>jetcache-starter-redis</artifactId>
             <version>2.4.4</version>
         </dependency>
-        <dependency>
-            <groupId>com.nix.jingxun</groupId>
-            <artifactId>addp-common</artifactId>
-            <version>1.0.0</version>
-        </dependency>
 
-        <dependency>
-            <groupId>com.nix.jingxun</groupId>
-            <artifactId>addp-rpc-producer</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 </project>

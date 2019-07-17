@@ -1,4 +1,4 @@
-package com.nix.jingxun.addp.common;
+package com.nix.jingxun.addp.ssh.common;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -17,7 +17,7 @@ public class Fetch<T> {
     }
 
     public static <T> Fetch<T> fetch(T data) {
-     return new Fetch<>(data);
+        return new Fetch<>(data);
     }
 
     public Fetch<T> then(Consumer<T> then) {
@@ -70,3 +70,4 @@ public class Fetch<T> {
         void accept(Exception e, T t);
     }
 }
+

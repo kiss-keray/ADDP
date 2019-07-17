@@ -26,11 +26,5 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
-
-        <dependency>
-            <groupId>com.nix.jingxun</groupId>
-            <artifactId>addp-common</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 </project>

@@ -1,6 +1,6 @@
 package com.nix.jingxun.addp.web.start.controller;
 
-import com.nix.jingxun.addp.common.Result;
+import com.nix.jingxun.addp.web.common.Result;
 import com.nix.jingxun.addp.ssh.common.exception.ShellConnectException;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.common.util.AESUtil;

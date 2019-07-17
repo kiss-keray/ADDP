@@ -1,10 +1,9 @@
 package com.nix.jingxun.addp.web.start.controller;
 
 import cn.hutool.core.map.MapUtil;
-import com.nix.jingxun.addp.common.Result;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
 import com.nix.jingxun.addp.web.IEnum.ReleasePhase;
-import com.nix.jingxun.addp.web.IEnum.ReleaseType;
+import com.nix.jingxun.addp.web.common.Result;
 import com.nix.jingxun.addp.web.iservice.IChangeBranchService;
 import com.nix.jingxun.addp.web.iservice.IReleaseBillService;
 import com.nix.jingxun.addp.web.iservice.IReleaseServerStatusService;

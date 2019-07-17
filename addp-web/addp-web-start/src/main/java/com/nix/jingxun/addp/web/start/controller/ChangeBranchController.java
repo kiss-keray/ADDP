@@ -1,8 +1,9 @@
 package com.nix.jingxun.addp.web.start.controller;
 
 import cn.hutool.core.collection.CollectionUtil;
-import com.nix.jingxun.addp.common.Result;
+import com.nix.jingxun.addp.web.common.Result;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
+import com.nix.jingxun.addp.web.common.Result;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.domain.WebPageable;
 import com.nix.jingxun.addp.web.exception.Code;

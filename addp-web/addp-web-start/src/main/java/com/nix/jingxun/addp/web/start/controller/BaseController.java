@@ -1,7 +1,7 @@
 package com.nix.jingxun.addp.web.start.controller;
 
 import cn.hutool.core.util.StrUtil;
-import com.nix.jingxun.addp.common.Result;
+import com.nix.jingxun.addp.web.common.Result;
 import com.nix.jingxun.addp.web.exception.Code;
 import com.nix.jingxun.addp.web.exception.WebRunException;
 
