@@ -193,10 +193,10 @@ public class ServerServiceImpl extends BaseServiceImpl<ServerModel, Long> implem
 
     @Override
     public Page<ServerModel> memberServices(WebPageable webPageable, ADDPEnvironment environment) {
-        MemberModel member = MemberCache.currentUser();
+//        MemberModel member = MemberCache.currentUser();
         return serverJpa.findAll(Example.of(
                 ServerModel.builder()
-                        .memberId(member.getId())
+//                        .memberId(member.getId())
                         .environment(environment)
                         .build()
         ), webPageable);

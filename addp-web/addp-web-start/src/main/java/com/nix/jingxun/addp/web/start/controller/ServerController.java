@@ -2,6 +2,7 @@ package com.nix.jingxun.addp.web.start.controller;
 
 import com.nix.jingxun.addp.web.common.Result;
 import com.nix.jingxun.addp.web.IEnum.ADDPEnvironment;
+import com.nix.jingxun.addp.web.common.annotation.Clear;
 import com.nix.jingxun.addp.web.common.cache.MemberCache;
 import com.nix.jingxun.addp.web.common.util.AESUtil;
 import com.nix.jingxun.addp.web.domain.WebPageable;
@@ -21,6 +22,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Collections;
 /**
  * @author keray
@@ -62,18 +64,21 @@ public class ServerController extends BaseController{
     }
 
     @PostMapping("/list")
+    @Clear
     public Result list(@ModelAttribute WebPageable webPageable, @RequestParam(value = "env",required = false) ADDPEnvironment environment) {
         return Result.of(() -> {
-            if (webPageable != null) {
-                Page<ServerModel> page = servicesService.memberServices(webPageable,environment);
-                page.getContent().forEach(s -> {
-                    s.setPassword(AESUtil.decrypt(s.getPassword()));
-                    s.setPassphrase(AESUtil.decrypt(s.getPassphrase()));
-                });
-                return page;
-            }
-            return Collections.emptyList();
-        }).failFlat(this::failFlat).logFail();
+//            if (webPageable != null) {
+//                Page<ServerModel> page = servicesService.memberServices(webPageable,environment);
+//                page.getContent().forEach(s -> {
+//                    s.setPassword(AESUtil.decrypt(s.getPassword()));
+//                    s.setPassphrase(AESUtil.decrypt(s.getPassphrase()));
+//                });
+//                return page;
+//            }
+//            return Collections.emptyList();
+            return ServerModel.builder().build();
+        }).peek(serverModel -> serverModel.setCreateTime(LocalDateTime.now()))
+                .failFlat(this::failFlat).logFail();
     }
     @ApiOperation("获取项目全部的服务器")
     @GetMapping("/psList/{pId}")
